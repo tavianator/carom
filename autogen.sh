@@ -2,5 +2,5 @@
 
 aclocal
 autoconf
-libtoolize --copy --force
-automake --copy --add-missing
+libtoolize --force --copy
+automake --add-missing --copy
