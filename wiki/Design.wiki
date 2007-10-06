@@ -2,8 +2,8 @@
 
 = Overview =
 
-Carom itself takes the form of a C++ library, with a logical class hierarchy and extensible design. The highest-level class is called `system`, and it controls the RK4 integration. Systems themselves store a collection of bodies. The `body` class is used to store a collection of particles that must be integrated at the same time. `body` acts as a base class, and classes derrived from it specify how integration should be performed; for example, `rigid_body`s behave like rigid bodies when they are integrated.
+Carom itself takes the form of a C++ library, with a logical class hierarchy and extensible design. The highest-level class is called [system `system`], and it controls the RK4 integration. Systems themselves store a collection of bodies. The `body` class is used to store a collection of particles that must be integrated at the same time. `body` acts as a base class, and classes derrived from it specify how integration should be performed; for example, `rigid_body`s behave like rigid bodies when they are integrated.
 
 The `particle` class stores mass, position, momentum, and force, as well as a list of forces applied to it. The [`applied_force` applied_force] class is a base class; custom forces derrive from this class, and override the virtual function [`force` applied_force] to specify the force applied.
 
-[Vectors vector] and [scalars scalar] in the carom library are handled specially. They are unit-safe, meaning that the `scalar_mass` type is different from the `scalar_energy` type, and adding the two, or assigning one to the other, is an error at compile-time. 
+[vector Vectors] and [scalar scalars] in the carom library are handled specially. They are unit-safe, meaning that the `scalar_mass` type is different from the `scalar_energy` type, and adding the two, or assigning one to the other, is an error at compile-time.
