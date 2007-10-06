@@ -28,6 +28,7 @@
 #define CAROM_SCALAR_SCALAR_HPP
 
 #include <mpfr.h>
+#include <cstdlib>
 #include <string>
 
 namespace carom
@@ -44,22 +45,22 @@ namespace carom
     // -Wno-non-template-friends to suppress g++'s warning.
     friend bool operator< (const scalar_units<m, d, t>& lhs,
                            const scalar_units<m, d, t>& rhs)
-    { return mpfr_less_p(lhs, rhs); }
+    { return mpfr_less_p(lhs.m_fp, rhs.m_fp); }
     friend bool operator<=(const scalar_units<m, d, t>& lhs,
                            const scalar_units<m, d, t>& rhs)
-    { return mpfr_lessequal_p(lhs, rhs); }
+    { return mpfr_lessequal_p(lhs.m_fp, rhs.m_fp); }
     friend bool operator> (const scalar_units<m, d, t>& lhs,
                            const scalar_units<m, d, t>& rhs)
-    { return mpfr_greater_p(lhs, rhs); }
+    { return mpfr_greater_p(lhs.m_fp, rhs.m_fp); }
     friend bool operator>=(const scalar_units<m, d, t>& lhs,
                            const scalar_units<m, d, t>& rhs)
-    { return mpfr_greaterequal_p(lhs, rhs); }
+    { return mpfr_greaterequal_p(lhs.m_fp, rhs.m_fp); }
     friend bool operator==(const scalar_units<m, d, t>& lhs,
                            const scalar_units<m, d, t>& rhs)
-    { return mpfr_equal_p(lhs, rhs); }
+    { return mpfr_equal_p(lhs.m_fp, rhs.m_fp); }
     friend bool operator!=(const scalar_units<m, d, t>& lhs,
                            const scalar_units<m, d, t>& rhs)
-    { return !mpfr_equal_p(lhs, rhs); }
+    { return !mpfr_equal_p(lhs.m_fp, rhs.m_fp); }
 
   public:
     scalar_units() { mpfr_init(m_fp); }
@@ -79,10 +80,13 @@ namespace carom
     { mpfr_init_set_ui(m_fp, n, GMP_RNDN); }
     explicit scalar_units(unsigned long n)
     { mpfr_init_set_ui(m_fp, n, GMP_RNDN); }
+
     explicit scalar_units(const char* str, int base = 10)
     { mpfr_init_set_str(m_fp, str, base, GMP_RNDN); }
+
     explicit scalar_units(const std::string& str, int base = 10)
     { mpfr_init_set_str(m_fp, str.c_str(), base, GMP_RNDN); }
+
     template<typename op> scalar_units(const scalar_proxy<m, d, t, op>& proxy)
     { mpfr_init(m_fp); proxy.eval(m_fp); }
     scalar_units(const scalar_units<m, d, t>& n)
@@ -91,18 +95,21 @@ namespace carom
 
     template<typename op>
     scalar_units& operator=(const scalar_proxy<m, d, t, op>& proxy)
-    { proxy.eval(m_fp); }
+    { proxy.eval(m_fp); return *this; }
 
     scalar_units& operator=(const scalar_units<m, d, t>& rhs)
-    { mpfr_set(m_fp, rhs.m_fp, GMP_RNDN); }
+    { mpfr_set(m_fp, rhs.m_fp, GMP_RNDN); return *this; }
     scalar_units& operator+=(const scalar_units<m, d, t>& rhs)
-    { mpfr_add(m_fp, m_fp, rhs.m_fp, GMP_RNDN); }
+    { mpfr_add(m_fp, m_fp, rhs.m_fp, GMP_RNDN); return *this; }
     scalar_units& operator-=(const scalar_units<m, d, t>& rhs)
-    { mpfr_sub(m_fp, m_fp, rhs.m_fp, GMP_RNDN); }
+    { mpfr_sub(m_fp, m_fp, rhs.m_fp, GMP_RNDN); return *this; }
     scalar_units& operator*=(const scalar_units<0, 0, 0>& rhs)
-    { mpfr_mul(m_fp, m_fp, rhs.m_fp, GMP_RNDN); }
-    scalar_units& operator/=(const scalar_units<0, 0, 0>& rhs)
-    { mpfr_div(m_fp, m_fp, rhs.m_fp, GMP_RNDN); }
+    { mpfr_mul(m_fp, m_fp, rhs.m_fp, GMP_RNDN); return *this; }
+
+    scalar_units& operator/=(const scalar_units<0, 0, 0>& rhs) {
+      if (mpfr_zero_p(rhs.m_fp)) { std::abort(); }
+      mpfr_div(m_fp, m_fp, rhs.m_fp, GMP_RNDN); return *this;
+    }
 
     // This function converts the scalar to any numeric type. In order to use
     // complete template specialization, which is impossible in this case for
