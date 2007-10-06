@@ -1,0 +1,5 @@
+#summary An overview of the carom library
+
+= Overview =
+
+Carom itself takes the form of a C++ library, with a logical class hierarchy and extensible design.
