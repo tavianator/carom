@@ -17,14 +17,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. *
  *************************************************************************/
 
-/*************************************************************************
- * vector.hpp                                                            *
- * ==========                                                            *
- *                                                                       *
- * A vector (or psuedo-vector; the library doens't differentiate between *
- * them) in three-dimensional space.                                     *
- *************************************************************************/
-
 #ifndef CAROM_VECTOR_HPP
 #define CAROM_VECTOR_HPP
 

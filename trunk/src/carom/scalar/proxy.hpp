@@ -17,13 +17,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. *
  *************************************************************************/
 
-/*************************************************************************
- * scalar/proxy.hpp                                                      *
- * ================                                                      *
- *                                                                       *
- * A proxy class for operations on scalars.                              *
- *************************************************************************/
-
 #ifndef CAROM_SCALAR_PROXY_HPP
 #define CAROM_SCALAR_PROXY_HPP
 

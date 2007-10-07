@@ -17,13 +17,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. *
  *************************************************************************/
 
-/*************************************************************************
- * scalar/ops.hpp                                                        *
- * ==============                                                        *
- *                                                                       *
- * Arithmetic operators for dealing with scalars are defined here.       *
- *************************************************************************/
-
 #ifndef CAROM_SCALAR_OPS_HPP
 #define CAROM_SCALAR_OPS_HPP
 

@@ -17,13 +17,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. *
  *************************************************************************/
 
-/*************************************************************************
- * scalar/scalar.hpp                                                     *
- * =================                                                     *
- *                                                                       *
- * The actual scalar data-type.                                          *
- *************************************************************************/
-
 #ifndef CAROM_SCALAR_SCALAR_HPP
 #define CAROM_SCALAR_SCALAR_HPP
 

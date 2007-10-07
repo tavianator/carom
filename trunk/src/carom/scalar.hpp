@@ -17,14 +17,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. *
  *************************************************************************/
 
-/*************************************************************************
- * scalar.hpp                                                            *
- * ==========                                                            *
- *                                                                       *
- * A scalar. scalars in The Carom Library are checked for unit           *
- * consistancy at compile-time (see below).                              *
- *************************************************************************/
-
 #ifndef CAROM_SCALAR_HPP
 #define CAROM_SCALAR_HPP
 

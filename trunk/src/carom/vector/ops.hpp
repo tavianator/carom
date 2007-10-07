@@ -17,13 +17,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. *
  *************************************************************************/
 
-/*************************************************************************
- * vector/ops.hpp                                                        *
- * ==============                                                        *
- *                                                                       *
- * Arithmetic operators for dealing with vectors are defined here.       *
- *************************************************************************/
-
 #ifndef CAROM_VECTOR_OPS_HPP
 #define CAROM_VECTOR_OPS_HPP
 

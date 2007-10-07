@@ -17,13 +17,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. *
  *************************************************************************/
 
-/*************************************************************************
- * vector/vector.hpp                                                     *
- * =================                                                     *
- *                                                                       *
- * The actual vector data-type.                                          *
- *************************************************************************/
-
 #ifndef CAROM_VECTOR_VECTOR_HPP
 #define CAROM_VECTOR_VECTOR_HPP
 
