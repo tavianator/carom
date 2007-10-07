@@ -17,54 +17,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. *
  *************************************************************************/
 
-#ifndef CAROM_SCALAR_UNARY_PROXY_HPP
-#define CAROM_SCALAR_UNARY_PROXY_HPP
+#ifndef CAROM_SYSTEM_HPP
+#define CAROM_SYSTEM_HPP
 
-#include <mpfr.h>
+#include <list>
 
 namespace carom
 {
-  // Unary operator proxy class
-  template<typename T, typename op>
-  class scalar_unary_proxy
+  class system
   {
   public:
-    scalar_unary_proxy(const T& n) : m_n(n) { }
-    // scalar_unary_proxy(const scalar_unary_proxy& proxy);
-    // ~scalar_unary_proxy();
-
-    void eval(mpfr_t store) const {
-      mpfr_t temp;
-      mpfr_init(temp);
-      m_n.eval(temp);
-      op::eval(store, temp);
-      mpfr_clear(temp);
-    }
+    // system();
+    // ~system();
 
   private:
-    T m_n;
-
-    scalar_unary_proxy& operator=(const scalar_unary_proxy&);
-  };
-
-  template<typename op>
-  class scalar_unary_proxy<mpfr_t, op>
-  {
-  public:
-    scalar_unary_proxy(mpfr_t n) : m_n(n) { }
-    // scalar_unary_proxy(const scalar_unary_proxy& proxy);
-    // ~scalar_unary_proxy();
-
-    void eval(mpfr_t store) const { op::eval(store, m_n); }
-
-  private:
-    mpfr_ptr m_n; // mpfr_t is a typedef for a single-element array of a struct
-                  // internal to mpfr, and since arrays cannot be initialized
-                  // in initializer lists, we use mpfr_ptr instead, which is a
-                  // pointer to the same struct type.
-
-    scalar_unary_proxy& operator=(const scalar_unary_proxy&);
+    system(const system&);
+    system& operator=(const system&);
   };
 }
 
-#endif // CAROM_SCALAR_UNARY_PROXY_HPP
+#endif CAROM_SYSTEM_HPP

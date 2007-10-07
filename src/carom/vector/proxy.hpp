@@ -17,13 +17,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. *
  *************************************************************************/
 
-/*************************************************************************
- * vector/proxy.hpp                                                      *
- * ================                                                      *
- *                                                                       *
- * A proxy class for operations on vectors.                              *
- *************************************************************************/
-
 #ifndef CAROM_VECTOR_PROXY_HPP
 #define CAROM_VECTOR_PROXY_HPP
 
