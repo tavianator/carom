@@ -17,8 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. *
  *************************************************************************/
 
-#ifndef CAROM_POLYMORPHIC_LIST_LIST_HPP
-#define CAROM_POLYMORPHIC_LIST_LIST_HPP
+#ifndef CAROM_NONCOPYABLE_LIST_LIST_HPP
+#define CAROM_NONCOPYABLE_LIST_LIST_HPP
 
 #include <algorithm>
 #include <iterator>
@@ -26,7 +26,7 @@
 namespace carom
 {
   template<typename T>
-  class polymorphic_list
+  class noncopyable_list
   {
   public:
     typedef T                                     value_type;
@@ -34,15 +34,15 @@ namespace carom
     typedef const T*                              const_pointer;
     typedef T&                                    reference;
     typedef const T&                              const_reference;
-    typedef polymorphic_iterator<T>               iterator;
-    typedef polymorphic_const_iterator<T>         const_iterator;
+    typedef noncopyable_iterator<T>               iterator;
+    typedef noncopyable_const_iterator<T>         const_iterator;
     typedef std::reverse_iterator<iterator>       reverse_iterator;
     typedef std::reverse_iterator<const_iterator> const_iterator;
     typedef std::size_t                           size_type;
     typedef std::ptrdiff_t                        difference_type;
 
-    polymorphic_list();
-    ~polymorphic_list() { clear(); }
+    noncopyable_list();
+    ~noncopyable_list() { clear(); }
 
     iterator       begin()       { return iterator(m_list.next); }
     const_iterator begin() const { return const_iterator(m_list.next); }
@@ -75,12 +75,12 @@ namespace carom
     void clear();
 
   private:
-    master_polymorphic_iterator<T> m_list;
-    master_polymorphic_iterator<T>* m_end;
+    master_noncopyable_iterator<T> m_list;
+    master_noncopyable_iterator<T>* m_end;
 
-    polymorphic_list(const polymorphic_list&);
-    polymorphic_list& operator=(const polymorphic_list&);
+    noncopyable_list(const noncopyable_list&);
+    noncopyable_list& operator=(const noncopyable_list&);
   };
 }
 
-#endif // CAROM_POLYMORPHIC_LIST_LIST_HPP
+#endif // CAROM_NONCOPYABLE_LIST_LIST_HPP
