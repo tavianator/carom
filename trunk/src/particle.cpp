@@ -21,10 +21,6 @@
 
 namespace carom
 {
-  void particle::apply_force(applied_force* force) {
-    m_forces.push_back(force);
-  }
-
   void particle::apply_forces() {
     F = 0;
 
@@ -33,9 +29,5 @@ namespace carom
          ++i) {
       F += i->force();
     }
-  }
-
-  void particle::clear_forces() {
-    m_forces.clear();
   }
 }

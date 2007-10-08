@@ -28,16 +28,16 @@ namespace carom
     typedef noncopyable_list<body>::iterator iterator;
     typedef noncopyable_list<body>::const_iterator const_iterator;
 
-    // system();
+    system() { }
     // ~system();
 
-    iterator insert();
-    void erase(iterator i);
+    iterator insert(body* b) { return m_bodies.insert(m_bodies.end(), b); }
+    void erase(iterator i) { m_bodies.erase(i); }
 
-    iterator begin();
-    const_iterator begin() const;
-    iterator end();
-    const_iterator end() const;
+    iterator       begin()       { return m_bodies.begin(); }
+    const_iterator begin() const { return m_bodies.begin(); }
+    iterator       end()         { return m_bodies.end(); }
+    const_iterator end() const   { return m_bodies.end(); }
 
     void integrate(const scalar_time& t);
 
