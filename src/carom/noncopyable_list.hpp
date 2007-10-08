@@ -17,45 +17,24 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. *
  *************************************************************************/
 
-#ifndef CAROM_PARTICLE_HPP
-#define CAROM_PARTICLE_HPP
+#ifndef CAROM_NONCOPYABLE_LIST_HPP
+#define CAROM_NONCOPYABLE_LIST_HPP
+
+#include <list>
 
 namespace carom
 {
-  class applied_force
+  template<typename T>
+  class noncopyable_list
   {
   public:
-    // applied_force();
-    virtual ~applied_force() { }
-
-    virtual vector_force force() = 0;
+    // noncopyable_list();
+    // ~noncopyable_list();
 
   private:
-    applied_force(const applied_force&);
-    applied_force& operator=(const applied_force&);
-  };
-
-  struct particle
-  {
-  public:
-    // particle();
-    // ~particle();
-
-    scalar_mass         m;
-    vector_displacement s;
-    vector_momentum     p;
-    vector_force        F;
-
-    void apply_force(applied_force* force);
-    void apply_forces();
-    void clear_forces();
-
-  private:
-    polymorphic_list<applied_force> m_forces;
-
-    particle(const particle&);
-    particle& operator=(const particle&);
+    noncopyable_list(const noncopyable_list&);
+    noncopyable_list& operator=(const noncopyable_list&);
   };
 }
 
-#endif CAROM_PARTICLE_HPP
+#endif CAROM_NONCOPYABLE_LIST_HPP

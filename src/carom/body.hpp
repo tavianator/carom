@@ -20,8 +20,6 @@
 #ifndef CAROM_BODY_HPP
 #define CAROM_BODY_HPP
 
-#include <list>
-
 namespace carom
 {
   class body
@@ -30,7 +28,20 @@ namespace carom
     // body();
     virtual ~body() { }
 
+    typedef noncopyable_list<particle>::iterator iterator;
+    typedef noncopyable_list<particle>::const_iterator const_iterator;
+
+    iterator insert();
+    void erase(iterator i);
+
+    iterator begin();
+    const_iterator begin() const;
+    iterator end();
+    const_iterator end() const;
+
   private:
+    noncopyable_list<particle> m_particles;
+
     body(const body&);
     body& operator=(const body&);
   };

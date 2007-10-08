@@ -20,8 +20,6 @@
 #ifndef CAROM_SYSTEM_HPP
 #define CAROM_SYSTEM_HPP
 
-#include <list>
-
 namespace carom
 {
   class system
@@ -30,9 +28,22 @@ namespace carom
     // system();
     // ~system();
 
+    typedef polymorphic_list<body>::iterator iterator;
+    typedef polymorphic_list<body>::const_iterator const_iterator;
+
+    iterator insert();
+    void erase(iterator i);
+
+    iterator begin();
+    const_iterator begin() const;
+    iterator end();
+    const_iterator end() const;
+
     void integrate(const scalar_time& t);
 
   private:
+    polymorphic_list<body> m_bodies;
+
     system(const system&);
     system& operator=(const system&);
   };

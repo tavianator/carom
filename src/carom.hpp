@@ -17,20 +17,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. *
  *************************************************************************/
 
-
-/*************************************************************************
- * carom.hpp                                                             *
- * =========                                                             *
- *                                                                       *
- * The main include file for the Carom library. Includes all other       *
- * required files, and foreward-declares all classes exposed by the      *
- * library.                                                              *
- *************************************************************************/
-
 #ifndef CAROM_HPP
 #define CAROM_HPP
 
 #include <carom/scalar.hpp>
 #include <carom/vector.hpp>
+#include <carom/polymorphic_list.hpp>
+#include <carom/noncopyable_list.hpp>
+#include <carom/particle.hpp>
+#include <carom/body.hpp>
+#include <carom/system.hpp>
 
 #endif // CAROM_HPP
