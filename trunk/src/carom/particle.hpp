@@ -58,4 +58,4 @@ namespace carom
   };
 }
 
-#endif CAROM_PARTICLE_HPP
+#endif // CAROM_PARTICLE_HPP

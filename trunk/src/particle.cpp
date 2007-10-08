@@ -17,15 +17,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. *
  *************************************************************************/
 
-#ifndef CAROM_POLYMORPHIC_LIST_HPP
-#define CAROM_POLYMORPHIC_LIST_HPP
-
 namespace carom
 {
-  template<typename T> class polymorphic_list;
+  void particle::apply_force(applied_force* force) {
+    m_forces.push_back(force);
+  }
+
+  void particle::apply_forces() {
+    F = 0;
+
+    for (polymorphic_list<applied_force>::iterator i = m_forces.begin();
+         i != m_forces.end();
+         ++i) {
+      F += i->force();
+    }
+  }
+
+  void particle::clear_forces() {
+    m_forces.clear();
+  }
 }
-
-#include <carom/polymorphic_list/iterator.hpp>
-#include <carom/polymorphic_list/list.hpp>
-
-#endif // CAROM_POLYMORPHIC_LIST_HPP
