@@ -25,7 +25,7 @@ namespace carom
   class applied_force
   {
   public:
-    // applied_force();
+    applied_force() { }
     virtual ~applied_force() { }
 
     virtual vector_force force() = 0;
@@ -38,7 +38,7 @@ namespace carom
   struct particle
   {
   public:
-    // particle();
+    particle() { }
     // ~particle();
 
     scalar_mass         m;
@@ -46,9 +46,12 @@ namespace carom
     vector_momentum     p;
     vector_force        F;
 
-    void apply_force(applied_force* force);
+    vector_velocity     v() { return p / m; }
+    vector_acceleration a() { return F / m; }
+
+    void apply_force(applied_force* force) { m_forces.push_back(force); }
     void apply_forces();
-    void clear_forces();
+    void clear_forces() { m_forces.clear(); }
 
   private:
     noncopyable_list<applied_force> m_forces;

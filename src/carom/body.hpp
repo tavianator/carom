@@ -28,16 +28,29 @@ namespace carom
     typedef noncopyable_list<particle>::iterator iterator;
     typedef noncopyable_list<particle>::const_iterator const_iterator;
 
-    // body();
+    body() { }
     virtual ~body() { }
 
-    iterator insert();
-    void erase(iterator i);
+    iterator insert()
+    { return m_particles.insert(m_particles.end(), new particle); }
+    void erase(iterator i) { m_particles.erase(i); }
 
-    iterator begin();
-    const_iterator begin() const;
-    iterator end();
-    const_iterator end() const;
+    iterator       begin()       { return m_particles.begin(); }
+    const_iterator begin() const { return m_particles.begin(); }
+    iterator       end()         { return m_particles.end(); }
+    const_iterator end() const   { return m_particles.end(); }
+
+    virtual void calculate_k1() { }
+    virtual void calculate_k2() { }
+    virtual void calculate_k3() { }
+    virtual void calculate_k4() { }
+
+    virtual void apply_k1() { }
+    virtual void apply_k2() { }
+    virtual void apply_k3() { }
+    virtual void apply_k4() { }
+
+    virtual void apply() { }
 
   private:
     noncopyable_list<particle> m_particles;
