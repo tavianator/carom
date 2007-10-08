@@ -2,7 +2,7 @@ INCLUDES = -I$(top_srcdir)/src
 
 LIBCAROM_VERSION = 0:0:0
 
-CPP_SOURCES = particle.cpp
+CPP_SOURCES = particle.cpp system.cpp
 HPP_SOURCES = carom.hpp carom/scalar.hpp carom/scalar/unary_proxy.hpp carom/scalar/binary_proxy.hpp carom/scalar/proxy.hpp carom/scalar/scalar.hpp carom/scalar/ops.hpp carom/vector.hpp carom/vector/proxy.hpp carom/vector/vector.hpp carom/vector/ops.hpp carom/noncopyable_list.hpp carom/noncopyable_list/iterator.hpp carom/noncopyable_list/list.hpp carom/particle.hpp carom/body.hpp carom/system.hpp
 
 nobase_include_HEADERS = $(HPP_SOURCES)

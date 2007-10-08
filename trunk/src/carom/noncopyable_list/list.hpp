@@ -119,6 +119,8 @@ namespace carom
     i->next = next;
 
     next->prior = i;
+
+    return iterator(i);
   }
 
   template<typename T>
