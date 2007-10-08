@@ -17,25 +17,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. *
  *************************************************************************/
 
-#ifndef CAROM_SYSTEM_HPP
-#define CAROM_SYSTEM_HPP
+#ifndef CAROM_BODY_HPP
+#define CAROM_BODY_HPP
 
 #include <list>
 
 namespace carom
 {
-  class system
+  class body
   {
   public:
-    // system();
-    // ~system();
-
-    void integrate(const scalar_time& t);
+    // body();
+    virtual ~body() { }
 
   private:
-    system(const system&);
-    system& operator=(const system&);
+    body(const body&);
+    body& operator=(const body&);
   };
 }
 
-#endif CAROM_SYSTEM_HPP
+#endif CAROM_BODY_HPP
