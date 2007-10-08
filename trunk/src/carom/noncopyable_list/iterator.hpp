@@ -40,7 +40,7 @@ namespace carom
     friend class noncopyable_const_iterator<T>;
 
   public:
-    explicit noncopyable_iterator(const master_noncopyable_iterator<T>* i)
+    explicit noncopyable_iterator(master_noncopyable_iterator<T>* i)
       : m_i(i) { }
     // noncopyable_iterator(const noncopyable_iterator& i);
     // ~noncopyable_iterator();
@@ -63,7 +63,7 @@ namespace carom
     { return m_i != rhs.m_i; }
 
   private:
-    const master_noncopyable_iterator<T>* m_i;
+    master_noncopyable_iterator<T>* m_i;
   };
 
   template<typename T>
@@ -73,7 +73,7 @@ namespace carom
     friend class noncopyable_iterator<T>;
 
   public:
-    noncopyable_const_iterator(const master_noncopyable_iterator<T>* i)
+    explicit noncopyable_const_iterator(master_noncopyable_iterator<T>* i)
       : m_i(i) { }
     noncopyable_const_iterator(const noncopyable_iterator<T>& i)
       : m_i(i.m_i) { }
@@ -99,7 +99,7 @@ namespace carom
     { return m_i != rhs.m_i; }
 
   private:
-    const master_noncopyable_iterator<T>* m_i;
+    master_noncopyable_iterator<T>* m_i;
   };
 }
 
