@@ -51,7 +51,7 @@ namespace carom
     void clear_forces();
 
   private:
-    polymorphic_list<applied_force> m_forces;
+    noncopyable_list<applied_force> m_forces;
 
     particle(const particle&);
     particle& operator=(const particle&);

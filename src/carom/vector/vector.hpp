@@ -41,6 +41,7 @@ namespace carom
 
   public:
     vector_units() { }
+    vector_units(void*) : m_x(0), m_y(0), m_z(0) { }
     explicit vector_units(signed char x, signed char y, signed char z)
     : m_x(x), m_y(y), m_z(z) { }
     explicit vector_units(signed short x, signed short y, signed short z)
@@ -76,13 +77,13 @@ namespace carom
     // vector_units& operator=(const vector_units<m, d, t>& rhs);
 
     vector_units& operator+=(const vector_units<m, d, t>& rhs)
-    { m_x += rhs.m_x; m_y += rhs.m_y; m_z += rhs.m_z; }
+    { m_x += rhs.m_x; m_y += rhs.m_y; m_z += rhs.m_z; return *this; }
     vector_units& operator-=(const vector_units<m, d, t>& rhs)
-    { m_x -= rhs.m_x; m_y -= rhs.m_y; m_z -= rhs.m_z; }
+    { m_x -= rhs.m_x; m_y -= rhs.m_y; m_z -= rhs.m_z; return *this; }
     vector_units& operator*=(const scalar_units<0, 0, 0>& rhs)
-    { m_x *= rhs; m_y *= rhs; m_z *= rhs; }
+    { m_x *= rhs; m_y *= rhs; m_z *= rhs; return *this; }
     vector_units& operator/=(const scalar_units<0, 0, 0>& rhs)
-    { m_x /= rhs; m_y /= rhs; m_z /= rhs; }
+    { m_x /= rhs; m_y /= rhs; m_z /= rhs; return *this; }
 
     const scalar_units<m, d, t> x() { return m_x; }
     const scalar_units<m, d, t> y() { return m_y; }

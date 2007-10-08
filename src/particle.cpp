@@ -17,6 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. *
  *************************************************************************/
 
+#include <carom.hpp>
+
 namespace carom
 {
   void particle::apply_force(applied_force* force) {
@@ -26,7 +28,7 @@ namespace carom
   void particle::apply_forces() {
     F = 0;
 
-    for (polymorphic_list<applied_force>::iterator i = m_forces.begin();
+    for (noncopyable_list<applied_force>::iterator i = m_forces.begin();
          i != m_forces.end();
          ++i) {
       F += i->force();

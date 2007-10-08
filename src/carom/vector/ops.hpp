@@ -148,7 +148,7 @@ namespace carom
                                             scalar_mul_op> >(lhs, rhs); }
 
   template<int m1, int m2, int d1, int d2, int t1, int t2, typename op>
-  inline vecor_proxy<m1 + m2, d1 + d2, t1 + t2,
+  inline vector_proxy<m1 + m2, d1 + d2, t1 + t2,
                       scalar_binary_proxy<mpfr_t, op, scalar_mul_op> >
   operator*(const scalar_units<m1, d1, t1>& lhs,
             const vector_proxy<m2, d2, t2, op>& rhs)

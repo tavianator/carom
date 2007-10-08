@@ -37,7 +37,7 @@ namespace carom
     typedef noncopyable_iterator<T>               iterator;
     typedef noncopyable_const_iterator<T>         const_iterator;
     typedef std::reverse_iterator<iterator>       reverse_iterator;
-    typedef std::reverse_iterator<const_iterator> const_iterator;
+    typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
     typedef std::size_t                           size_type;
     typedef std::ptrdiff_t                        difference_type;
 
@@ -62,7 +62,7 @@ namespace carom
     reference       front()       { return *m_list.next->data; }
     const_reference front() const { return *m_list.next->data; }
     reference       back()        { return *m_end->prior->data; }
-    const_reference back() const; { return *m_end->prior->data; }
+    const_reference back() const  { return *m_end->prior->data; }
 
     void push_front(pointer x) { insert(begin(), x); }
     void pop_front() { erase(begin()); }
