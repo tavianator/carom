@@ -25,11 +25,11 @@ namespace carom
   class body
   {
   public:
-    // body();
-    virtual ~body() { }
-
     typedef noncopyable_list<particle>::iterator iterator;
     typedef noncopyable_list<particle>::const_iterator const_iterator;
+
+    // body();
+    virtual ~body() { }
 
     iterator insert();
     void erase(iterator i);
@@ -47,4 +47,4 @@ namespace carom
   };
 }
 
-#endif CAROM_BODY_HPP
+#endif // CAROM_BODY_HPP

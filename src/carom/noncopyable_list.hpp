@@ -37,4 +37,4 @@ namespace carom
   };
 }
 
-#endif CAROM_NONCOPYABLE_LIST_HPP
+#endif // CAROM_NONCOPYABLE_LIST_HPP

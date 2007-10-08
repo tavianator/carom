@@ -25,11 +25,11 @@ namespace carom
   class system
   {
   public:
-    // system();
-    // ~system();
-
     typedef polymorphic_list<body>::iterator iterator;
     typedef polymorphic_list<body>::const_iterator const_iterator;
+
+    // system();
+    // ~system();
 
     iterator insert();
     void erase(iterator i);
@@ -49,4 +49,4 @@ namespace carom
   };
 }
 
-#endif CAROM_SYSTEM_HPP
+#endif // CAROM_SYSTEM_HPP
