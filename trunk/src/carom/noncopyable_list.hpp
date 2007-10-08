@@ -17,15 +17,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. *
  *************************************************************************/
 
-#ifndef CAROM_POLYMORPHIC_LIST_HPP
-#define CAROM_POLYMORPHIC_LIST_HPP
+#ifndef CAROM_NONCOPYABLE_LIST_HPP
+#define CAROM_NONCOPYABLE_LIST_HPP
 
 namespace carom
 {
-  template<typename T> class polymorphic_list;
+  template<typename T> class noncopyable_list;
 }
 
-#include <carom/polymorphic_list/iterator.hpp>
-#include <carom/polymorphic_list/list.hpp>
+#include <carom/noncopyable_list/iterator.hpp>
+#include <carom/noncopyable_list/list.hpp>
 
-#endif // CAROM_POLYMORPHIC_LIST_HPP
+#endif // CAROM_NONCOPYABLE_LIST_HPP
