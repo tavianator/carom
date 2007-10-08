@@ -42,7 +42,7 @@ namespace carom
     typedef std::ptrdiff_t                        difference_type;
 
     noncopyable_list();
-    ~noncopyable_list() { clear(); }
+    ~noncopyable_list() { clear(); delete m_list.next; }
 
     iterator       begin()       { return iterator(m_list.next); }
     const_iterator begin() const { return const_iterator(m_list.next); }
@@ -72,7 +72,7 @@ namespace carom
     iterator insert(iterator pos, pointer x);
     void erase(iterator pos);
 
-    void clear();
+    void clear() { while (!empty()) { erase(end()); } }
 
   private:
     master_noncopyable_iterator<T> m_list;
@@ -81,6 +81,67 @@ namespace carom
     noncopyable_list(const noncopyable_list&);
     noncopyable_list& operator=(const noncopyable_list&);
   };
+
+  template<typename T>
+  noncopyable_list<T>::noncopyable_list() {
+    m_list.data = 0;
+    m_list.prior = 0;
+    m_list.next = new master_noncopyable_iterator<T>;
+
+    m_end = m_list.next;
+
+    m_end->data = 0;
+    m_end->prior = &m_list;
+    m_end->next = 0;
+  }
+
+  template<typename T>
+  typename noncopyable_list<T>::iterator
+  noncopyable_list<T>::insert(noncopyable_list<T>::iterator pos,
+                              noncopyable_list<T>::pointer x) {
+    // Transforms this:
+    //        ------- ------
+    //   ... | prior | next | ...
+    //        ------- ------
+    // into this:
+    //        ------- --- ------
+    //   ... | prior | i | next | ...
+    //        ------- --- ------
+
+    master_noncopyable_iterator<T>* prior = pos.m_i->prior;
+    master_noncopyable_iterator<T>* next = pos.m_i;
+    master_noncopyable_iterator<T>* i = new master_noncopyable_iterator<T>;
+
+    prior->next = i;
+
+    i->data = x;
+    i->prior = prior;
+    i->next = next;
+
+    next->prior = i;
+  }
+
+  template<typename T>
+  void noncopyable_list<T>::erase(noncopyable_list<T>::iterator pos) {
+    // Transforms this:
+    //        ------- --- ------
+    //   ... | prior | i | next | ...
+    //        ------- --- ------
+    // into this:
+    //        ------- ------
+    //   ... | prior | next | ...
+    //        ------- ------
+
+    master_noncopyable_iterator<T>* prior = pos.m_i->prior;
+    master_noncopyable_iterator<T>* next = pos.m_i->next;
+    master_noncopyable_iterator<T>* i = pos.m_i;
+
+    delete i->data;
+    delete i;
+
+    prior->next = next;
+    next->prior = prior;
+  }
 }
 
 #endif // CAROM_NONCOPYABLE_LIST_LIST_HPP
