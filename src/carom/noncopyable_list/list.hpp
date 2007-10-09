@@ -72,7 +72,7 @@ namespace carom
     iterator insert(iterator pos, pointer x);
     void erase(iterator pos);
 
-    void clear() { while (!empty()) { erase(end()); } }
+    void clear() { while (!empty()) { erase(begin()); } }
 
   private:
     master_noncopyable_iterator<T> m_list;
