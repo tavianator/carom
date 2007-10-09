@@ -75,8 +75,8 @@ namespace carom
     void clear() { while (!empty()) { erase(begin()); } }
 
   private:
-    master_noncopyable_iterator<T> m_list;
-    master_noncopyable_iterator<T>* m_end;
+    noncopyable_node<T> m_list;
+    noncopyable_node<T>* m_end;
 
     noncopyable_list(const noncopyable_list&);
     noncopyable_list& operator=(const noncopyable_list&);
@@ -86,7 +86,7 @@ namespace carom
   noncopyable_list<T>::noncopyable_list() {
     m_list.data = 0;
     m_list.prior = 0;
-    m_list.next = new master_noncopyable_iterator<T>;
+    m_list.next = new noncopyable_node<T>;
 
     m_end = m_list.next;
 
@@ -108,9 +108,9 @@ namespace carom
     //   ... | prior | i | next | ...
     //        ------- --- ------
 
-    master_noncopyable_iterator<T>* prior = pos.m_i->prior;
-    master_noncopyable_iterator<T>* next = pos.m_i;
-    master_noncopyable_iterator<T>* i = new master_noncopyable_iterator<T>;
+    noncopyable_node<T>* prior = pos.m_i->prior;
+    noncopyable_node<T>* next = pos.m_i;
+    noncopyable_node<T>* i = new noncopyable_node<T>;
 
     prior->next = i;
 
@@ -134,9 +134,9 @@ namespace carom
     //   ... | prior | next | ...
     //        ------- ------
 
-    master_noncopyable_iterator<T>* prior = pos.m_i->prior;
-    master_noncopyable_iterator<T>* next = pos.m_i->next;
-    master_noncopyable_iterator<T>* i = pos.m_i;
+    noncopyable_node<T>* prior = pos.m_i->prior;
+    noncopyable_node<T>* next = pos.m_i->next;
+    noncopyable_node<T>* i = pos.m_i;
 
     delete i->data;
     delete i;
