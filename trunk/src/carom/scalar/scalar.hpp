@@ -57,33 +57,35 @@ namespace carom
 
   public:
     scalar_units() { mpfr_init(m_fp); }
-    explicit scalar_units(signed char n)
+
+    scalar_units(signed char n)
     { mpfr_init_set_si(m_fp, n, GMP_RNDN); }
-    explicit scalar_units(signed short n)
+    scalar_units(signed short n)
     { mpfr_init_set_si(m_fp, n, GMP_RNDN); }
-    explicit scalar_units(signed int n)
+    scalar_units(signed int n)
     { mpfr_init_set_si(m_fp, n, GMP_RNDN); }
-    explicit scalar_units(long n)
+    scalar_units(long n)
     { mpfr_init_set_si(m_fp, n, GMP_RNDN); }
-    explicit scalar_units(unsigned char n)
+    scalar_units(unsigned char n)
     { mpfr_init_set_ui(m_fp, n, GMP_RNDN); }
-    explicit scalar_units(unsigned short n)
+    scalar_units(unsigned short n)
     { mpfr_init_set_ui(m_fp, n, GMP_RNDN); }
-    explicit scalar_units(unsigned int n)
+    scalar_units(unsigned int n)
     { mpfr_init_set_ui(m_fp, n, GMP_RNDN); }
-    explicit scalar_units(unsigned long n)
+    scalar_units(unsigned long n)
     { mpfr_init_set_ui(m_fp, n, GMP_RNDN); }
 
-    explicit scalar_units(const char* str, int base = 10)
+    scalar_units(const char* str, int base = 10)
     { mpfr_init_set_str(m_fp, str, base, GMP_RNDN); }
-
-    explicit scalar_units(const std::string& str, int base = 10)
+    scalar_units(const std::string& str, int base = 10)
     { mpfr_init_set_str(m_fp, str.c_str(), base, GMP_RNDN); }
 
     template<typename op> scalar_units(const scalar_proxy<m, d, t, op>& proxy)
     { mpfr_init(m_fp); proxy.eval(m_fp); }
+
     scalar_units(const scalar_units<m, d, t>& n)
     { mpfr_init_set(m_fp, n.m_fp, GMP_RNDN); }
+
     ~scalar_units() { mpfr_clear(m_fp); }
 
     template<typename op>
@@ -92,6 +94,29 @@ namespace carom
 
     scalar_units& operator=(const scalar_units<m, d, t>& rhs)
     { mpfr_set(m_fp, rhs.m_fp, GMP_RNDN); return *this; }
+
+    scalar_units& operator=(signed char n)
+    { mpfr_set_si(m_fp, n, GMP_RNDN); }
+    scalar_units& operator=(signed short n)
+    { mpfr_set_si(m_fp, n, GMP_RNDN); }
+    scalar_units& operator=(signed int n)
+    { mpfr_set_si(m_fp, n, GMP_RNDN); }
+    scalar_units& operator=(long n)
+    { mpfr_set_si(m_fp, n, GMP_RNDN); }
+    scalar_units& operator=(unsigned char n)
+    { mpfr_set_ui(m_fp, n, GMP_RNDN); }
+    scalar_units& operator=(unsigned short n)
+    { mpfr_set_ui(m_fp, n, GMP_RNDN); }
+    scalar_units& operator=(unsigned int n)
+    { mpfr_set_ui(m_fp, n, GMP_RNDN); }
+    scalar_units& operator=(unsigned long n)
+    { mpfr_set_ui(m_fp, n, GMP_RNDN); }
+
+    scalar_units& operator=(const char* str)
+    { mpfr_set_str(m_fp, str, 10, GMP_RNDN); }
+    scalar_units& operator=(const std::string& str)
+    { mpfr_set_str(m_fp, str.c_str(), 10, GMP_RNDN); }
+
     scalar_units& operator+=(const scalar_units<m, d, t>& rhs)
     { mpfr_add(m_fp, m_fp, rhs.m_fp, GMP_RNDN); return *this; }
     scalar_units& operator-=(const scalar_units<m, d, t>& rhs)

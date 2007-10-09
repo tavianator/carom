@@ -42,29 +42,9 @@ namespace carom
   public:
     vector_units() { }
     vector_units(void*) : m_x(0), m_y(0), m_z(0) { }
-    explicit vector_units(signed char x, signed char y, signed char z)
-    : m_x(x), m_y(y), m_z(z) { }
-    explicit vector_units(signed short x, signed short y, signed short z)
-    : m_x(x), m_y(y), m_z(z) { }
-    explicit vector_units(signed int x, signed int y, signed int z)
-    : m_x(x), m_y(y), m_z(z) { }
-    explicit vector_units(signed long x, signed long y, signed long z)
-    : m_x(x), m_y(y), m_z(z) { }
-    explicit vector_units(unsigned char x, unsigned char y, unsigned char z)
-    : m_x(x), m_y(y), m_z(z) { }
-    explicit vector_units(unsigned short x, unsigned short y, unsigned short z)
-    : m_x(x), m_y(y), m_z(z) { }
-    explicit vector_units(unsigned int x, unsigned int y, unsigned int z)
-    : m_x(x), m_y(y), m_z(z) { }
-    explicit vector_units(unsigned long x, unsigned long y, unsigned long z)
-    : m_x(x), m_y(y), m_z(z) { }
-    explicit vector_units(const char* x, const char* y, const char* z,
-                          int base = 10)
-    : m_x(x, base), m_y(y, base), m_z(z, base) { }
-    explicit vector_units(const std::string& x,
-                          const std::string& y,
-                          const std::string& z, int base = 10)
-    : m_x(x, base), m_y(y, base), m_z(z, base) { }
+    vector_units(const scalar_units<m, d, t>& x,
+                 const scalar_units<m, d, t>& y,
+                 const scalar_units<m, d, t>& z) : m_x(x), m_y(y), m_z(z) { }
     template<typename op> vector_units(const vector_proxy<m, d, t, op>& proxy)
     { proxy.eval(m_x, m_y, m_z); }
     // vector_units(const vector_units<m, d, t>& v);
