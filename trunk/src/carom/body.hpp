@@ -31,8 +31,8 @@ namespace carom
     body() { }
     virtual ~body() { }
 
-    iterator insert()
-    { return m_particles.insert(m_particles.end(), new particle); }
+    iterator insert(particle* x)
+    { return m_particles.insert(m_particles.end(), x); }
     void erase(iterator i) { m_particles.erase(i); }
 
     iterator       begin()       { return m_particles.begin(); }
