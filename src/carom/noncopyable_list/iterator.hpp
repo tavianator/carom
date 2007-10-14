@@ -31,76 +31,7 @@ namespace carom
     noncopyable_node* next;
   };
 
-  template<typename T> class noncopyable_const_iterator;
-
   template<typename T>
-  class noncopyable_iterator
-  {
-    friend class noncopyable_list<T>;
-    friend class noncopyable_const_iterator<T>;
-
-  public:
-    explicit noncopyable_iterator(noncopyable_node<T>* i)
-      : m_i(i) { }
-    // noncopyable_iterator(const noncopyable_iterator& i);
-    // ~noncopyable_iterator();
-
-    // noncopyable_iterator& operator=(const noncopyable_iterator& i);
-
-    T& operator*() const { return *m_i->data; }
-    T* operator->() const { return m_i->data; }
-
-    noncopyable_iterator& operator++() { m_i = m_i->next; return *this; }
-    noncopyable_iterator& operator--() { m_i = m_i->prior; return *this; }
-    const noncopyable_iterator operator++(int)
-    { m_i = m_i->next; return noncopyable_iterator(m_i->prior); }
-    const noncopyable_iterator operator--(int)
-    { m_i = m_i->prior; return noncopyable_iterator(m_i->next); }
-
-    bool operator==(const noncopyable_const_iterator<T>& rhs)
-    { return m_i == rhs.m_i; }
-    bool operator!=(const noncopyable_const_iterator<T>& rhs)
-    { return m_i != rhs.m_i; }
-
-  private:
-    noncopyable_node<T>* m_i;
-  };
-
-  template<typename T>
-  class noncopyable_const_iterator
-  {
-    friend class noncopyable_list<T>;
-    friend class noncopyable_iterator<T>;
-
-  public:
-    explicit noncopyable_const_iterator(noncopyable_node<T>* i)
-      : m_i(i) { }
-    noncopyable_const_iterator(const noncopyable_iterator<T>& i)
-      : m_i(i.m_i) { }
-    // noncopyable_const_iterator(const noncopyable_const_iterator& i);
-    // ~noncopyable_const_iterator();
-
-    // noncopyable_const_iterator&
-    // operator=(const noncopyable_const_iterator& i);
-
-    const T& operator*() const { return *m_i->data; }
-    const T* operator->() const { return m_i->data; }
-
-    noncopyable_const_iterator& operator++() { m_i = m_i->next; return *this; }
-    noncopyable_const_iterator& operator--() { m_i = m_i->prior; return *this; }
-    const noncopyable_const_iterator operator++(int)
-    { m_i = m_i->next; return noncopyable_const_iterator(m_i->prior); }
-    const noncopyable_const_iterator operator--(int)
-    { m_i = m_i->prior; return noncopyable_const_iterator(m_i->next); }
-
-    bool operator==(const noncopyable_const_iterator& rhs)
-    { return m_i == rhs.m_i; }
-    bool operator!=(const noncopyable_const_iterator& rhs)
-    { return m_i != rhs.m_i; }
-
-  private:
-    noncopyable_node<T>* m_i;
-  };
 }
 
 #endif // CAROM_NONCOPYABLE_LIST_ITERATOR_HPP

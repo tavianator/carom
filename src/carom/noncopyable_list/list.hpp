@@ -42,27 +42,27 @@ namespace carom
     typedef std::ptrdiff_t                        difference_type;
 
     noncopyable_list();
-    ~noncopyable_list() { clear(); delete m_list.next; }
+    ~noncopyable_list() { clear(); }
 
     iterator       begin()       { return iterator(m_list.next); }
     const_iterator begin() const { return const_iterator(m_list.next); }
-    iterator       end()         { return iterator(m_end); }
-    const_iterator end() const   { return const_iterator(m_end); }
+    iterator       end()         { return iterator(&m_end); }
+    const_iterator end() const   { return const_iterator(&m_end); }
 
-    reverse_iterator       rbegin() { return reverse_iterator(begin()); }
+    reverse_iterator       rbegin() { return reverse_iterator(end()); }
     const_reverse_iterator rbegin() const
-    { return const_reverse_iterator(begin()); }
-    reverse_iterator       rend() { return reverse_iterator(end()); }
-    const_reverse_iterator rend() const 
     { return const_reverse_iterator(end()); }
+    reverse_iterator       rend() { return reverse_iterator(begin()); }
+    const_reverse_iterator rend() const 
+    { return const_reverse_iterator(begin()); }
 
-    bool empty() { return m_list.next == m_end; }
+    bool empty() { return m_list.next == &m_end; }
     size_type size() const { return std::distance(begin(), end()); }
 
     reference       front()       { return *m_list.next->data; }
     const_reference front() const { return *m_list.next->data; }
-    reference       back()        { return *m_end->prior->data; }
-    const_reference back() const  { return *m_end->prior->data; }
+    reference       back()        { return *m_end.prior->data; }
+    const_reference back() const  { return *m_end.prior->data; }
 
     void push_front(pointer x) { insert(begin(), x); }
     void pop_front() { erase(begin()); }
@@ -76,7 +76,7 @@ namespace carom
 
   private:
     noncopyable_node<T> m_list;
-    noncopyable_node<T>* m_end;
+    noncopyable_node<T> m_end;
 
     noncopyable_list(const noncopyable_list&);
     noncopyable_list& operator=(const noncopyable_list&);
@@ -86,13 +86,11 @@ namespace carom
   noncopyable_list<T>::noncopyable_list() {
     m_list.data = 0;
     m_list.prior = 0;
-    m_list.next = new noncopyable_node<T>;
+    m_list.next = &m_end;
 
-    m_end = m_list.next;
-
-    m_end->data = 0;
-    m_end->prior = &m_list;
-    m_end->next = 0;
+    m_end.data = 0;
+    m_end.prior = &m_list;
+    m_end.next = 0;
   }
 
   template<typename T>
