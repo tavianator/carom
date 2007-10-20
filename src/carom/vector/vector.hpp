@@ -52,7 +52,7 @@ namespace carom
 
     template<typename op>
     vector_units& operator=(const vector_proxy<m, d, t, op>& proxy)
-    { proxy.eval(m_x, m_y, m_z); }
+    { proxy.eval(m_x, m_y, m_z); return *this; }
 
     // vector_units& operator=(const vector_units<m, d, t>& rhs);
 

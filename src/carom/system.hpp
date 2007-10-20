@@ -25,8 +25,8 @@ namespace carom
   class system
   {
   public:
-    typedef noncopyable_list<body>::iterator iterator;
-    typedef noncopyable_list<body>::const_iterator const_iterator;
+    typedef polymorphic_list<body>::iterator iterator;
+    typedef polymorphic_list<body>::const_iterator const_iterator;
 
     system() { }
     // ~system();
@@ -42,7 +42,7 @@ namespace carom
     void integrate(const scalar_time& t);
 
   private:
-    noncopyable_list<body> m_bodies;
+    polymorphic_list<body> m_bodies;
 
     system(const system&);
     system& operator=(const system&);

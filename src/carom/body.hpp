@@ -25,8 +25,8 @@ namespace carom
   class body
   {
   public:
-    typedef noncopyable_list<particle>::iterator iterator;
-    typedef noncopyable_list<particle>::const_iterator const_iterator;
+    typedef polymorphic_list<particle>::iterator iterator;
+    typedef polymorphic_list<particle>::const_iterator const_iterator;
 
     body() { }
     virtual ~body() { }
@@ -53,7 +53,7 @@ namespace carom
     virtual void apply() { }
 
   private:
-    noncopyable_list<particle> m_particles;
+    polymorphic_list<particle> m_particles;
 
     body(const body&);
     body& operator=(const body&);
