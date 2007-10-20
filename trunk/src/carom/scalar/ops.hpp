@@ -22,6 +22,7 @@
 
 #include <mpfr.h>
 #include <cstdlib>
+#include <stdexcept>
 
 namespace carom
 {
@@ -90,7 +91,7 @@ namespace carom
   {
   public:
     static void eval(mpfr_t store, mpfr_t lhs, mpfr_t rhs) {
-      if (mpfr_zero_p(rhs)) { std::abort(); }
+      if (mpfr_zero_p(rhs)) { throw std::domain_error("Division by zero"); }
       mpfr_div(store, lhs, rhs, GMP_RNDN);
     }
   };

@@ -35,26 +35,37 @@ namespace carom
     applied_force& operator=(const applied_force&);
   };
 
-  struct particle
+  class particle
   {
   public:
     particle() { }
-    // ~particle();
+    virtual ~particle() { }
 
-    scalar_mass         m;
-    vector_displacement s;
-    vector_momentum     p;
-    vector_force        F;
+    scalar_mass         m() { return m_mass; }
+    vector_displacement s() { return m_position; }
+    vector_velocity     v() { return m_momentum / m_mass; }
+    vector_momentum     p() { return m_momentum; }
+    vector_acceleration a() { return m_force / m_mass; }
+    vector_force        F() { return m_force; }
 
-    vector_velocity     v() { return p / m; }
-    vector_acceleration a() { return F / m; }
+    void m(const scalar_mass& m)         { m_mass = m; }
+    void s(const vector_displacement& s) { m_position = s; }
+    void v(const vector_velocity& v)     { m_momentum = v * m_mass; }
+    void p(const vector_momentum& p)     { m_momentum = p; }
+    void a(const vector_acceleration& a) { m_force = a * m_mass; }
+    void F(const vector_force& F)        { m_force = F; }
 
     void apply_force(applied_force* force) { m_forces.push_back(force); }
     void apply_forces();
     void clear_forces() { m_forces.clear(); }
 
   private:
-    noncopyable_list<applied_force> m_forces;
+    scalar_mass         m_mass;
+    vector_displacement m_position;
+    vector_momentum     m_momentum;
+    vector_force        m_force;
+
+    polymorphic_list<applied_force> m_forces;
 
     particle(const particle&);
     particle& operator=(const particle&);

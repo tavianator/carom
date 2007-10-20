@@ -22,6 +22,7 @@
 
 #include <mpfr.h>
 #include <cstdlib>
+#include <stdexcept>
 #include <string>
 
 namespace carom
@@ -125,7 +126,10 @@ namespace carom
     { mpfr_mul(m_fp, m_fp, rhs.m_fp, GMP_RNDN); return *this; }
 
     scalar_units& operator/=(const scalar_units<0, 0, 0>& rhs) {
-      if (mpfr_zero_p(rhs.m_fp)) { std::abort(); }
+      if (mpfr_zero_p(rhs.m_fp)) {
+        throw std::domain_error("Division by zero");
+      }
+
       mpfr_div(m_fp, m_fp, rhs.m_fp, GMP_RNDN); return *this;
     }
 

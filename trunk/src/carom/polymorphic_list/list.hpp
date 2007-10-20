@@ -17,8 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. *
  *************************************************************************/
 
-#ifndef CAROM_NONCOPYABLE_LIST_LIST_HPP
-#define CAROM_NONCOPYABLE_LIST_LIST_HPP
+#ifndef CAROM_POLYMORPHIC_LIST_LIST_HPP
+#define CAROM_POLYMORPHIC_LIST_LIST_HPP
 
 #include <algorithm>
 #include <iterator>
@@ -26,7 +26,7 @@
 namespace carom
 {
   template<typename T>
-  class noncopyable_list
+  class polymorphic_list
   {
   public:
     typedef T                                     value_type;
@@ -34,15 +34,15 @@ namespace carom
     typedef const T*                              const_pointer;
     typedef T&                                    reference;
     typedef const T&                              const_reference;
-    typedef noncopyable_iterator<T>               iterator;
-    typedef noncopyable_const_iterator<T>         const_iterator;
+    typedef polymorphic_iterator<T>               iterator;
+    typedef polymorphic_const_iterator<T>         const_iterator;
     typedef std::reverse_iterator<iterator>       reverse_iterator;
     typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
     typedef std::size_t                           size_type;
     typedef std::ptrdiff_t                        difference_type;
 
-    noncopyable_list();
-    ~noncopyable_list() { clear(); }
+    polymorphic_list();
+    ~polymorphic_list() { clear(); }
 
     iterator       begin()       { return iterator(m_list.next); }
     const_iterator begin() const { return const_iterator(m_list.next); }
@@ -75,15 +75,15 @@ namespace carom
     void clear() { while (!empty()) { erase(begin()); } }
 
   private:
-    noncopyable_node<T> m_list;
-    noncopyable_node<T> m_end;
+    mutable polymorphic_node<T> m_list;
+    mutable polymorphic_node<T> m_end;
 
-    noncopyable_list(const noncopyable_list&);
-    noncopyable_list& operator=(const noncopyable_list&);
+    polymorphic_list(const polymorphic_list&);
+    polymorphic_list& operator=(const polymorphic_list&);
   };
 
   template<typename T>
-  noncopyable_list<T>::noncopyable_list() {
+  polymorphic_list<T>::polymorphic_list() {
     m_list.data = 0;
     m_list.prior = 0;
     m_list.next = &m_end;
@@ -94,9 +94,9 @@ namespace carom
   }
 
   template<typename T>
-  typename noncopyable_list<T>::iterator
-  noncopyable_list<T>::insert(noncopyable_list<T>::iterator pos,
-                              noncopyable_list<T>::pointer x) {
+  typename polymorphic_list<T>::iterator
+  polymorphic_list<T>::insert(polymorphic_list<T>::iterator pos,
+                              polymorphic_list<T>::pointer x) {
     // Transforms this:
     //        ------- ------
     //   ... | prior | next | ...
@@ -106,9 +106,9 @@ namespace carom
     //   ... | prior | i | next | ...
     //        ------- --- ------
 
-    noncopyable_node<T>* prior = pos.m_i->prior;
-    noncopyable_node<T>* next = pos.m_i;
-    noncopyable_node<T>* i = new noncopyable_node<T>;
+    polymorphic_node<T>* prior = pos.m_node->prior;
+    polymorphic_node<T>* next = pos.m_node;
+    polymorphic_node<T>* i = new polymorphic_node<T>;
 
     prior->next = i;
 
@@ -122,7 +122,7 @@ namespace carom
   }
 
   template<typename T>
-  void noncopyable_list<T>::erase(noncopyable_list<T>::iterator pos) {
+  void polymorphic_list<T>::erase(polymorphic_list<T>::iterator pos) {
     // Transforms this:
     //        ------- --- ------
     //   ... | prior | i | next | ...
@@ -132,9 +132,9 @@ namespace carom
     //   ... | prior | next | ...
     //        ------- ------
 
-    noncopyable_node<T>* prior = pos.m_i->prior;
-    noncopyable_node<T>* next = pos.m_i->next;
-    noncopyable_node<T>* i = pos.m_i;
+    polymorphic_node<T>* prior = pos.m_node->prior;
+    polymorphic_node<T>* next = pos.m_node->next;
+    polymorphic_node<T>* i = pos.m_node;
 
     delete i->data;
     delete i;
@@ -144,4 +144,4 @@ namespace carom
   }
 }
 
-#endif // CAROM_NONCOPYABLE_LIST_LIST_HPP
+#endif // CAROM_POLYMORPHIC_LIST_LIST_HPP

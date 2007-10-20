@@ -22,12 +22,12 @@
 namespace carom
 {
   void particle::apply_forces() {
-    F = 0;
+    m_force = 0;
 
-    for (noncopyable_list<applied_force>::iterator i = m_forces.begin();
+    for (polymorphic_list<applied_force>::iterator i = m_forces.begin();
          i != m_forces.end();
          ++i) {
-      F += i->force();
+      m_force += i->force();
     }
   }
 }

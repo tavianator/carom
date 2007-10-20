@@ -22,7 +22,7 @@
 
 #include <carom/scalar.hpp>
 #include <carom/vector.hpp>
-#include <carom/noncopyable_list.hpp>
+#include <carom/polymorphic_list.hpp>
 #include <carom/particle.hpp>
 #include <carom/body.hpp>
 #include <carom/system.hpp>
