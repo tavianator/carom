@@ -9,7 +9,7 @@ Two utility functions are available to get or set the precision of scalars and v
 {{{
 namespace carom
 {
-  inline unsigned long precision();
-  inline void precision(unsigned long prec);
+  unsigned long precision();
+  void precision(unsigned long prec);
 }
 }}}
