@@ -48,7 +48,6 @@ namespace carom
     virtual void apply_k1() { }
     virtual void apply_k2() { }
     virtual void apply_k3() { }
-    virtual void apply_k4() { }
 
     virtual void apply() { }
 

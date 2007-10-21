@@ -22,5 +22,36 @@
 namespace carom
 {
   void system::integrate(const scalar_time& t) {
+    for (iterator i = begin(); i != end(); ++i) {
+      i->calculate_k1();
+    }
+
+    for (iterator i = begin(); i != end(); ++i) {
+      i->apply_k1();
+    }
+
+    for (iterator i = begin(); i != end(); ++i) {
+      i->calculate_k2();
+    }
+
+    for (iterator i = begin(); i != end(); ++i) {
+      i->apply_k2();
+    }
+
+    for (iterator i = begin(); i != end(); ++i) {
+      i->calculate_k3();
+    }
+
+    for (iterator i = begin(); i != end(); ++i) {
+      i->apply_k3();
+    }
+
+    for (iterator i = begin(); i != end(); ++i) {
+      i->calculate_k4();
+    }
+
+    for (iterator i = begin(); i != end(); ++i) {
+      i->apply();
+    }
   }
 }
