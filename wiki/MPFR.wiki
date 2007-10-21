@@ -1,0 +1,15 @@
+#summary The use of the MPFR library in Carom
+
+= Introduction =
+
+Scalars and vectors in the Carom library, in addition to being [Units unit-safe], are based on the MPFR library to provide many useful features. Calculations using the MPFR library are  architecture-independent and arbitrary-precision. To avoid unnecessary copying, Carom's scalars and vectors use lazy evaluation, so expressions like `scalar c = a + b;` result in a single call to the MPFR addition function, `mpfr_add`. The only noticeable effect this has is that calls to template functions like `std::min(a + b, c)` might not work, because they expect two arguments of the same type, and `a + b` is actually of an internal proxy type. To work around this problem, write `std::min(scalar(a + b), c)`.
+
+Two utility functions are available to get or set the precision of scalars and vectors in the Carom library:
+
+{{{
+namespace carom
+{
+  inline unsigned long precision();
+  inline void precision(unsigned long prec);
+}
+}}}
