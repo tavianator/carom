@@ -1,0 +1,36 @@
+#summary Unit-safety in The Carom Library
+
+= Introduction =
+
+Scalars and vectors in the carom library are checked for unit-correctness at compile time. This is accomplished through templates; scalars and vectors are template classes, with integer parameters representing the exponents on the mass, distance, and time units. The template class scalar_units, declared as `template<int m, int d, int t> class scalar_units`, and the template class vector_units, declared similarly, represent scalars and vectors of arbitrary units, respectively. In this case, `m` is the power on the mass unit, `d` is the power on the distance unit, and `t` is the power on the time unit. In SI units, scalars and vectors have units _kg^m^ m^d^ s^t^_.
+
+Only scalars or vectors with equal units may be added, subtracted, or assigned. When multiplied or divided, the exponents on the units are added or subtracted, respectively.
+
+Specifying scalar_units<1, 0, 0> for mass and vector_units<1, 1, -2> for force is cumbersome and confusing, so there are helpful typedefs provided as well. They are:
+
+{{{
+namespace carom
+{
+  template<int m, int d, int t>
+  class scalar_units;
+
+  template<int m, int d, int t>
+  class vector_units;
+
+  typedef scalar_units<0, 0, 0>  scalar;
+  typedef scalar_units<0, 0, 0>  scalar_angle;
+  typedef scalar_units<1, 0, 0>  scalar_mass;
+  typedef scalar_units<0, 1, 0>  scalar_distance;
+  typedef scalar_units<0, 0, 1>  scalar_time;
+  typedef scalar_units<0, 1, -1> scalar_speed;
+  typedef scalar_units<1, 2, -2> scalar_energy;
+  typedef scalar_units<1, 2, -3> scalar_power;
+
+  typedef vector_units<0, 0, 0>  vector;
+  typedef vector_units<0, 1, 0>  vector_displacement;
+  typedef vector_units<0, 1, -1> vector_velocity;
+  typedef vector_units<1, 1, -1> vector_momentum;
+  typedef vector_units<0, 1, -2> vector_acceleration;
+  typedef vector_units<1, 1, -2> vector_force;
+}
+}}}
