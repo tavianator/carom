@@ -138,7 +138,7 @@ namespace carom
   public:
     template<typename U>
     static T* eval(U& data)
-    { return boost::addressof(dynamic_cast<T&>(data)); }
+    { return dynamic_cast<T*>(boost::addressof(data)); }
   };
 
   // Similar to polymorphic_caster, but requires const in the correct places
@@ -160,7 +160,7 @@ namespace carom
   public:
     template<typename U>
     static const T* eval(const U& data)
-    { return boost::addressof(dynamic_cast<const T&>(data)); }
+    { return dynamic_cast<const T*>(boost::addressof(data)); }
   };
 
   template<typename T, typename U>
