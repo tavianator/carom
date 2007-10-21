@@ -1,4 +1,5 @@
 #summary An overview of the carom library
+#labels Featured
 
 = Overview =
 
@@ -6,4 +7,4 @@ Carom itself takes the form of a C++ library, with a logical class hierarchy and
 
 The [particle] class stores mass, position, momentum, and force, as well as a list of forces applied to it. The [applied_force] class is a base class; custom forces derive from this class, and override the virtual function [applied_force force] to specify the force applied.
 
-[Units Vectors] and [Units scalars] in the carom library are handled specially. They are [Units unit-safe], meaning that the `scalar_mass` type is different from the `scalar_energy` type, and adding the two, or assigning one to the other, is an error at compile-time.
+[Units Vectors] and [Units scalars] in the carom library are handled specially. They are [Units unit-safe], meaning that the `scalar_mass` type is different from the `scalar_energy` type, and adding the two, or assigning one to the other, is an error at compile-time. As well, scalars and vectors use the [MPFR] library to provide architecture-independent, high-speed arbitrary-precision arithmetic.
