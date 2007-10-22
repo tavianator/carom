@@ -17,3 +17,32 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. *
  *************************************************************************/
 
+#ifndef CAROM_IMPENETRABLE_HPP
+#define CAROM_IMPENETRABLE_HPP
+
+namespace carom
+{
+  // Abstract base class. A body is considered impenetrable if dynamic_cast'ing
+  // it to impenetrable* returns non-null.
+  class impenetrable
+  {
+  public:
+    impenetrable() { }
+    virtual ~impenetrable() { }
+
+  private:
+    impenetrable(const impenetrable&);
+    impenetrable& operator=(const impenetrable&);
+  };
+
+  // An impenetrable body; T should derrive from body
+  template<typename T>
+  class impenetrable_body : public T, public impenetrable
+  {
+  public:
+    // impenetrable_body();
+    // virtual ~impenetrable_body();
+  };
+}
+
+#endif // CAROM_IMPENETRABLE_HPP

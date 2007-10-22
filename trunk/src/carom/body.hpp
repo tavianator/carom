@@ -59,10 +59,4 @@ namespace carom
   };
 }
 
-#include <carom/body/mesh.hpp>
-#include <carom/body/simple.hpp>
-#include <carom/body/rigid.hpp>
-#include <carom/body/fluid.hpp>
-#include <carom/body/impenetrable.hpp>
-
 #endif // CAROM_BODY_HPP

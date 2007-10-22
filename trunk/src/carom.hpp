@@ -26,5 +26,8 @@
 #include <carom/particle.hpp>
 #include <carom/body.hpp>
 #include <carom/system.hpp>
+#include <carom/mesh.hpp>
+#include <carom/impenetrable.hpp>
+#include <carom/utility.hpp>
 
 #endif // CAROM_HPP
