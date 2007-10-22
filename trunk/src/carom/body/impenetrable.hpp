@@ -17,52 +17,29 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. *
  *************************************************************************/
 
-#ifndef CAROM_BODY_HPP
-#define CAROM_BODY_HPP
+#ifndef CAROM_BODY_IMPENETRABLE_HPP
+#define CAROM_BODY_IMPENETRABLE_HPP
 
 namespace carom
 {
-  class body
+  class impenetrable
   {
   public:
-    typedef polymorphic_list<particle>::iterator iterator;
-    typedef polymorphic_list<particle>::const_iterator const_iterator;
-
-    body() { }
-    virtual ~body() { }
-
-    iterator insert(particle* x)
-    { return m_particles.insert(m_particles.end(), x); }
-    void erase(iterator i) { m_particles.erase(i); }
-
-    iterator       begin()       { return m_particles.begin(); }
-    const_iterator begin() const { return m_particles.begin(); }
-    iterator       end()         { return m_particles.end(); }
-    const_iterator end() const   { return m_particles.end(); }
-
-    virtual void calculate_k1() { }
-    virtual void calculate_k2() { }
-    virtual void calculate_k3() { }
-    virtual void calculate_k4() { }
-
-    virtual void apply_k1() { }
-    virtual void apply_k2() { }
-    virtual void apply_k3() { }
-
-    virtual void apply() { }
+    impenetrable() { }
+    virtual ~impenetrable() { }
 
   private:
-    polymorphic_list<particle> m_particles;
+    impenetrable(const impenetrable&);
+    impenetrable& operator=(const impenetrable&);
+  };
 
-    body(const body&);
-    body& operator=(const body&);
+  template<typename T>
+  class impenetrable_body : public T, public impenetrable
+  {
+  public:
+    // impenetrable_body();
+    // virtual ~impenetrable_body();
   };
 }
 
-#include <carom/body/mesh.hpp>
-#include <carom/body/simple.hpp>
-#include <carom/body/rigid.hpp>
-#include <carom/body/fluid.hpp>
-#include <carom/body/impenetrable.hpp>
-
-#endif // CAROM_BODY_HPP
+#endif // CAROM_BODY_IMPENETRABLE_HPP
