@@ -32,7 +32,6 @@ namespace carom
 
     mesh& surface() { return m_surface; }
 
-    virtual void collision(mesh::iterator i);
     virtual void collision(body& b) = 0;
 
   private:
@@ -50,7 +49,6 @@ namespace carom
     // impenetrable_body();
     // virtual ~impenetrable_body();
 
-    virtual void collision(mesh::iterator i);
     virtual void collision(body& b);
   };
 }
