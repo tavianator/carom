@@ -17,14 +17,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. *
  *************************************************************************/
 
-#ifndef CAROM_UTILITY_HPP
-#define CAROM_UTILITY_HPP
+#ifndef CAROM_UTILITY_SIMPLE_BODY_HPP
+#define CAROM_UTILITY_SIMPLE_BODY_HPP
 
-#include <carom/utility/mesh.hpp>
-#include <carom/utility/impenetrable.hpp>
+namespace carom
+{
+  class simple_body : public body
+  {
+  };
+}
 
-#include <carom/utility/simple_body.hpp>
-#include <carom/utility/rigid_body.hpp>
-#include <carom/utility/fluid_body.hpp>
-
-#endif // CAROM_UTILITY_HPP
+#endif // CAROM_UTILITY_SIMPLE_BODY_HPP
