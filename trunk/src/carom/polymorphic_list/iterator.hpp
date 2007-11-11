@@ -25,7 +25,7 @@
 
 namespace carom
 {
-  template<typename T>
+  template <typename T>
   struct polymorphic_node
   {
   public:
@@ -36,15 +36,15 @@ namespace carom
 
   // Foreward declarations
 
-  template<typename T>
+  template <typename T>
   class polymorphic_iterator;
 
-  template<typename T>
+  template <typename T>
   class polymorphic_const_iterator;
 
   // A non-constant iterator for polymorphic_list
 
-  template<typename T>
+  template <typename T>
   class polymorphic_iterator
   {
     friend class polymorphic_list<T>;
@@ -79,7 +79,7 @@ namespace carom
 
   // A constant iterator for polymorphic_list
 
-  template<typename T>
+  template <typename T>
   class polymorphic_const_iterator
   {
     friend class polymorphic_list<T>;
@@ -121,54 +121,54 @@ namespace carom
   // A helper class for iterator_cast, to enable behaviour similar to partial
   // template function specialization
 
-  template<typename T>
+  template <typename T>
   struct polymorphic_caster;
 
-  template<typename T>
+  template <typename T>
   struct polymorphic_caster<T&>
   {
   public:
-    template<typename U>
+    template <typename U>
     static T& eval(U& data) { return dynamic_cast<T&>(data); }
   };
 
-  template<typename T>
+  template <typename T>
   struct polymorphic_caster<T*>
   {
   public:
-    template<typename U>
+    template <typename U>
     static T* eval(U& data)
     { return dynamic_cast<T*>(boost::addressof(data)); }
   };
 
   // Similar to polymorphic_caster, but requires const in the correct places
 
-  template<typename T>
+  template <typename T>
   struct polymorphic_const_caster;
 
-  template<typename T>
+  template <typename T>
   struct polymorphic_const_caster<const T&>
   {
   public:
-    template<typename U>
+    template <typename U>
     static const T& eval(const U& data) { return dynamic_cast<const T&>(data); }
   };
 
-  template<typename T>
+  template <typename T>
   struct polymorphic_const_caster<const T*>
   {
   public:
-    template<typename U>
+    template <typename U>
     static const T* eval(const U& data)
     { return dynamic_cast<const T*>(boost::addressof(data)); }
   };
 
-  template<typename T, typename U>
+  template <typename T, typename U>
   inline T iterator_cast(const polymorphic_iterator<U>& i) {
     return polymorphic_caster<T>::eval(*i);
   }
 
-  template<typename T, typename U>
+  template <typename T, typename U>
   inline T iterator_cast(const polymorphic_const_iterator<U>& i) {
     return polymorphic_const_caster<T>::eval(*i);
   }

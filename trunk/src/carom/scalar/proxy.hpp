@@ -26,7 +26,7 @@ namespace carom
 {
   // Unary scalar_proxy's
 
-  template<int m, int d, int t, typename T, typename op>
+  template <int m, int d, int t, typename T, typename op>
   class scalar_proxy<m, d, t, scalar_unary_proxy<T, op> >
     : public scalar_unary_proxy<T, op>
   {
@@ -39,12 +39,12 @@ namespace carom
     scalar_proxy& operator=(const scalar_proxy&);
   };
 
-  template<int m, int d, int t, typename op>
+  template <int m, int d, int t, typename op>
   class scalar_proxy<m, d, t, scalar_unary_proxy<mpfr_t, op> >
     : public scalar_unary_proxy<mpfr_t, op>
   {
   public:
-    template<int m2, int d2, int t2>
+    template <int m2, int d2, int t2>
     scalar_proxy(const scalar_units<m2, d2, t2>& n)
     : scalar_unary_proxy<mpfr_t, op>(n.m_fp) { }
 
@@ -57,7 +57,7 @@ namespace carom
 
   // Binary scalar_proxy's
 
-  template<int m, int d, int t, typename T, typename U, typename op>
+  template <int m, int d, int t, typename T, typename U, typename op>
   class scalar_proxy<m, d, t, scalar_binary_proxy<T, U, op> >
     : public scalar_binary_proxy<T, U, op>
   {
@@ -72,12 +72,12 @@ namespace carom
     scalar_proxy& operator=(const scalar_proxy&);
   };
 
-  template<int m, int d, int t, typename T, typename op>
+  template <int m, int d, int t, typename T, typename op>
   class scalar_proxy<m, d, t, scalar_binary_proxy<T, mpfr_t, op> >
     : public scalar_binary_proxy<T, mpfr_t, op>
   {
   public:
-    template<int m2, int d2, int t2>
+    template <int m2, int d2, int t2>
     scalar_proxy(const T& lhs, const scalar_units<m2, d2, t2>& rhs)
     : scalar_binary_proxy<T, mpfr_t, op>(lhs, rhs.m_fp) { }
 
@@ -88,12 +88,12 @@ namespace carom
     scalar_proxy& operator=(const scalar_proxy&);
   };
 
-  template<int m, int d, int t, typename T, typename op>
+  template <int m, int d, int t, typename T, typename op>
   class scalar_proxy<m, d, t, scalar_binary_proxy<mpfr_t, T, op> >
     : public scalar_binary_proxy<mpfr_t, T, op>
   {
   public:
-    template<int m2, int d2, int t2>
+    template <int m2, int d2, int t2>
     scalar_proxy(const scalar_units<m2, d2, t2>& lhs, const T& rhs)
     : scalar_binary_proxy<mpfr_t, T, op>(lhs.m_fp, rhs) { }
 
@@ -104,12 +104,12 @@ namespace carom
     scalar_proxy& operator=(const scalar_proxy&);
   };
 
-  template<int m, int d, int t, typename op>
+  template <int m, int d, int t, typename op>
   class scalar_proxy<m, d, t, scalar_binary_proxy<mpfr_t, mpfr_t, op> >
     : public scalar_binary_proxy<mpfr_t, mpfr_t, op>
   {
   public:
-    template<int m1, int m2, int d1, int d2, int t1, int t2>
+    template <int m1, int m2, int d1, int d2, int t1, int t2>
     scalar_proxy(const scalar_units<m1, d1, t1>& lhs,
                 const scalar_units<m2, d2, t2>& rhs)
     : scalar_binary_proxy<mpfr_t, mpfr_t, op>(lhs.m_fp, rhs.m_fp) { }

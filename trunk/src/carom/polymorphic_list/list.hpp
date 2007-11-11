@@ -25,7 +25,7 @@
 
 namespace carom
 {
-  template<typename T>
+  template <typename T>
   class polymorphic_list
   {
   public:
@@ -82,7 +82,7 @@ namespace carom
     polymorphic_list& operator=(const polymorphic_list&);
   };
 
-  template<typename T>
+  template <typename T>
   polymorphic_list<T>::polymorphic_list() {
     m_list.data = 0;
     m_list.prior = 0;
@@ -93,7 +93,7 @@ namespace carom
     m_end.next = 0;
   }
 
-  template<typename T>
+  template <typename T>
   typename polymorphic_list<T>::iterator
   polymorphic_list<T>::insert(polymorphic_list<T>::iterator pos,
                               polymorphic_list<T>::pointer x) {
@@ -121,7 +121,7 @@ namespace carom
     return iterator(i);
   }
 
-  template<typename T>
+  template <typename T>
   void polymorphic_list<T>::erase(polymorphic_list<T>::iterator pos) {
     // Transforms this:
     //        ------- --- ------

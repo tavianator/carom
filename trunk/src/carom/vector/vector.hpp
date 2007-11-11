@@ -25,10 +25,10 @@
 
 namespace carom
 {
-  template<int m, int d, int t>
+  template <int m, int d, int t>
   class vector_units
   {
-    template<int m2, int d2, int t2, typename op> friend class vector_proxy;
+    template <int m2, int d2, int t2, typename op> friend class vector_proxy;
 
     // Intentionally non-template friend functions; declared in situ. Use
     // -Wno-non-template-friends to suppress g++'s warning.
@@ -45,12 +45,12 @@ namespace carom
     vector_units(const scalar_units<m, d, t>& x,
                  const scalar_units<m, d, t>& y,
                  const scalar_units<m, d, t>& z) : m_x(x), m_y(y), m_z(z) { }
-    template<typename op> vector_units(const vector_proxy<m, d, t, op>& proxy)
+    template <typename op> vector_units(const vector_proxy<m, d, t, op>& proxy)
     { proxy.eval(m_x, m_y, m_z); }
     // vector_units(const vector_units<m, d, t>& v);
     // ~vector_units();
 
-    template<typename op>
+    template <typename op>
     vector_units& operator=(const vector_proxy<m, d, t, op>& proxy)
     { proxy.eval(m_x, m_y, m_z); return *this; }
 

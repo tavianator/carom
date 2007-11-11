@@ -25,7 +25,7 @@
 namespace carom
 {
   // Binary operator proxy class
-  template<typename T, typename U, typename op>
+  template <typename T, typename U, typename op>
   class scalar_binary_proxy
   {
   public:
@@ -51,7 +51,7 @@ namespace carom
     scalar_binary_proxy& operator=(const scalar_binary_proxy&);
   };
 
-  template<typename T, typename op>
+  template <typename T, typename op>
   class scalar_binary_proxy<T, mpfr_t, op>
   {
   public:
@@ -74,7 +74,7 @@ namespace carom
     scalar_binary_proxy& operator=(const scalar_binary_proxy&);
   };
 
-  template<typename T, typename op>
+  template <typename T, typename op>
   class scalar_binary_proxy<mpfr_t, T, op>
   {
   public:
@@ -97,7 +97,7 @@ namespace carom
     scalar_binary_proxy& operator=(const scalar_binary_proxy&);
   };
 
-  template<typename op>
+  template <typename op>
   class scalar_binary_proxy<mpfr_t, mpfr_t, op>
   {
   public:

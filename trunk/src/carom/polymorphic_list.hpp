@@ -22,7 +22,7 @@
 
 namespace carom
 {
-  template<typename T> class polymorphic_list;
+  template <typename T> class polymorphic_list;
 }
 
 #include <carom/polymorphic_list/iterator.hpp>
