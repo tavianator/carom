@@ -25,7 +25,7 @@
 namespace carom
 {
   // Unary operator proxy class
-  template<typename T, typename op>
+  template <typename T, typename op>
   class scalar_unary_proxy
   {
   public:
@@ -47,7 +47,7 @@ namespace carom
     scalar_unary_proxy& operator=(const scalar_unary_proxy&);
   };
 
-  template<typename op>
+  template <typename op>
   class scalar_unary_proxy<mpfr_t, op>
   {
   public:

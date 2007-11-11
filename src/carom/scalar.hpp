@@ -57,8 +57,8 @@ namespace carom
   // whenever possible.
 
   // Foreward declarations
-  template<int m, int d, int t>              class scalar_units;
-  template<int m, int d, int t, typename op> class scalar_proxy;
+  template <int m, int d, int t>              class scalar_units;
+  template <int m, int d, int t, typename op> class scalar_proxy;
 
   // Convienent typedefs
   typedef scalar_units<0, 0, 0>  scalar;

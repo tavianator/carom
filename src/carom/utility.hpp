@@ -20,4 +20,7 @@
 #ifndef CAROM_UTILITY_HPP
 #define CAROM_UTILITY_HPP
 
+#include <carom/utility/mesh.hpp>
+#include <carom/utility/impenetrable.hpp>
+
 #endif // CAROM_UTILITY_HPP

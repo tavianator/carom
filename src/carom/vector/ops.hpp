@@ -26,31 +26,31 @@ namespace carom
 {
   // Unary operators
 
-  template<int m, int d, int t>
+  template <int m, int d, int t>
   inline vector_proxy<m, d, t, scalar_unary_proxy<mpfr_t, scalar_pos_op> >
   operator+(const vector_units<m, d, t>& n)
   { return vector_proxy<m, d, t, scalar_unary_proxy<mpfr_t,
                                                     scalar_pos_op> >(n); }
 
-  template<int m, int d, int t, typename op>
+  template <int m, int d, int t, typename op>
   inline vector_proxy<m, d, t, scalar_unary_proxy<op, scalar_pos_op> >
   operator+(const vector_proxy<m, d, t, op>& n)
   { return vector_proxy<m, d, t, scalar_unary_proxy<op, scalar_pos_op> >(n); }
 
-  template<int m, int d, int t>
+  template <int m, int d, int t>
   inline vector_proxy<m, d, t, scalar_unary_proxy<mpfr_t, scalar_neg_op> >
   operator-(const vector_units<m, d, t>& n)
   { return vector_proxy<m, d, t, scalar_unary_proxy<mpfr_t,
                                                     scalar_neg_op> >(n); }
 
-  template<int m, int d, int t, typename op>
+  template <int m, int d, int t, typename op>
   inline vector_proxy<m, d, t, scalar_unary_proxy<op, scalar_neg_op> >
   operator-(const vector_proxy<m, d, t, op>& n)
   { return vector_proxy<m, d, t, scalar_unary_proxy<op, scalar_neg_op> >(n); }
 
   // Addition operators
 
-  template<int m, int d, int t>
+  template <int m, int d, int t>
   inline vector_proxy<m, d, t,
                       scalar_binary_proxy<mpfr_t, mpfr_t, scalar_add_op> >
   operator+(const vector_units<m, d, t>& lhs,
@@ -59,7 +59,7 @@ namespace carom
                         scalar_binary_proxy<mpfr_t, mpfr_t,
                                             scalar_add_op> >(lhs, rhs); }
 
-  template<int m, int d, int t, typename op>
+  template <int m, int d, int t, typename op>
   inline vector_proxy<m, d, t, scalar_binary_proxy<mpfr_t, op, scalar_add_op> >
   operator+(const vector_units<m, d, t>& lhs,
             const vector_proxy<m, d, t, op>& rhs)
@@ -67,7 +67,7 @@ namespace carom
                         scalar_binary_proxy<mpfr_t, op,
                                             scalar_add_op> >(lhs, rhs); }
 
-  template<int m, int d, int t, typename op>
+  template <int m, int d, int t, typename op>
   inline vector_proxy<m, d, t, scalar_binary_proxy<op, mpfr_t, scalar_add_op> >
   operator+(const vector_proxy<m, d, t, op>& lhs,
             const vector_units<m, d, t>& rhs)
@@ -75,7 +75,7 @@ namespace carom
                         scalar_binary_proxy<op, mpfr_t,
                                             scalar_add_op> >(lhs, rhs); }
 
-  template<int m, int d, int t, typename op1, typename op2>
+  template <int m, int d, int t, typename op1, typename op2>
   inline vector_proxy<m, d, t, scalar_binary_proxy<op1, op2, scalar_add_op> >
   operator+(const vector_proxy<m, d, t, op1>& lhs,
             const vector_proxy<m, d, t, op2>& rhs)
@@ -85,7 +85,7 @@ namespace carom
 
   // Subtraction operators
 
-  template<int m, int d, int t>
+  template <int m, int d, int t>
   inline vector_proxy<m, d, t,
                       scalar_binary_proxy<mpfr_t, mpfr_t, scalar_sub_op> >
   operator-(const vector_units<m, d, t>& lhs,
@@ -94,7 +94,7 @@ namespace carom
                         scalar_binary_proxy<mpfr_t, mpfr_t,
                                             scalar_sub_op> >(lhs, rhs); }
 
-  template<int m, int d, int t, typename op>
+  template <int m, int d, int t, typename op>
   inline vector_proxy<m, d, t, scalar_binary_proxy<mpfr_t, op, scalar_sub_op> >
   operator-(const vector_units<m, d, t>& lhs,
             const vector_proxy<m, d, t, op>& rhs)
@@ -102,7 +102,7 @@ namespace carom
                         scalar_binary_proxy<mpfr_t, op,
                                             scalar_sub_op> >(lhs, rhs); }
 
-  template<int m, int d, int t, typename op>
+  template <int m, int d, int t, typename op>
   inline vector_proxy<m, d, t, scalar_binary_proxy<op, mpfr_t, scalar_sub_op> >
   operator-(const vector_proxy<m, d, t, op>& lhs,
             const vector_units<m, d, t>& rhs)
@@ -110,7 +110,7 @@ namespace carom
                         scalar_binary_proxy<op, mpfr_t,
                                             scalar_sub_op> >(lhs, rhs); }
 
-  template<int m, int d, int t, typename op1, typename op2>
+  template <int m, int d, int t, typename op1, typename op2>
   inline vector_proxy<m, d, t, scalar_binary_proxy<op1, op2, scalar_sub_op> >
   operator-(const vector_proxy<m, d, t, op1>& lhs,
             const vector_proxy<m, d, t, op2>& rhs)
@@ -120,7 +120,7 @@ namespace carom
 
   // Multiplication operators
 
-  template<int m1, int m2, int d1, int d2, int t1, int t2>
+  template <int m1, int m2, int d1, int d2, int t1, int t2>
   inline vector_proxy<m1 + m2, d1 + d2, t1 + t2,
                       scalar_binary_proxy<mpfr_t, mpfr_t, scalar_mul_op> >
   operator*(const vector_units<m1, d1, t1>& lhs,
@@ -129,7 +129,7 @@ namespace carom
                         scalar_binary_proxy<mpfr_t, mpfr_t,
                                             scalar_mul_op> >(lhs, rhs); }
 
-  template<int m1, int m2, int d1, int d2, int t1, int t2>
+  template <int m1, int m2, int d1, int d2, int t1, int t2>
   inline vector_proxy<m1 + m2, d1 + d2, t1 + t2,
                       scalar_binary_proxy<mpfr_t, mpfr_t, scalar_mul_op> >
   operator*(const scalar_units<m1, d1, t1>& lhs,
@@ -138,7 +138,7 @@ namespace carom
                         scalar_binary_proxy<mpfr_t, mpfr_t,
                                             scalar_mul_op> >(lhs, rhs); }
 
-  template<int m1, int m2, int d1, int d2, int t1, int t2, typename op>
+  template <int m1, int m2, int d1, int d2, int t1, int t2, typename op>
   inline vector_proxy<m1 + m2, d1 + d2, t1 + t2,
                       scalar_binary_proxy<mpfr_t, op, scalar_mul_op> >
   operator*(const vector_units<m1, d1, t1>& lhs,
@@ -147,7 +147,7 @@ namespace carom
                         scalar_binary_proxy<mpfr_t, op,
                                             scalar_mul_op> >(lhs, rhs); }
 
-  template<int m1, int m2, int d1, int d2, int t1, int t2, typename op>
+  template <int m1, int m2, int d1, int d2, int t1, int t2, typename op>
   inline vector_proxy<m1 + m2, d1 + d2, t1 + t2,
                       scalar_binary_proxy<mpfr_t, op, scalar_mul_op> >
   operator*(const scalar_units<m1, d1, t1>& lhs,
@@ -156,7 +156,7 @@ namespace carom
                         scalar_binary_proxy<mpfr_t, op,
                                             scalar_mul_op> >(lhs, rhs); }
 
-  template<int m1, int m2, int d1, int d2, int t1, int t2, typename op>
+  template <int m1, int m2, int d1, int d2, int t1, int t2, typename op>
   inline vector_proxy<m1 + m2, d1 + d2, t1 + t2,
                       scalar_binary_proxy<op, mpfr_t, scalar_mul_op> >
   operator*(const vector_proxy<m1, d1, t1, op>& lhs,
@@ -165,7 +165,7 @@ namespace carom
                         scalar_binary_proxy<op, mpfr_t,
                                             scalar_mul_op> >(lhs, rhs); }
 
-  template<int m1, int m2, int d1, int d2, int t1, int t2, typename op>
+  template <int m1, int m2, int d1, int d2, int t1, int t2, typename op>
   inline vector_proxy<m1 + m2, d1 + d2, t1 + t2,
                       scalar_binary_proxy<op, mpfr_t, scalar_mul_op> >
   operator*(const scalar_proxy<m1, d1, t1, op>& lhs,
@@ -174,8 +174,8 @@ namespace carom
                         scalar_binary_proxy<op, mpfr_t,
                                             scalar_mul_op> >(lhs, rhs); }
 
-  template<int m1, int m2, int d1, int d2, int t1, int t2,
-           typename op1, typename op2>
+  template <int m1, int m2, int d1, int d2, int t1, int t2,
+	    typename op1, typename op2>
   inline vector_proxy<m1 + m2, d1 + d2, t1 + t2,
                       scalar_binary_proxy<op1, op2, scalar_mul_op> >
   operator*(const vector_proxy<m1, d1, t1, op1>& lhs,
@@ -184,8 +184,8 @@ namespace carom
                         scalar_binary_proxy<op1, op2,
                                             scalar_mul_op> >(lhs, rhs); }
 
-  template<int m1, int m2, int d1, int d2, int t1, int t2,
-           typename op1, typename op2>
+  template <int m1, int m2, int d1, int d2, int t1, int t2,
+	    typename op1, typename op2>
   inline vector_proxy<m1 + m2, d1 + d2, t1 + t2,
                       scalar_binary_proxy<op1, op2, scalar_mul_op> >
   operator*(const scalar_proxy<m1, d1, t1, op1>& lhs,
@@ -196,7 +196,7 @@ namespace carom
 
   // Division operators
 
-  template<int m1, int m2, int d1, int d2, int t1, int t2>
+  template <int m1, int m2, int d1, int d2, int t1, int t2>
   inline vector_proxy<m1 - m2, d1 - d2, t1 - t2,
                       scalar_binary_proxy<mpfr_t, mpfr_t, scalar_div_op> >
   operator/(const vector_units<m1, d1, t1>& lhs,
@@ -205,7 +205,7 @@ namespace carom
                         scalar_binary_proxy<mpfr_t, mpfr_t,
                                             scalar_div_op> >(lhs, rhs); }
 
-  template<int m1, int m2, int d1, int d2, int t1, int t2, typename op>
+  template <int m1, int m2, int d1, int d2, int t1, int t2, typename op>
   inline vector_proxy<m1 - m2, d1 - d2, t1 - t2,
                       scalar_binary_proxy<mpfr_t, op, scalar_div_op> >
   operator/(const vector_units<m1, d1, t1>& lhs,
@@ -214,7 +214,7 @@ namespace carom
                         scalar_binary_proxy<mpfr_t, op,
                                             scalar_div_op> >(lhs, rhs); }
 
-  template<int m1, int m2, int d1, int d2, int t1, int t2, typename op>
+  template <int m1, int m2, int d1, int d2, int t1, int t2, typename op>
   inline vector_proxy<m1 - m2, d1 - d2, t1 - t2,
                       scalar_binary_proxy<op, mpfr_t, scalar_div_op> >
   operator/(const vector_proxy<m1, d1, t1, op>& lhs,
@@ -223,8 +223,8 @@ namespace carom
                         scalar_binary_proxy<op, mpfr_t,
                                             scalar_div_op> >(lhs, rhs); }
 
-  template<int m1, int m2, int d1, int d2, int t1, int t2,
-           typename op1, typename op2>
+  template <int m1, int m2, int d1, int d2, int t1, int t2,
+	    typename op1, typename op2>
   inline vector_proxy<m1 - m2, d1 - d2, t1 - t2,
                       scalar_binary_proxy<op1, op2, scalar_div_op> >
   operator/(const vector_proxy<m1, d1, t1, op1>& lhs,

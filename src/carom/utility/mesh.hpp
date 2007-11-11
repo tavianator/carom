@@ -17,8 +17,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. *
  *************************************************************************/
 
-#ifndef CAROM_MESH_HPP
-#define CAROM_MESH_HPP
+#ifndef CAROM_UTILITY_MESH_HPP
+#define CAROM_UTILITY_MESH_HPP
+
+#include <list>
 
 namespace carom
 {
@@ -32,7 +34,24 @@ namespace carom
 
   class mesh
   {
+  public:
+    typedef std::list<triangle>::iterator iterator;
+    typedef std::list<triangle>::const_iterator const_iterator;
+
+    mesh() { }
+    // ~mesh();
+
+    iterator       begin()       { return m_triangles.begin(); }
+    const_iterator begin() const { return m_triangles.begin(); }
+    iterator       end()         { return m_triangles.end(); }
+    const_iterator end() const   { return m_triangles.end(); }
+
+  private:
+    std::list<triangle> m_triangles;
+
+    mesh(const mesh&);
+    mesh& operator=(const mesh&);
   };
 }
 
-#endif // CAROM_MESH_HPP
+#endif // CAROM_UTILITY_MESH_HPP

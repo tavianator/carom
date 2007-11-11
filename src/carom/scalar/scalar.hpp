@@ -28,12 +28,12 @@
 namespace carom
 {
   // Workaround for member template specialization
-  template<typename T> const T scalar_to(mpfr_t n);
+  template <typename T> const T scalar_to(mpfr_t n);
 
-  template<int m, int d, int t>
+  template <int m, int d, int t>
   class scalar_units
   {
-    template<int m2, int d2, int t2, typename op> friend class scalar_proxy;
+    template <int m2, int d2, int t2, typename op> friend class scalar_proxy;
 
     // Intentionally non-template friend functions; declared in situ. Use
     // -Wno-non-template-friends to suppress g++'s warning.
@@ -81,7 +81,7 @@ namespace carom
     scalar_units(const std::string& str, int base = 10)
     { mpfr_init_set_str(m_fp, str.c_str(), base, GMP_RNDN); }
 
-    template<typename op> scalar_units(const scalar_proxy<m, d, t, op>& proxy)
+    template <typename op> scalar_units(const scalar_proxy<m, d, t, op>& proxy)
     { mpfr_init(m_fp); proxy.eval(m_fp); }
 
     scalar_units(const scalar_units<m, d, t>& n)
@@ -89,7 +89,7 @@ namespace carom
 
     ~scalar_units() { mpfr_clear(m_fp); }
 
-    template<typename op>
+    template <typename op>
     scalar_units& operator=(const scalar_proxy<m, d, t, op>& proxy)
     { proxy.eval(m_fp); return *this; }
 
@@ -136,7 +136,7 @@ namespace carom
     // This function converts the scalar to any numeric type. In order to use
     // complete template specialization, which is impossible in this case for
     // member templates, we relegate the work to a specialized helper function.
-    template<typename T> const T to() const { return scalar_to<T>(m_fp); }
+    template <typename T> const T to() const { return scalar_to<T>(m_fp); }
 
   private:
     mutable mpfr_t m_fp;
@@ -145,39 +145,39 @@ namespace carom
   inline unsigned long precision() { return mpfr_get_default_prec(); }
   inline void precision(unsigned long prec) { mpfr_set_default_prec(prec); }
 
-  template<>
+  template <>
   inline const float scalar_to<float>(mpfr_t n)
   { return mpfr_get_d(n, GMP_RNDN); }
-  template<>
+  template <>
   inline const double scalar_to<double>(mpfr_t n)
   { return mpfr_get_d(n, GMP_RNDN); }
-  template<>
+  template <>
   inline const long double scalar_to<long double>(mpfr_t n)
   { return mpfr_get_ld(n, GMP_RNDN); }
 
-  template<>
+  template <>
   inline const signed char scalar_to<signed char>(mpfr_t n)
   { return mpfr_get_si(n, GMP_RNDN); }
-  template<>
+  template <>
   inline const signed short scalar_to<signed short>(mpfr_t n)
   { return mpfr_get_si(n, GMP_RNDN); }
-  template<>
+  template <>
   inline const signed int scalar_to<signed int>(mpfr_t n)
   { return mpfr_get_si(n, GMP_RNDN); }
-  template<>
+  template <>
   inline const signed long scalar_to<signed long>(mpfr_t n)
   { return mpfr_get_si(n, GMP_RNDN); }
 
-  template<>
+  template <>
   inline const unsigned char scalar_to<unsigned char>(mpfr_t n)
   { return mpfr_get_ui(n, GMP_RNDN); }
-  template<>
+  template <>
   inline const unsigned short scalar_to<unsigned short>(mpfr_t n)
   { return mpfr_get_ui(n, GMP_RNDN); }
-  template<>
+  template <>
   inline const unsigned int scalar_to<unsigned int>(mpfr_t n)
   { return mpfr_get_ui(n, GMP_RNDN); }
-  template<>
+  template <>
   inline const unsigned long scalar_to<unsigned long>(mpfr_t n)
   { return mpfr_get_ui(n, GMP_RNDN); }
 }
