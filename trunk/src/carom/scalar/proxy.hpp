@@ -24,13 +24,17 @@
 
 namespace carom
 {
-  // Unary scalar_proxy's
+  // Unary scalar_proxy
 
   template <int m, int d, int t, typename T, typename op>
   class scalar_proxy<m, d, t, scalar_unary_proxy<T, op> >
     : public scalar_unary_proxy<T, op>
   {
   public:
+    template <int m2, int d2, int t2>
+    scalar_proxy(const scalar_units<m2, d2, t2>& n)
+    : scalar_unary_proxy<T, op>(n.m_fp) { }
+
     scalar_proxy(const T& n) : scalar_unary_proxy<T, op>(n) { }
     // scalar_proxy(const scalar_proxy& proxy);
     // ~scalar_proxy();
@@ -39,80 +43,28 @@ namespace carom
     scalar_proxy& operator=(const scalar_proxy&);
   };
 
-  template <int m, int d, int t, typename op>
-  class scalar_proxy<m, d, t, scalar_unary_proxy<mpfr_t, op> >
-    : public scalar_unary_proxy<mpfr_t, op>
-  {
-  public:
-    template <int m2, int d2, int t2>
-    scalar_proxy(const scalar_units<m2, d2, t2>& n)
-    : scalar_unary_proxy<mpfr_t, op>(n.m_fp) { }
-
-    // scalar_proxy(const scalar_proxy& proxy);
-    // ~scalar_proxy();
-
-  private:
-    scalar_proxy& operator=(const scalar_proxy&);
-  };
-
-  // Binary scalar_proxy's
+  // Binary scalar_proxy
 
   template <int m, int d, int t, typename T, typename U, typename op>
   class scalar_proxy<m, d, t, scalar_binary_proxy<T, U, op> >
     : public scalar_binary_proxy<T, U, op>
   {
   public:
-    scalar_proxy(const T& lhs, const U& rhs)
-    : scalar_binary_proxy<T, U, op>(lhs, rhs) { }
-
-    // scalar_proxy(const scalar_proxy& proxy);
-    // ~scalar_proxy();
-
-  private:
-    scalar_proxy& operator=(const scalar_proxy&);
-  };
-
-  template <int m, int d, int t, typename T, typename op>
-  class scalar_proxy<m, d, t, scalar_binary_proxy<T, mpfr_t, op> >
-    : public scalar_binary_proxy<T, mpfr_t, op>
-  {
-  public:
-    template <int m2, int d2, int t2>
-    scalar_proxy(const T& lhs, const scalar_units<m2, d2, t2>& rhs)
-    : scalar_binary_proxy<T, mpfr_t, op>(lhs, rhs.m_fp) { }
-
-    // scalar_proxy(const scalar_proxy& proxy);
-    // ~scalar_proxy();
-
-  private:
-    scalar_proxy& operator=(const scalar_proxy&);
-  };
-
-  template <int m, int d, int t, typename T, typename op>
-  class scalar_proxy<m, d, t, scalar_binary_proxy<mpfr_t, T, op> >
-    : public scalar_binary_proxy<mpfr_t, T, op>
-  {
-  public:
-    template <int m2, int d2, int t2>
-    scalar_proxy(const scalar_units<m2, d2, t2>& lhs, const T& rhs)
-    : scalar_binary_proxy<mpfr_t, T, op>(lhs.m_fp, rhs) { }
-
-    // scalar_proxy(const scalar_proxy& proxy);
-    // ~scalar_proxy();
-
-  private:
-    scalar_proxy& operator=(const scalar_proxy&);
-  };
-
-  template <int m, int d, int t, typename op>
-  class scalar_proxy<m, d, t, scalar_binary_proxy<mpfr_t, mpfr_t, op> >
-    : public scalar_binary_proxy<mpfr_t, mpfr_t, op>
-  {
-  public:
     template <int m1, int m2, int d1, int d2, int t1, int t2>
     scalar_proxy(const scalar_units<m1, d1, t1>& lhs,
-                const scalar_units<m2, d2, t2>& rhs)
-    : scalar_binary_proxy<mpfr_t, mpfr_t, op>(lhs.m_fp, rhs.m_fp) { }
+		 const scalar_units<m2, d2, t2>& rhs)
+    : scalar_binary_proxy<T, U, op>(lhs.m_fp, rhs.m_fp) { }
+
+    template <int m2, int d2, int t2>
+    scalar_proxy(const T& lhs, const scalar_units<m2, d2, t2>& rhs)
+    : scalar_binary_proxy<T, U, op>(lhs, rhs.m_fp) { }
+
+    template <int m2, int d2, int t2>
+    scalar_proxy(const scalar_units<m2, d2, t2>& lhs, const U& rhs)
+    : scalar_binary_proxy<T, U, op>(lhs.m_fp, rhs) { }
+
+    scalar_proxy(const T& lhs, const U& rhs)
+    : scalar_binary_proxy<T, U, op>(lhs, rhs) { }
 
     // scalar_proxy(const scalar_proxy& proxy);
     // ~scalar_proxy();

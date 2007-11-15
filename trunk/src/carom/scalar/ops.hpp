@@ -21,6 +21,7 @@
 #define CAROM_SCALAR_OPS_HPP
 
 #include <mpfr.h>
+#include <boost/utility.hpp>
 #include <cstdlib>
 #include <stdexcept>
 
@@ -101,8 +102,8 @@ namespace carom
   template <int m, int d, int t>
   inline scalar_proxy<m, d, t, scalar_unary_proxy<mpfr_t, scalar_pos_op> >
   operator+(const scalar_units<m, d, t>& n)
-  { return scalar_proxy<m, d, t, scalar_unary_proxy<mpfr_t,
-                                                    scalar_pos_op> >(n); }
+  { return scalar_proxy<m, d, t,
+                        scalar_unary_proxy<mpfr_t, scalar_pos_op> >(n); }
 
   template <int m, int d, int t, typename op>
   inline scalar_proxy<m, d, t, scalar_unary_proxy<op, scalar_pos_op> >
@@ -112,8 +113,8 @@ namespace carom
   template <int m, int d, int t>
   inline scalar_proxy<m, d, t, scalar_unary_proxy<mpfr_t, scalar_neg_op> >
   operator-(const scalar_units<m, d, t>& n)
-  { return scalar_proxy<m, d, t, scalar_unary_proxy<mpfr_t,
-                                                    scalar_neg_op> >(n); }
+  { return scalar_proxy<m, d, t,
+                        scalar_unary_proxy<mpfr_t, scalar_neg_op> >(n); }
 
   template <int m, int d, int t, typename op>
   inline scalar_proxy<m, d, t, scalar_unary_proxy<op, scalar_neg_op> >
@@ -121,21 +122,36 @@ namespace carom
   { return scalar_proxy<m, d, t, scalar_unary_proxy<op, scalar_neg_op> >(n); }
 
   template <int m, int d, int t>
-  inline scalar_proxy<m, d, t, scalar_unary_proxy<mpfr_t, scalar_sqrt_op> >
-  sqrt(const scalar_units<m, d, t>& n)
-  { return scalar_proxy<m, d, t, scalar_unary_proxy<mpfr_t,
-                                                    scalar_sqrt_op> >(n); }
+  inline scalar_proxy<m/2, d/2, t/2, scalar_unary_proxy<mpfr_t, scalar_sqrt_op> >
+  sqrt(const scalar_units<m, d, t>& n) {
+    // Use TMP to ensure that m, d, and t are even; these typedefs fail to
+    // compile if m%2 != 0
+    typedef typename boost::enable_if_c<m%2 == 0>::type m_even;
+    typedef typename boost::enable_if_c<d%2 == 0>::type d_even;
+    typedef typename boost::enable_if_c<t%2 == 0>::type t_even;
+
+    return scalar_proxy<m/2, d/2, t/2,
+                        scalar_unary_proxy<mpfr_t, scalar_sqrt_op> >(n);
+  }
 
   template <int m, int d, int t, typename op>
-  inline scalar_proxy<m, d, t, scalar_unary_proxy<op, scalar_sqrt_op> >
-  sqrt(const scalar_proxy<m, d, t, op>& n)
-  { return scalar_proxy<m, d, t, scalar_unary_proxy<op, scalar_sqrt_op> >(n); }
+  inline scalar_proxy<m/2, d/2, t/2,
+		      scalar_unary_proxy<op, scalar_sqrt_op> >
+  sqrt(const scalar_proxy<m, d, t, op>& n) {
+    // Use TMP to ensure that m, d, and t are even
+    typedef typename boost::enable_if_c<m%2 == 0>::type m_even;
+    typedef typename boost::enable_if_c<d%2 == 0>::type d_even;
+    typedef typename boost::enable_if_c<t%2 == 0>::type t_even;
+
+    return scalar_proxy<m/2, d/2, t/2,
+                        scalar_unary_proxy<op, scalar_sqrt_op> >(n);
+  }
 
   template <int m, int d, int t>
   inline scalar_proxy<m, d, t, scalar_unary_proxy<mpfr_t, scalar_sin_op> >
   sin(const scalar_units<m, d, t>& n)
-  { return scalar_proxy<m, d, t, scalar_unary_proxy<mpfr_t,
-                                                   scalar_sin_op> >(n); }
+  { return scalar_proxy<m, d, t,
+                        scalar_unary_proxy<mpfr_t, scalar_sin_op> >(n); }
 
   template <int m, int d, int t, typename op>
   inline scalar_proxy<m, d, t, scalar_unary_proxy<op, scalar_sin_op> >
@@ -145,8 +161,8 @@ namespace carom
   template <int m, int d, int t>
   inline scalar_proxy<m, d, t, scalar_unary_proxy<mpfr_t, scalar_cos_op> >
   cos(const scalar_units<m, d, t>& n)
-  { return scalar_proxy<m, d, t, scalar_unary_proxy<mpfr_t,
-                                                    scalar_cos_op> >(n); }
+  { return scalar_proxy<m, d, t,
+                        scalar_unary_proxy<mpfr_t, scalar_cos_op> >(n); }
 
   template <int m, int d, int t, typename op>
   inline scalar_proxy<m, d, t, scalar_unary_proxy<op, scalar_cos_op> >
@@ -156,8 +172,8 @@ namespace carom
   template <int m, int d, int t>
   inline scalar_proxy<m, d, t, scalar_unary_proxy<mpfr_t, scalar_tan_op> >
   tan(const scalar_units<m, d, t>& n)
-  { return scalar_proxy<m, d, t, scalar_unary_proxy<mpfr_t,
-                                                    scalar_tan_op> >(n); }
+  { return scalar_proxy<m, d, t,
+                        scalar_unary_proxy<mpfr_t, scalar_tan_op> >(n); }
 
   template <int m, int d, int t, typename op>
   inline scalar_proxy<m, d, t, scalar_unary_proxy<op, scalar_tan_op> >

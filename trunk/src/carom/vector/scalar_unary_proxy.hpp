@@ -17,13 +17,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. *
  *************************************************************************/
 
-#ifndef CAROM_VECTOR_OPS_HPP
-#define CAROM_VECTOR_OPS_HPP
+#ifndef CAROM_VECTOR_SCALAR_UNARY_PROXY_HPP
+#define CAROM_VECTOR_SCALAR_UNARY_PROXY_HPP
 
 #include <mpfr.h>
 
 namespace carom
 {
+  template <typename T, typename op>
+  class scalar_vector_unary_proxy
+  {
+  public:
+    
+  };
 }
 
-#endif // CAROM_VECTOR_OPS_HPP
+#endif // CAROM_VECTOR_SCALAR_UNARY_PROXY_HPP
