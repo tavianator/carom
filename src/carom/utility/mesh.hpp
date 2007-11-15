@@ -32,6 +32,14 @@ namespace carom
     body::iterator c;
   };
 
+  struct intersection_info
+  {
+  public:
+    scalar t;
+    scalar u;
+    scalar v;
+  };
+
   class mesh
   {
   public:
@@ -45,6 +53,14 @@ namespace carom
     const_iterator begin() const { return m_triangles.begin(); }
     iterator       end()         { return m_triangles.end(); }
     const_iterator end() const   { return m_triangles.end(); }
+
+    static const intersection_info intersection(const vector_displacement& l0,
+						const vector_displacement& l1,
+						const triangle& p);
+
+    const vector_displacement center();
+    bool inside(const vector_displacement& l0, const vector_displacement& l1);
+    bool outside(const vector_displacement& l0, const vector_displacement& l1);
 
   private:
     std::list<triangle> m_triangles;

@@ -17,14 +17,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. *
  *************************************************************************/
 
-#ifndef CAROM_UTILITY_SIMPLE_BODY_HPP
-#define CAROM_UTILITY_SIMPLE_BODY_HPP
+#ifndef CAROM_UTILITY_FLUID_BODY_HPP
+#define CAROM_UTILITY_FLUID_BODY_HPP
 
 namespace carom
 {
-  class simple_body : public body
+  class fluid_body : public body
   {
   };
 }
 
-#endif // CAROM_UTILITY_SIMPLE_BODY_HPP
+#endif // CAROM_UTILITY_FLUID_BODY_HPP

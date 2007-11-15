@@ -28,6 +28,7 @@ namespace carom
   template <int m, int d, int t>
   class vector_units
   {
+    template <int m2, int d2, int t2, typename op> friend class scalar_proxy;
     template <int m2, int d2, int t2, typename op> friend class vector_proxy;
 
     // Intentionally non-template friend functions; declared in situ. Use
