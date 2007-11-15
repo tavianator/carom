@@ -17,16 +17,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. *
  *************************************************************************/
 
-#ifndef CAROM_HPP
-#define CAROM_HPP
+#ifndef CAROM_MPFR_UTILS_HPP
+#define CAROM_MPFR_UTILS_HPP
 
-#include <carom/mpfr_utils.hpp>
-#include <carom/scalar.hpp>
-#include <carom/vector.hpp>
-#include <carom/polymorphic_list.hpp>
-#include <carom/particle.hpp>
-#include <carom/body.hpp>
-#include <carom/system.hpp>
-#include <carom/utility.hpp>
+#include <mpfr.h>
 
-#endif // CAROM_HPP
+namespace carom
+{
+  void precision(unsigned long prec) { mpfr_set_default_prec(prec); }
+  unsigned long precision() { return mpfr_get_default_prec(); }
+
+  template <typename T> const T mpfr_to(mpfr_t fp);
+  template <typename T> void mpfr_from(mpfr_t rop, const T& n);
+}
+
+#endif // CAROM_MPFR_UTILS_HPP
