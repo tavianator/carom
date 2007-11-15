@@ -27,8 +27,22 @@ namespace carom
   template <typename T, typename op>
   class scalar_vector_unary_proxy
   {
-  public:
-    
+    scalar_vector_unary_proxy(const T& n) : m_n(n) { }
+    // scalar_vector_unary_proxy(const scalar_vector_unary_proxy& proxy);
+    // ~scalar_vector_unary_proxy();
+
+    void eval(mpfr_t store) const {
+      mpfr_t temp;
+      mpfr_init(temp);
+      m_n.eval(temp);
+      op::eval(store, temp);
+      mpfr_clear(temp);
+    }
+
+  private:
+    T m_n;
+
+    scalar_vector_unary_proxy& operator=(const scalar_vector_unary_proxy&);
   };
 }
 

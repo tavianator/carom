@@ -34,6 +34,7 @@ namespace carom
   class scalar_units
   {
     template <int m2, int d2, int t2, typename op> friend class scalar_proxy;
+    template <int m2, int d2, int t2>              friend class vector_units;
 
     // Intentionally non-template friend functions; declared in situ. Use
     // -Wno-non-template-friends to suppress g++'s warning.
@@ -127,10 +128,11 @@ namespace carom
 
     scalar_units& operator/=(const scalar_units<0, 0, 0>& rhs) {
       if (mpfr_zero_p(rhs.m_fp)) {
-        throw std::domain_error("Division by zero");
+	throw std::domain_error("Division by zero");
       }
 
-      mpfr_div(m_fp, m_fp, rhs.m_fp, GMP_RNDN); return *this;
+      mpfr_div(m_fp, m_fp, rhs.m_fp, GMP_RNDN);
+      return *this;
     }
 
     // This function converts the scalar to any numeric type. In order to use
