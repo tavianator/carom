@@ -17,16 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. *
  *************************************************************************/
 
-#ifndef CAROM_HPP
-#define CAROM_HPP
+#ifndef CAROM_SCALAR_HPP
+#define CAROM_SCALAR_HPP
 
-#include <carom/mpfr_utils.hpp>
-#include <carom/scalar.hpp>
-#include <carom/vector.hpp>
-#include <carom/polymorphic_list.hpp>
-#include <carom/particle.hpp>
-#include <carom/body.hpp>
-#include <carom/system.hpp>
-#include <carom/utility.hpp>
-
-#endif // CAROM_HPP
+#endif // CAROM_SCALAR_HPP
