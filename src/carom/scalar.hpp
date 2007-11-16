@@ -23,9 +23,6 @@
 namespace carom
 {
   // Foreward declarations
-  template <typename op>                      class scalar_nullary_proxy;
-  template <typename op>                      class scalar_unary_proxy;
-  template <typename op>                      class scalar_binary_proxy;
   template <int m, int d, int t, typename op> class scalar_proxy;
   template <int m, int d, int t>              class scalar_units;
 
