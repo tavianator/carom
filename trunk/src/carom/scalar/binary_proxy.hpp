@@ -17,7 +17,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. *
  *************************************************************************/
 
-#ifndef CAROM_SCALAR_HPP
-#define CAROM_SCALAR_HPP
+#ifndef CAROM_SCALAR_BINARY_PROXY_HPP
+#define CAROM_SCALAR_BINARY_PROXY_HPP
 
-#endif // CAROM_SCALAR_HPP
+namespace carom
+{
+  template <typename T, typename U, typename op>
+  class scalar_binary_proxy
+  {
+  public:
+    scalar_binary_proxy
+  };
+}
+
+#endif // CAROM_SCALAR_BINARY_PROXY_HPP
