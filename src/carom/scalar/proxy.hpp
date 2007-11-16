@@ -20,34 +20,4 @@
 #ifndef CAROM_SCALAR_HPP
 #define CAROM_SCALAR_HPP
 
-namespace carom
-{
-  // Foreward declarations
-  template <typename op>                      class scalar_nullary_proxy;
-  template <typename op>                      class scalar_unary_proxy;
-  template <typename op>                      class scalar_binary_proxy;
-  template <int m, int d, int t, typename op> class scalar_proxy;
-  template <int m, int d, int t>              class scalar_units;
-
-  // Convenient typedefs
-  typedef scalar_units<0, 0, 0>  scalar;
-  typedef scalar_units<0, 0, 0>  scalar_angle;
-  typedef scalar_units<1, 0, 0>  scalar_mass;
-  typedef scalar_units<0, 1, 0>  scalar_distance;
-  typedef scalar_units<0, 0, 1>  scalar_time;
-  typedef scalar_units<0, 1, -1> scalar_speed;
-  typedef scalar_units<1, 1, -1> scalar_momentum;
-  typedef scalar_units<0, 1, -2> scalar_acceleration;
-  typedef scalar_units<1, 1, -2> scalar_force;
-  typedef scalar_units<1, 2, -2> scalar_energy;
-  typedef scalar_units<1, 2, -3> scalar_power;
-}
-
-#include <carom/scalar/nullary_proxy.hpp>
-#include <carom/scalar/unary_proxy.hpp>
-#include <carom/scalar/binary_proxy.hpp>
-#include <carom/scalar/proxy.hpp>
-#include <carom/scalar/scalar.hpp>
-#include <carom/scalar/ops.hpp>
-
 #endif // CAROM_SCALAR_HPP
