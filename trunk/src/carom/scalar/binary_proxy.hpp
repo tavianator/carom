@@ -34,7 +34,7 @@ namespace carom
 
     void eval(mpfr_t store) const {
       mpfr_t lhs;
-      mpfr_r rhs;
+      mpfr_t rhs;
       mpfr_init(lhs);
       mpfr_init(rhs);
       m_lhs.eval(lhs);
