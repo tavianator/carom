@@ -20,4 +20,29 @@
 #ifndef CAROM_VECTOR_HPP
 #define CAROM_VECTOR_HPP
 
+namespace carom
+{
+  // Foreward declarations
+  template <int m, int d, int t, typename op> class vector_proxy;
+  template <int m, int d, int t>              class vector_units;
+
+  // Convenient typedefs
+  typedef vector_units<0, 0, 0>  vector;
+  typedef vector_units<0, 1, 0>  vector_displacement;
+  typedef vector_units<0, 1, -1> vector_velocity;
+  typedef vector_units<1, 1, -1> vector_momentum;
+  typedef vector_units<0, 1, -2> vector_acceleration;
+  typedef vector_units<1, 1, -2> vector_force;
+}
+
+#include <carom/vector/scalar_unary_proxy.hpp>
+#include <carom/vector/scalar_binary_proxy.hpp>
+#include <carom/vector/scalar_proxy.hpp>
+#include <carom/vector/vector_nullary_proxy.hpp>
+#include <carom/vector/vector_unary_proxy.hpp>
+#include <carom/vector/vector_binary_proxy.hpp>
+#include <carom/vector/vector_proxy.hpp>
+#include <carom/vector/vector.hpp>
+#include <carom/vector/ops.hpp>
+
 #endif // CAROM_VECTOR_HPP
