@@ -17,26 +17,25 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. *
  *************************************************************************/
 
-#ifndef CAROM_SCALAR_NULLARY_PROXY_HPP
-#define CAROM_SCALAR_NULLARY_PROXY_HPP
-
-#include <mpfr.h>
+#ifndef CAROM_VECTOR_VECTOR_NULLARY_PROXY_HPP
+#define CAROM_VECTOR_VECTOR_NULLARY_PROXY_HPP
 
 namespace carom
 {
   template <typename op>
-  class scalar_nullary_proxy
+  class vector_nullary_proxy
   {
   public:
-    // scalar_nullary_proxy();
-    // scalar_nullary_proxy(const scalar_nullary_proxy& proxy);
-    // ~scalar_nullary_proxy();
+    // vector_nullary_proxy();
+    // vector_nullary_proxy(const vector_nullary_proxy& proxy);
+    // ~vector_nullary_proxy();
 
-    void eval(mpfr_t store) const { op::eval(store); }
+    void eval(mpfr_t store_x, mpfr_t store_y, mpfr_t store_z) const
+    { op::eval(store_x, store_y, store_z); }
 
   private:
-    scalar_nullary_proxy& operator=(const scalar_nullary_proxy&);
+    vector_nullary_proxy& operator=(const vector_nullary_proxy&);
   };
 }
 
-#endif // CAROM_SCALAR_NULLARY_PROXY_HPP
+#endif // CAROM_VECTOR_VECTOR_NULLARY_PROXY_HPP
