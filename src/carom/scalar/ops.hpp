@@ -17,7 +17,314 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. *
  *************************************************************************/
 
-#ifndef CAROM_SCALAR_HPP
-#define CAROM_SCALAR_HPP
+#ifndef CAROM_SCALAR_OPS_HPP
+#define CAROM_SCALAR_OPS_HPP
 
-#endif // CAROM_SCALAR_HPP
+#include <mpfr.h>
+#include <cstdlib>
+#include <stdexcept>
+
+namespace carom
+{
+  // Nullary operations
+
+  struct scalar_pi_op
+  {
+  public:
+    static void eval(mpfr_t store) { mpfr_const_pi(store, GMP_RNDN); }
+  };
+
+  // Unary operations
+
+  struct scalar_pos_op
+  {
+  public:
+    static void eval(mpfr_t store, mpfr_t n) { mpfr_set(store, n, GMP_RNDN); }
+  };
+
+  struct scalar_neg_op
+  {
+  public:
+    static void eval(mpfr_t store, mpfr_t n) { mpfr_neg(store, n, GMP_RNDN); }
+  };
+
+  struct scalar_sqrt_op
+  {
+  public:
+    static void eval(mpfr_t store, mpfr_t n) { mpfr_sqrt(store, n, GMP_RNDN); }
+  };
+
+  struct scalar_sin_op
+  {
+  public:
+    static void eval(mpfr_t store, mpfr_t n) { mpfr_sin(store, n, GMP_RNDN); }
+  };
+
+  struct scalar_cos_op
+  {
+  public:
+    static void eval(mpfr_t store, mpfr_t n) { mpfr_cos(store, n, GMP_RNDN); }
+  };
+
+  struct scalar_tan_op
+  {
+  public:
+    static void eval(mpfr_t store, mpfr_t n) { mpfr_tan(store, n, GMP_RNDN); }
+  };
+
+  // Binary operations
+
+  struct scalar_add_op
+  {
+  public:
+    static void eval(mpfr_t store, mpfr_t lhs, mpfr_t rhs)
+    { mpfr_add(store, lhs, rhs, GMP_RNDN); }
+  };
+
+  struct scalar_sub_op
+  {
+  public:
+    static void eval(mpfr_t store, mpfr_t lhs, mpfr_t rhs)
+    { mpfr_sub(store, lhs, rhs, GMP_RNDN); }
+  };
+
+  struct scalar_mul_op
+  {
+  public:
+    static void eval(mpfr_t store, mpfr_t lhs, mpfr_t rhs)
+    { mpfr_mul(store, lhs, rhs, GMP_RNDN); }
+  };
+
+  struct scalar_div_op
+  {
+  public:
+    static void eval(mpfr_t store, mpfr_t lhs, mpfr_t rhs) {
+      if (mpfr_zero_p(rhs)) { throw std::domain_error("Division by zero"); }
+      mpfr_div(store, lhs, rhs, GMP_RNDN);
+    }
+  };
+
+  // Nullary operators
+
+  inline scalar_proxy<0, 0, 0, scalar_nullary_proxy<scalar_pi_op> >
+  pi()
+  { return scalar_proxy<0, 0, 0, scalar_nullary_proxy<scalar_pi_op> >(); }
+
+  // Unary operators
+
+  template <int m, int d, int t>
+  inline scalar_proxy<m, d, t, scalar_unary_proxy<mpfr_t, scalar_pos_op> >
+  operator+(const scalar_units<m, d, t>& n)
+  { return scalar_proxy<m, d, t, scalar_unary_proxy<mpfr_t,
+                                                    scalar_pos_op> >(n); }
+
+  template <int m, int d, int t, typename op>
+  inline scalar_proxy<m, d, t, scalar_unary_proxy<op, scalar_pos_op> >
+  operator+(const scalar_proxy<m, d, t, op>& n)
+  { return scalar_proxy<m, d, t, scalar_unary_proxy<op, scalar_pos_op> >(n); }
+
+  template <int m, int d, int t>
+  inline scalar_proxy<m, d, t, scalar_unary_proxy<mpfr_t, scalar_neg_op> >
+  operator-(const scalar_units<m, d, t>& n)
+  { return scalar_proxy<m, d, t, scalar_unary_proxy<mpfr_t,
+                                                    scalar_neg_op> >(n); }
+
+  template <int m, int d, int t, typename op>
+  inline scalar_proxy<m, d, t, scalar_unary_proxy<op, scalar_neg_op> >
+  operator-(const scalar_proxy<m, d, t, op>& n)
+  { return scalar_proxy<m, d, t, scalar_unary_proxy<op, scalar_neg_op> >(n); }
+
+  template <int m, int d, int t>
+  inline scalar_proxy<m, d, t, scalar_unary_proxy<mpfr_t, scalar_sqrt_op> >
+  sqrt(const scalar_units<m, d, t>& n)
+  { return scalar_proxy<m, d, t, scalar_unary_proxy<mpfr_t,
+                                                    scalar_sqrt_op> >(n); }
+
+  template <int m, int d, int t, typename op>
+  inline scalar_proxy<m, d, t, scalar_unary_proxy<op, scalar_sqrt_op> >
+  sqrt(const scalar_proxy<m, d, t, op>& n)
+  { return scalar_proxy<m, d, t, scalar_unary_proxy<op, scalar_sqrt_op> >(n); }
+
+  template <int m, int d, int t>
+  inline scalar_proxy<m, d, t, scalar_unary_proxy<mpfr_t, scalar_sin_op> >
+  sin(const scalar_units<m, d, t>& n)
+  { return scalar_proxy<m, d, t, scalar_unary_proxy<mpfr_t,
+                                                   scalar_sin_op> >(n); }
+
+  template <int m, int d, int t, typename op>
+  inline scalar_proxy<m, d, t, scalar_unary_proxy<op, scalar_sin_op> >
+  sin(const scalar_proxy<m, d, t, op>& n)
+  { return scalar_proxy<m, d, t, scalar_unary_proxy<op, scalar_sin_op> >(n); }
+
+  template <int m, int d, int t>
+  inline scalar_proxy<m, d, t, scalar_unary_proxy<mpfr_t, scalar_cos_op> >
+  cos(const scalar_units<m, d, t>& n)
+  { return scalar_proxy<m, d, t, scalar_unary_proxy<mpfr_t,
+                                                    scalar_cos_op> >(n); }
+
+  template <int m, int d, int t, typename op>
+  inline scalar_proxy<m, d, t, scalar_unary_proxy<op, scalar_cos_op> >
+  cos(const scalar_proxy<m, d, t, op>& n)
+  { return scalar_proxy<m, d, t, scalar_unary_proxy<op, scalar_cos_op> >(n); }
+
+  template <int m, int d, int t>
+  inline scalar_proxy<m, d, t, scalar_unary_proxy<mpfr_t, scalar_tan_op> >
+  tan(const scalar_units<m, d, t>& n)
+  { return scalar_proxy<m, d, t, scalar_unary_proxy<mpfr_t,
+                                                    scalar_tan_op> >(n); }
+
+  template <int m, int d, int t, typename op>
+  inline scalar_proxy<m, d, t, scalar_unary_proxy<op, scalar_tan_op> >
+  tan(const scalar_proxy<m, d, t, op>& n)
+  { return scalar_proxy<m, d, t, scalar_unary_proxy<op, scalar_tan_op> >(n); }
+
+  // Addition operators
+
+  template <int m, int d, int t>
+  inline scalar_proxy<m, d, t,
+                      scalar_binary_proxy<mpfr_t, mpfr_t, scalar_add_op> >
+  operator+(const scalar_units<m, d, t>& lhs,
+            const scalar_units<m, d, t>& rhs)
+  { return scalar_proxy<m, d, t,
+                        scalar_binary_proxy<mpfr_t, mpfr_t,
+                                            scalar_add_op> >(lhs, rhs); }
+
+  template <int m, int d, int t, typename op>
+  inline scalar_proxy<m, d, t, scalar_binary_proxy<mpfr_t, op, scalar_add_op> >
+  operator+(const scalar_units<m, d, t>& lhs,
+            const scalar_proxy<m, d, t, op>& rhs)
+  { return scalar_proxy<m, d, t,
+                        scalar_binary_proxy<mpfr_t, op,
+                                            scalar_add_op> >(lhs, rhs); }
+
+  template <int m, int d, int t, typename op>
+  inline scalar_proxy<m, d, t, scalar_binary_proxy<op, mpfr_t, scalar_add_op> >
+  operator+(const scalar_proxy<m, d, t, op>& lhs,
+            const scalar_units<m, d, t>& rhs)
+  { return scalar_proxy<m, d, t,
+                        scalar_binary_proxy<op, mpfr_t,
+                                            scalar_add_op> >(lhs, rhs); }
+
+  template <int m, int d, int t, typename op1, typename op2>
+  inline scalar_proxy<m, d, t, scalar_binary_proxy<op1, op2, scalar_add_op> >
+  operator+(const scalar_proxy<m, d, t, op1>& lhs,
+            const scalar_proxy<m, d, t, op2>& rhs)
+  { return scalar_proxy<m, d, t,
+                        scalar_binary_proxy<op1, op2,
+                                            scalar_add_op> >(lhs, rhs); }
+
+  // Subtraction operators
+
+  template <int m, int d, int t>
+  inline scalar_proxy<m, d, t,
+                      scalar_binary_proxy<mpfr_t, mpfr_t, scalar_sub_op> >
+  operator-(const scalar_units<m, d, t>& lhs,
+            const scalar_units<m, d, t>& rhs)
+  { return scalar_proxy<m, d, t,
+                        scalar_binary_proxy<mpfr_t, mpfr_t,
+                                            scalar_sub_op> >(lhs, rhs); }
+
+  template <int m, int d, int t, typename op>
+  inline scalar_proxy<m, d, t, scalar_binary_proxy<mpfr_t, op, scalar_sub_op> >
+  operator-(const scalar_units<m, d, t>& lhs,
+            const scalar_proxy<m, d, t, op>& rhs)
+  { return scalar_proxy<m, d, t,
+                        scalar_binary_proxy<mpfr_t, op,
+                                            scalar_sub_op> >(lhs, rhs); }
+
+  template <int m, int d, int t, typename op>
+  inline scalar_proxy<m, d, t, scalar_binary_proxy<op, mpfr_t, scalar_sub_op> >
+  operator-(const scalar_proxy<m, d, t, op>& lhs,
+            const scalar_units<m, d, t>& rhs)
+  { return scalar_proxy<m, d, t,
+                        scalar_binary_proxy<op, mpfr_t,
+                                            scalar_sub_op> >(lhs, rhs); }
+
+  template <int m, int d, int t, typename op1, typename op2>
+  inline scalar_proxy<m, d, t, scalar_binary_proxy<op1, op2, scalar_sub_op> >
+  operator-(const scalar_proxy<m, d, t, op1>& lhs,
+            const scalar_proxy<m, d, t, op2>& rhs)
+  { return scalar_proxy<m, d, t,
+                        scalar_binary_proxy<op1, op2,
+                                            scalar_sub_op> >(lhs, rhs); }
+
+  // Multiplication operators
+
+  template <int m1, int m2, int d1, int d2, int t1, int t2>
+  inline scalar_proxy<m1 + m2, d1 + d2, t1 + t2,
+                      scalar_binary_proxy<mpfr_t, mpfr_t, scalar_mul_op> >
+  operator*(const scalar_units<m1, d1, t1>& lhs,
+            const scalar_units<m2, d2, t2>& rhs)
+  { return scalar_proxy<m1 + m2, d1 + d2, t1 + t2,
+                        scalar_binary_proxy<mpfr_t, mpfr_t,
+                                            scalar_mul_op> >(lhs, rhs); }
+
+  template <int m1, int m2, int d1, int d2, int t1, int t2, typename op>
+  inline scalar_proxy<m1 + m2, d1 + d2, t1 + t2,
+                      scalar_binary_proxy<mpfr_t, op, scalar_mul_op> >
+  operator*(const scalar_units<m1, d1, t1>& lhs,
+            const scalar_proxy<m2, d2, t2, op>& rhs)
+  { return scalar_proxy<m1 + m2, d1 + d2, t1 + t2,
+                        scalar_binary_proxy<mpfr_t, op,
+                                            scalar_mul_op> >(lhs, rhs); }
+
+  template <int m1, int m2, int d1, int d2, int t1, int t2, typename op>
+  inline scalar_proxy<m1 + m2, d1 + d2, t1 + t2,
+                      scalar_binary_proxy<op, mpfr_t, scalar_mul_op> >
+  operator*(const scalar_proxy<m1, d1, t1, op>& lhs,
+            const scalar_units<m2, d2, t2>& rhs)
+  { return scalar_proxy<m1 + m2, d1 + d2, t1 + t2,
+                        scalar_binary_proxy<op, mpfr_t,
+                                            scalar_mul_op> >(lhs, rhs); }
+
+  template <int m1, int m2, int d1, int d2, int t1, int t2,
+	    typename op1, typename op2>
+  inline scalar_proxy<m1 + m2, d1 + d2, t1 + t2,
+                      scalar_binary_proxy<op1, op2, scalar_mul_op> >
+  operator*(const scalar_proxy<m1, d1, t1, op1>& lhs,
+            const scalar_proxy<m2, d2, t2, op2>& rhs)
+  { return scalar_proxy<m1 + m2, d1 + d2, t1 + t2,
+                        scalar_binary_proxy<op1, op2,
+                                            scalar_mul_op> >(lhs, rhs); }
+
+  // Division operators
+
+  template <int m1, int m2, int d1, int d2, int t1, int t2>
+  inline scalar_proxy<m1 - m2, d1 - d2, t1 - t2,
+                      scalar_binary_proxy<mpfr_t, mpfr_t, scalar_div_op> >
+  operator/(const scalar_units<m1, d1, t1>& lhs,
+            const scalar_units<m2, d2, t2>& rhs)
+  { return scalar_proxy<m1 - m2, d1 - d2, t1 - t2,
+                        scalar_binary_proxy<mpfr_t, mpfr_t,
+                                            scalar_div_op> >(lhs, rhs); }
+
+  template <int m1, int m2, int d1, int d2, int t1, int t2, typename op>
+  inline scalar_proxy<m1 - m2, d1 - d2, t1 - t2,
+                      scalar_binary_proxy<mpfr_t, op, scalar_div_op> >
+  operator/(const scalar_units<m1, d1, t1>& lhs,
+            const scalar_proxy<m2, d2, t2, op>& rhs)
+  { return scalar_proxy<m1 - m2, d1 - d2, t1 - t2,
+                        scalar_binary_proxy<mpfr_t, op,
+                                            scalar_div_op> >(lhs, rhs); }
+
+  template <int m1, int m2, int d1, int d2, int t1, int t2, typename op>
+  inline scalar_proxy<m1 - m2, d1 - d2, t1 - t2,
+                      scalar_binary_proxy<op, mpfr_t, scalar_div_op> >
+  operator/(const scalar_proxy<m1, d1, t1, op>& lhs,
+            const scalar_units<m2, d2, t2>& rhs)
+  { return scalar_proxy<m1 - m2, d1 - d2, t1 - t2,
+                        scalar_binary_proxy<op, mpfr_t,
+                                            scalar_div_op> >(lhs, rhs); }
+
+  template <int m1, int m2, int d1, int d2, int t1, int t2,
+	    typename op1, typename op2>
+  inline scalar_proxy<m1 - m2, d1 - d2, t1 - t2,
+                      scalar_binary_proxy<op1, op2, scalar_div_op> >
+  operator/(const scalar_proxy<m1, d1, t1, op1>& lhs,
+            const scalar_proxy<m2, d2, t2, op2>& rhs)
+  { return scalar_proxy<m1 - m2, d1 - d2, t1 - t2,
+                        scalar_binary_proxy<op1, op2,
+                                            scalar_div_op> >(lhs, rhs); }
+}
+
+#endif // CAROM_SCALAR_OPS_HPP
