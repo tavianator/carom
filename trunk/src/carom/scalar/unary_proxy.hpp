@@ -20,6 +20,8 @@
 #ifndef CAROM_SCALAR_UNARY_PROXY_HPP
 #define CAROM_SCALAR_UNARY_PROXY_HPP
 
+#include <mpfr.h>
+
 namespace carom
 {
   template <typename T, typename op>

@@ -20,13 +20,100 @@
 #ifndef CAROM_SCALAR_BINARY_PROXY_HPP
 #define CAROM_SCALAR_BINARY_PROXY_HPP
 
+#include <mpfr.h>
+
 namespace carom
 {
   template <typename T, typename U, typename op>
   class scalar_binary_proxy
   {
   public:
-    scalar_binary_proxy
+    scalar_binary_proxy(const T& lhs, const U& rhs) : m_lhs(lhs), m_rhs(rhs) { }
+    // scalar_binary_proxy(const scalar_binary_proxy&);
+    // ~scalar_binary_proxy();
+
+    void eval(mpfr_t store) const {
+      mpfr_t lhs;
+      mpfr_r rhs;
+      mpfr_init(lhs);
+      mpfr_init(rhs);
+      m_lhs.eval(lhs);
+      m_rhs.eval(rhs);
+      op::eval(store, lhs, rhs);
+      mpfr_clear(lhs);
+      mpfr_clear(rhs);
+    }
+
+  private:
+    T m_lhs;
+    U m_rhs;
+
+    scalar_binary_proxy& operator=(const scalar_binary_proxy&);
+  };
+
+  template <typename T, typename op>
+  class scalar_binary_proxy<T, mpfr_t, op>
+  {
+  public:
+    scalar_binary_proxy(const T& lhs, mpfr_t rhs) : m_lhs(lhs), m_rhs(rhs) { }
+    // scalar_binary_proxy(const scalar_binary_proxy&);
+    // ~scalar_binary_proxy();
+
+    void eval(mpfr_t store) const {
+      mpfr_t lhs;
+      mpfr_init(lhs);
+      m_lhs.eval(lhs);
+      op::eval(store, lhs, m_rhs);
+      mpfr_clear(lhs);
+    }
+
+  private:
+    T        m_lhs;
+    mpfr_ptr m_rhs;
+
+    scalar_binary_proxy& operator=(const scalar_binary_proxy&);
+  };
+
+  template <typename T, typename op>
+  class scalar_binary_proxy<mpfr_t, T, op>
+  {
+  public:
+    scalar_binary_proxy(mpfr_t lhs, const T& rhs) : m_lhs(lhs), m_rhs(rhs) { }
+    // scalar_binary_proxy(const scalar_binary_proxy&);
+    // ~scalar_binary_proxy();
+
+    void eval(mpfr_t store) const {
+      mpfr_t rhs;
+      mpfr_init(rhs);
+      m_rhs.eval(rhs);
+      op::eval(store, m_lhs, rhs);
+      mpfr_clear(rhs);
+    }
+
+  private:
+    mpfr_ptr m_lhs;
+    T        m_rhs;
+
+    scalar_binary_proxy& operator=(const scalar_binary_proxy&);
+  };
+
+  template <typename op>
+  class scalar_binary_proxy<mpfr_t, mpfr_t, op>
+  {
+  public:
+    scalar_binary_proxy(mpfr_t lhs, mpfr_t rhs) : m_lhs(lhs), m_rhs(rhs) { }
+    // scalar_binary_proxy(const scalar_binary_proxy&);
+    // ~scalar_binary_proxy();
+
+    void eval(mpfr_t store) const {
+      op::eval(store, m_lhs, m_rhs);
+    }
+
+  private:
+    mpfr_ptr m_lhs;
+    mpfr_ptr m_rhs;
+
+    scalar_binary_proxy& operator=(const scalar_binary_proxy&);
   };
 }
 
