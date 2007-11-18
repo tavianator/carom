@@ -66,14 +66,14 @@ namespace carom
 
     // polymorphic_iterator& operator=(const polymorphic_iterator& i);
 
-    T& operator*() const { return *m_node->data; }
-    T* operator->() const { return m_node->data; }
+    reference operator*() const { return *m_node->data; }
+    pointer operator->() const { return m_node->data; }
 
     polymorphic_iterator& operator++() { m_node = m_node->next; return *this; }
     polymorphic_iterator& operator--() { m_node = m_node->prior; return *this; }
-    const polymorphic_iterator operator++(int)
+    polymorphic_iterator operator++(int)
     { m_node = m_node->next; return polymorphic_iterator(m_node->prior); }
-    const polymorphic_iterator operator--(int)
+    polymorphic_iterator operator--(int)
     { m_node = m_node->prior; return polymorphic_iterator(m_node->next); }
 
     bool operator==(const polymorphic_const_iterator<T>& i) const
@@ -111,16 +111,16 @@ namespace carom
     // polymorphic_const_iterator&
     // operator=(const polymorphic_const_iterator& i);
 
-    const T& operator*() const { return *m_node->data; }
-    const T* operator->() const { return m_node->data; }
+    reference operator*() const { return *m_node->data; }
+    pointer operator->() const { return m_node->data; }
 
     polymorphic_const_iterator& operator++()
     { m_node = m_node->next; return *this; }
     polymorphic_const_iterator& operator--()
     { m_node = m_node->prior; return *this; }
-    const polymorphic_const_iterator operator++(int)
+    polymorphic_const_iterator operator++(int)
     { m_node = m_node->next; return polymorphic_const_iterator(m_node->prior); }
-    const polymorphic_const_iterator operator--(int)
+    polymorphic_const_iterator operator--(int)
     { m_node = m_node->prior; return polymorphic_const_iterator(m_node->next); }
 
     bool operator==(const polymorphic_const_iterator& i) const

@@ -46,42 +46,42 @@ namespace carom
   inline void mpfr_from(mpfr_t rop, const std::string& str)
   { mpfr_set_str(rop, str.c_str(), 0, GMP_RNDN); }
 
-  template <typename T> const T mpfr_to(mpfr_t fp);
+  template <typename T> T mpfr_to(mpfr_t fp);
 
   template <>
-  inline const float mpfr_to<float>(mpfr_t fp)
+  inline float mpfr_to<float>(mpfr_t fp)
   { return mpfr_get_d(fp, GMP_RNDN); }
 
   template <>
-  inline const double mpfr_to<double>(mpfr_t fp)
+  inline double mpfr_to<double>(mpfr_t fp)
   { return mpfr_get_d(fp, GMP_RNDN); }
 
   template <>
-  inline const long double mpfr_to<long double>(mpfr_t fp)
+  inline long double mpfr_to<long double>(mpfr_t fp)
   { return mpfr_get_d(fp, GMP_RNDN); }
 
   template <>
-  inline const signed short mpfr_to<signed short>(mpfr_t fp)
+  inline signed short mpfr_to<signed short>(mpfr_t fp)
   { return mpfr_get_si(fp, GMP_RNDN); }
 
   template <>
-  inline const unsigned short mpfr_to<unsigned short>(mpfr_t fp)
+  inline unsigned short mpfr_to<unsigned short>(mpfr_t fp)
   { return mpfr_get_ui(fp, GMP_RNDN); }
 
   template <>
-  inline const signed int mpfr_to<signed int>(mpfr_t fp)
+  inline signed int mpfr_to<signed int>(mpfr_t fp)
   { return mpfr_get_si(fp, GMP_RNDN); }
 
   template <>
-  inline const unsigned int mpfr_to<unsigned int>(mpfr_t fp)
+  inline unsigned int mpfr_to<unsigned int>(mpfr_t fp)
   { return mpfr_get_ui(fp, GMP_RNDN); }
 
   template <>
-  inline const signed long mpfr_to<signed long>(mpfr_t fp)
+  inline signed long mpfr_to<signed long>(mpfr_t fp)
   { return mpfr_get_si(fp, GMP_RNDN); }
 
   template <>
-  inline const unsigned long mpfr_to<unsigned long>(mpfr_t fp)
+  inline unsigned long mpfr_to<unsigned long>(mpfr_t fp)
   { return mpfr_get_ui(fp, GMP_RNDN); }
 }
 

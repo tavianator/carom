@@ -22,6 +22,7 @@
 
 namespace carom
 {
+  // Foreward declaration
   template <typename T> class polymorphic_list;
 }
 
