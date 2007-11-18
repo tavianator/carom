@@ -49,6 +49,13 @@ namespace carom
   public:
     vector_units() { mpfr_init(m_x); mpfr_init(m_y); mpfr_init(m_z); }
 
+    vector_units(void*) { // For constructs like vector x = 0; if (x == 0) { }
+      mpfr_init(m_x); mpfr_init(m_y); mpfr_init(m_z);
+      mpfr_set_ui(m_x, 0, GMP_RNDN);
+      mpfr_set_ui(m_y, 0, GMP_RNDN);
+      mpfr_set_ui(m_z, 0, GMP_RNDN);
+    }
+
     template <typename T, typename U, typename V>
     vector_units(const T& x, const U& y, const V& z) {
       mpfr_init(m_x); mpfr_init(m_y); mpfr_init(m_z);
