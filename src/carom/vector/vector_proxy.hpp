@@ -66,7 +66,7 @@ namespace carom
 
     template <int m2, int d2, int t2>
     vector_proxy(const T& lhs, const scalar_units<m2, d2, t2>& rhs)
-      : vvs_proxy<T, U, op>(lhs, rhs.fp) { }
+      : vvs_proxy<T, U, op>(lhs, rhs.m_fp) { }
 
     template <int m2, int d2, int t2>
     vector_proxy(const vector_units<m2, d2, t2>& lhs, const U& rhs)
