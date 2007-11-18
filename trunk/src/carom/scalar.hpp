@@ -20,11 +20,53 @@
 #ifndef CAROM_SCALAR_HPP
 #define CAROM_SCALAR_HPP
 
+#include <mpfr.h>
+#include <algorithm>
+
 namespace carom
 {
-  // Foreward declarations
-  template <int m, int d, int t, typename op> class scalar_proxy;
-  template <int m, int d, int t>              class scalar_units;
+  template <int m, int d, int t>
+  class scalar_units
+  {
+  public:
+    scalar_units() { mpfr_init(m_fp); }
+
+    template <typename T>
+    scalar_units(T n) {
+      mpfr_init(m_fp);
+      mpfr_from(m_fp, n);
+    }
+
+    scalar_units(const scalar_units<m, d, t>& n) {
+      mpfr_init_set(m_fp, n.m_fp, GMP_RNDN);
+    }
+
+#if 0
+    scalar_units(scalar_units<m, d, t>&& n) : m_fp(n.m_fp) { n.m_fp = 0; }
+#endif
+
+    ~scalar_units() {
+      if (m_fp != 0) {
+        mpfr_clear(m_fp);
+      }
+    }
+
+    template <typename T>
+    scalar_units& operator=(T n) { mpfr_from(m_fp, n); }
+
+    scalar_units& operator=(const scalar_units<m, d, t>& n) {
+      mpfr_set(m_fp, n.m_fp, GMP_RNDN);
+    }
+
+#if 0
+    scalar_units& operator=(scalar_units<m, d, t>&& n) {
+      std::swap(m_fp, n.m_fp); // Shallow copy
+    }
+#endif
+
+  private:
+    mpfr_ptr m_fp;
+  };
 
   // Convenient typedefs
   typedef scalar_units<0, 0, 0>  scalar;
@@ -39,12 +81,5 @@ namespace carom
   typedef scalar_units<1, 2, -2> scalar_energy;
   typedef scalar_units<1, 2, -3> scalar_power;
 }
-
-#include <carom/scalar/s_proxy.hpp>
-#include <carom/scalar/ss_proxy.hpp>
-#include <carom/scalar/sss_proxy.hpp>
-#include <carom/scalar/proxy.hpp>
-#include <carom/scalar/scalar.hpp>
-#include <carom/scalar/ops.hpp>
 
 #endif // CAROM_SCALAR_HPP

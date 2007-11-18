@@ -60,7 +60,7 @@ namespace carom
 						const vector_displacement& l1,
 						const triangle& p);
 
-    const vector_displacement center() const;
+    vector_displacement center() const;
 
     bool inside(const vector_displacement& l0,
                 const vector_displacement& l1) const;

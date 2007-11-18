@@ -28,10 +28,10 @@ namespace carom
     vector_displacement r = 0;
 
     for (const_iterator i = begin(); i != end(); ++i) {
-      r += (i->a->s() + i->b->s() + i->c->s())/scalar(3);
+      r += (i->a->s() + i->b->s() + i->c->s())/3;
     }
 
-    return r / scalar(size());
+    return r / size();
   }
 
   bool mesh::inside(const vector_displacement& l0,
@@ -51,7 +51,7 @@ namespace carom
     for (const_iterator i = begin(); i != end(); ++i) {
       info = intersection(l0, l1, *i);
       vector x = 0; if (x == 0) { }
-      if (info.u >= 0 && info.v >= 0 && info.u + info.v <= scalar(1) &&
+      if (info.u >= 0 && info.v >= 0 && info.u + info.v <= 1 &&
           info.t >= 0 && info.t < 1) {
         return true;
       }
