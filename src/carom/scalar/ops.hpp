@@ -183,8 +183,7 @@ namespace carom
   // Addition operators
 
   template <int m, int d, int t>
-  inline scalar_proxy<m, d, t,
-                      sss_proxy<mpfr_t, mpfr_t, scalar_add_op> >
+  inline scalar_proxy<m, d, t, sss_proxy<mpfr_t, mpfr_t, scalar_add_op> >
   operator+(const scalar_units<m, d, t>& lhs,
             const scalar_units<m, d, t>& rhs)
   { return scalar_proxy<m, d, t,
@@ -214,8 +213,7 @@ namespace carom
   // Subtraction operators
 
   template <int m, int d, int t>
-  inline scalar_proxy<m, d, t,
-                      sss_proxy<mpfr_t, mpfr_t, scalar_sub_op> >
+  inline scalar_proxy<m, d, t, sss_proxy<mpfr_t, mpfr_t, scalar_sub_op> >
   operator-(const scalar_units<m, d, t>& lhs,
             const scalar_units<m, d, t>& rhs)
   { return scalar_proxy<m, d, t,

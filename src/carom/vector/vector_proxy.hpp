@@ -51,7 +51,7 @@ namespace carom
       : vvv_proxy<T, U, op>(lhs.m_x, lhs.m_y, lhs.m_z, rhs) { }
 
     template <int m1, int m2, int d1, int d2, int t1, int t2>
-    vector_proxy(const vector_units<m1, d2, t2>& lhs,
+    vector_proxy(const vector_units<m1, d1, t1>& lhs,
 		 const vector_units<m2, d2, t2>& rhs)
       : vvv_proxy<T, U, op>(lhs.m_x, lhs.m_y, lhs.m_z,
                             rhs.m_x, rhs.m_y, rhs.m_z) { }
@@ -73,7 +73,7 @@ namespace carom
       : vvs_proxy<T, U, op>(lhs.m_x, lhs.m_y, lhs.m_z, rhs) { }
 
     template <int m1, int m2, int d1, int d2, int t1, int t2>
-    vector_proxy(const vector_units<m1, d2, t2>& lhs,
+    vector_proxy(const vector_units<m1, d1, t1>& lhs,
 		 const scalar_units<m2, d2, t2>& rhs)
       : vvs_proxy<T, U, op>(lhs.m_x, lhs.m_y, lhs.m_z, rhs.m_fp) { }
   };

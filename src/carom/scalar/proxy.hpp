@@ -63,7 +63,7 @@ namespace carom
       : sss_proxy<T, U, op>(lhs.m_fp, rhs) { }
 
     template <int m1, int m2, int d1, int d2, int t1, int t2>
-    scalar_proxy(const scalar_units<m1, d2, t2>& lhs,
+    scalar_proxy(const scalar_units<m1, d1, t1>& lhs,
 		 const scalar_units<m2, d2, t2>& rhs)
       : sss_proxy<T, U, op>(lhs.m_fp, rhs.m_fp) { }
   };
