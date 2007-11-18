@@ -21,6 +21,8 @@
 #define CAROM_POLYMORPHIC_LIST_ITERATOR_HPP
 
 #include <boost/utility.hpp>
+#include <cstddef>
+#include <iterator>
 #include <typeinfo>
 
 namespace carom
@@ -51,6 +53,12 @@ namespace carom
     friend class polymorphic_const_iterator<T>;
 
   public:
+    typedef std::ptrdiff_t                  difference_type;
+    typedef std::bidirectional_iterator_tag iterator_category;
+    typedef T                               value_type;
+    typedef T*                              pointer;
+    typedef T&                              reference;
+
     polymorphic_iterator() : m_node(0) { }
     explicit polymorphic_iterator(polymorphic_node<T>* node) : m_node(node) { }
     // polymorphic_iterator(const polymorphic_iterator& i);
@@ -86,6 +94,12 @@ namespace carom
     friend class polymorphic_iterator<T>;
 
   public:
+    typedef std::ptrdiff_t                  difference_type;
+    typedef std::bidirectional_iterator_tag iterator_category;
+    typedef T                               value_type;
+    typedef const T*                        pointer;
+    typedef const T&                        reference;
+
     polymorphic_const_iterator() : m_node(0) { }
     explicit polymorphic_const_iterator(polymorphic_node<T>* node)
       : m_node(node) { }

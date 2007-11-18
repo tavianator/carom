@@ -54,13 +54,19 @@ namespace carom
     iterator       end()         { return m_triangles.end(); }
     const_iterator end() const   { return m_triangles.end(); }
 
+    std::size_t size() const { return m_triangles.size(); }
+
     static const intersection_info intersection(const vector_displacement& l0,
 						const vector_displacement& l1,
 						const triangle& p);
 
-    const vector_displacement center();
-    bool inside(const vector_displacement& l0, const vector_displacement& l1);
-    bool outside(const vector_displacement& l0, const vector_displacement& l1);
+    const vector_displacement center() const;
+
+    bool inside(const vector_displacement& l0,
+                const vector_displacement& l1) const;
+
+    bool outside(const vector_displacement& l0,
+                 const vector_displacement& l1) const;
 
   private:
     std::list<triangle> m_triangles;

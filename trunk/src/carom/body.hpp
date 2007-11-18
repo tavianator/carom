@@ -40,6 +40,8 @@ namespace carom
     iterator       end()         { return m_particles.end(); }
     const_iterator end() const   { return m_particles.end(); }
 
+    std::size_t size() const { return m_particles.size(); }
+
     virtual void calculate_k1() { }
     virtual void calculate_k2() { }
     virtual void calculate_k3() { }

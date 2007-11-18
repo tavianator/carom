@@ -39,6 +39,8 @@ namespace carom
     iterator       end()         { return m_bodies.end(); }
     const_iterator end() const   { return m_bodies.end(); }
 
+    std::size_t size() const { return m_bodies.size(); }
+
     void integrate(const scalar_time& t);
 
   private:
