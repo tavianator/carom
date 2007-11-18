@@ -17,26 +17,53 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. *
  *************************************************************************/
 
-#ifndef CAROM_SCALAR_NULLARY_PROXY_HPP
-#define CAROM_SCALAR_NULLARY_PROXY_HPP
+#ifndef CAROM_VECTOR_VV_PROXY_HPP
+#define CAROM_VECTOR_VV_PROXY_HPP
 
 #include <mpfr.h>
 
 namespace carom
 {
-  template <typename op>
-  class scalar_nullary_proxy
+  // A unary proxy returning a vector, and taking a vector
+  template <typename T, typename op>
+  class vv_proxy
   {
   public:
-    // scalar_nullary_proxy();
-    // scalar_nullary_proxy(const scalar_nullary_proxy& proxy);
-    // ~scalar_nullary_proxy();
+    vv_proxy(const T& n) : m_n(n) { }
+    // vv_proxy(const vv_proxy&);
+    // ~vv_proxy();
 
-    void eval(mpfr_t store) const { op::eval(store); }
+    void eval(mpfr_t store_x, mpfr_t store_y, mpfr_t store_z) const {
+      mpfr_t x, y, z;
+      mpfr_init(x); mpfr_init(y); mpfr_init(z);
+      m_n.eval(x, y, z);
+      op::eval(store_x, store_y, store_z, x, y, z);
+      mpfr_clear(x); mpfr_clear(y); mpfr_clear(z);
+    }
 
   private:
-    scalar_nullary_proxy& operator=(const scalar_nullary_proxy&);
+    T m_n;
+
+    vv_proxy& operator=(const vv_proxy&);
+  };
+
+  template <typename op>
+  class vv_proxy<mpfr_t, op>
+  {
+  public:
+    vv_proxy(mpfr_t x, mpfr_t y, mpfr_t z) : m_x(x), m_y(y), m_z(z) { }
+    // vv_proxy(const vv_proxy&);
+    // ~vv_proxy();
+
+    void eval(mpfr_t store_x, mpfr_t store_y, mpfr_t store_z) const {
+      op::eval(store_x, store_y, store_z, m_x, m_y, m_z);
+    }
+
+  private:
+    mpfr_ptr m_x, m_y, m_z;
+
+    vv_proxy& operator=(const vv_proxy&);
   };
 }
 
-#endif // CAROM_SCALAR_NULLARY_PROXY_HPP
+#endif // CAROM_VECTOR_VV_PROXY_HPP

@@ -17,58 +17,25 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. *
  *************************************************************************/
 
-#ifndef CAROM_SCALAR_OPS_HPP
-#define CAROM_SCALAR_OPS_HPP
+#ifndef CAROM_VECTOR_OPS_HPP
+#define CAROM_VECTOR_OPS_HPP
 
 #include <mpfr.h>
-#include <boost/utility.hpp>
 
 namespace carom
 {
-  // Nullary operations
-
-  struct scalar_pi_op
-  {
-  public:
-    static void eval(mpfr_t store) { mpfr_const_pi(store, GMP_RNDN); }
-  };
-
   // Unary operations
 
-  struct scalar_pos_op
+  struct scalar_norm_op
   {
   public:
     static void eval(mpfr_t store, mpfr_t n) { mpfr_set(store, n, GMP_RNDN); }
   };
 
-  struct scalar_neg_op
+  struct vector_normalized_op
   {
   public:
     static void eval(mpfr_t store, mpfr_t n) { mpfr_neg(store, n, GMP_RNDN); }
-  };
-
-  struct scalar_sqrt_op
-  {
-  public:
-    static void eval(mpfr_t store, mpfr_t n) { mpfr_sqrt(store, n, GMP_RNDN); }
-  };
-
-  struct scalar_sin_op
-  {
-  public:
-    static void eval(mpfr_t store, mpfr_t n) { mpfr_sin(store, n, GMP_RNDN); }
-  };
-
-  struct scalar_cos_op
-  {
-  public:
-    static void eval(mpfr_t store, mpfr_t n) { mpfr_cos(store, n, GMP_RNDN); }
-  };
-
-  struct scalar_tan_op
-  {
-  public:
-    static void eval(mpfr_t store, mpfr_t n) { mpfr_tan(store, n, GMP_RNDN); }
   };
 
   // Binary operations
@@ -97,8 +64,10 @@ namespace carom
   struct scalar_div_op
   {
   public:
-    static void eval(mpfr_t store, mpfr_t lhs, mpfr_t rhs)
-    { mpfr_div(store, lhs, rhs, GMP_RNDN); }
+    static void eval(mpfr_t store, mpfr_t lhs, mpfr_t rhs) {
+      if (mpfr_zero_p(rhs)) { throw std::domain_error("Division by zero"); }
+      mpfr_div(store, lhs, rhs, GMP_RNDN);
+    }
   };
 
   // Nullary operators
@@ -133,9 +102,9 @@ namespace carom
   inline scalar_proxy<m/2, d/2, t/2, ss_proxy<mpfr_t, scalar_sqrt_op> >
   sqrt(const scalar_units<m, d, t>& n) {
     // Use TMP to ensure that m, d, and t are all even
-    typedef typename boost::enable_if_c<m%2 == 0>::type m_even;
-    typedef typename boost::enable_if_c<d%2 == 0>::type d_even;
-    typedef typename boost::enable_if_c<t%2 == 0>::type t_even;
+    typedef boost::enable_if_c<m%2 == 0>::type m_even;
+    typedef boost::enable_if_c<d%2 == 0>::type d_even;
+    typedef boost::enable_if_c<t%2 == 0>::type t_even;
 
     return scalar_proxy<m/2, d/2, t/2, ss_proxy<mpfr_t, scalar_sqrt_op> >(n);
   }
@@ -143,9 +112,9 @@ namespace carom
   template <int m, int d, int t, typename op>
   inline scalar_proxy<m/2, d/2, t/2, ss_proxy<op, scalar_sqrt_op> >
   sqrt(const scalar_proxy<m, d, t, op>& n) {
-    typedef typename boost::enable_if_c<m%2 == 0>::type m_even;
-    typedef typename boost::enable_if_c<d%2 == 0>::type d_even;
-    typedef typename boost::enable_if_c<t%2 == 0>::type t_even;
+    typedef boost::enable_if_c<m%2 == 0>::type m_even;
+    typedef boost::enable_if_c<d%2 == 0>::type d_even;
+    typedef boost::enable_if_c<t%2 == 0>::type t_even;
 
     return scalar_proxy<m/2, d/2, t/2, ss_proxy<op, scalar_sqrt_op> >(n);
   }
@@ -313,4 +282,4 @@ namespace carom
                         sss_proxy<op1, op2, scalar_div_op> >(lhs, rhs); }
 }
 
-#endif // CAROM_SCALAR_OPS_HPP
+#endif // CAROM_VECTOR_OPS_HPP

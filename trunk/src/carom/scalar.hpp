@@ -40,9 +40,9 @@ namespace carom
   typedef scalar_units<1, 2, -3> scalar_power;
 }
 
-#include <carom/scalar/nullary_proxy.hpp>
-#include <carom/scalar/unary_proxy.hpp>
-#include <carom/scalar/binary_proxy.hpp>
+#include <carom/scalar/s_proxy.hpp>
+#include <carom/scalar/ss_proxy.hpp>
+#include <carom/scalar/sss_proxy.hpp>
 #include <carom/scalar/proxy.hpp>
 #include <carom/scalar/scalar.hpp>
 #include <carom/scalar/ops.hpp>

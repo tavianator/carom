@@ -17,20 +17,21 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. *
  *************************************************************************/
 
-#ifndef CAROM_SCALAR_BINARY_PROXY_HPP
-#define CAROM_SCALAR_BINARY_PROXY_HPP
+#ifndef CAROM_SCALAR_SSS_PROXY_HPP
+#define CAROM_SCALAR_SSS_PROXY_HPP
 
 #include <mpfr.h>
 
 namespace carom
 {
+  // A binary proxy returning a scalar, and taking two scalars
   template <typename T, typename U, typename op>
-  class scalar_binary_proxy
+  class sss_proxy
   {
   public:
-    scalar_binary_proxy(const T& lhs, const U& rhs) : m_lhs(lhs), m_rhs(rhs) { }
-    // scalar_binary_proxy(const scalar_binary_proxy&);
-    // ~scalar_binary_proxy();
+    sss_proxy(const T& lhs, const U& rhs) : m_lhs(lhs), m_rhs(rhs) { }
+    // sss_proxy(const sss_proxy&);
+    // ~sss_proxy();
 
     void eval(mpfr_t store) const {
       mpfr_t lhs;
@@ -48,16 +49,16 @@ namespace carom
     T m_lhs;
     U m_rhs;
 
-    scalar_binary_proxy& operator=(const scalar_binary_proxy&);
+    sss_proxy& operator=(const sss_proxy&);
   };
 
   template <typename T, typename op>
-  class scalar_binary_proxy<T, mpfr_t, op>
+  class sss_proxy<T, mpfr_t, op>
   {
   public:
-    scalar_binary_proxy(const T& lhs, mpfr_t rhs) : m_lhs(lhs), m_rhs(rhs) { }
-    // scalar_binary_proxy(const scalar_binary_proxy&);
-    // ~scalar_binary_proxy();
+    sss_proxy(const T& lhs, mpfr_t rhs) : m_lhs(lhs), m_rhs(rhs) { }
+    // sss_proxy(const sss_proxy&);
+    // ~sss_proxy();
 
     void eval(mpfr_t store) const {
       mpfr_t lhs;
@@ -71,16 +72,16 @@ namespace carom
     T        m_lhs;
     mpfr_ptr m_rhs;
 
-    scalar_binary_proxy& operator=(const scalar_binary_proxy&);
+    sss_proxy& operator=(const sss_proxy&);
   };
 
   template <typename T, typename op>
-  class scalar_binary_proxy<mpfr_t, T, op>
+  class sss_proxy<mpfr_t, T, op>
   {
   public:
-    scalar_binary_proxy(mpfr_t lhs, const T& rhs) : m_lhs(lhs), m_rhs(rhs) { }
-    // scalar_binary_proxy(const scalar_binary_proxy&);
-    // ~scalar_binary_proxy();
+    sss_proxy(mpfr_t lhs, const T& rhs) : m_lhs(lhs), m_rhs(rhs) { }
+    // sss_proxy(const sss_proxy&);
+    // ~sss_proxy();
 
     void eval(mpfr_t store) const {
       mpfr_t rhs;
@@ -94,16 +95,16 @@ namespace carom
     mpfr_ptr m_lhs;
     T        m_rhs;
 
-    scalar_binary_proxy& operator=(const scalar_binary_proxy&);
+    sss_proxy& operator=(const sss_proxy&);
   };
 
   template <typename op>
-  class scalar_binary_proxy<mpfr_t, mpfr_t, op>
+  class sss_proxy<mpfr_t, mpfr_t, op>
   {
   public:
-    scalar_binary_proxy(mpfr_t lhs, mpfr_t rhs) : m_lhs(lhs), m_rhs(rhs) { }
-    // scalar_binary_proxy(const scalar_binary_proxy&);
-    // ~scalar_binary_proxy();
+    sss_proxy(mpfr_t lhs, mpfr_t rhs) : m_lhs(lhs), m_rhs(rhs) { }
+    // sss_proxy(const sss_proxy&);
+    // ~sss_proxy();
 
     void eval(mpfr_t store) const {
       op::eval(store, m_lhs, m_rhs);
@@ -113,8 +114,8 @@ namespace carom
     mpfr_ptr m_lhs;
     mpfr_ptr m_rhs;
 
-    scalar_binary_proxy& operator=(const scalar_binary_proxy&);
+    sss_proxy& operator=(const sss_proxy&);
   };
 }
 
-#endif // CAROM_SCALAR_BINARY_PROXY_HPP
+#endif // CAROM_SCALAR_SSS_PROXY_HPP
