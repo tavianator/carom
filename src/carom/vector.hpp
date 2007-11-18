@@ -35,12 +35,12 @@ namespace carom
   typedef vector_units<1, 1, -2> vector_force;
 }
 
-#include <carom/vector/scalar_unary_proxy.hpp>
-#include <carom/vector/scalar_binary_proxy.hpp>
+#include <carom/vector/sv_proxy.hpp>
+#include <carom/vector/svv_proxy.hpp>
 #include <carom/vector/scalar_proxy.hpp>
-#include <carom/vector/vector_nullary_proxy.hpp>
-#include <carom/vector/vector_unary_proxy.hpp>
-#include <carom/vector/vector_binary_proxy.hpp>
+#include <carom/vector/vv_proxy.hpp>
+#include <carom/vector/vvv_proxy.hpp>
+#include <carom/vector/vvs_proxy.hpp>
 #include <carom/vector/vector_proxy.hpp>
 #include <carom/vector/vector.hpp>
 #include <carom/vector/ops.hpp>

@@ -24,52 +24,58 @@
 
 namespace carom
 {
-  template <int m, int d, int t, typename op>
-  class vector_proxy<m, d, t, vector_nullary_proxy<op> >
-    : public vector_nullary_proxy<op>
-  {
-  public:
-    // vector_proxy();
-    // vector_proxy(const vector_proxy& proxy);
-    // ~vector_proxy();
-
-  private:
-    vector_proxy& operator=(const vector_proxy&);
-  };
-
   template <int m, int d, int t, typename T, typename op>
-  class vector_proxy<m, d, t, vector_vector_unary_proxy<T, op> >
-    : public vector_vector_unary_proxy<T, op>
+  class vector_proxy<m, d, t, vv_proxy<T, op> > : public vv_proxy<T, op>
   {
   public:
-    vector_proxy(const T& n) : vector_vector_unary_proxy<T, op>(n) { }
+    vector_proxy(const T& n) : vv_proxy<T, op>(n) { }
 
     template <int m2, int d2, int t2>
     vector_proxy(const vector_units<m2, d2, t2>& n)
-      : vector_vector_unary_proxy<T, op>(n.m_x, n.m_y, n.m_z) { }
+      : vv_proxy<T, op>(n.m_x, n.m_y, n.m_z) { }
   };
 
   template <int m, int d, int t, typename T, typename U, typename op>
-  class vector_proxy<m, d, t, vector_vector_binary_proxy<T, U, op> >
-    : public vector_vector_binary_proxy<T, U, op>
+  class vector_proxy<m, d, t, vvv_proxy<T, U, op> > : public vvv_proxy<T, U, op>
   {
   public:
     vector_proxy(const T& lhs, const U& rhs)
-      : vector_vector_binary_proxy<T, U, op>(lhs, rhs) { }
+      : vvv_proxy<T, U, op>(lhs, rhs) { }
 
     template <int m2, int d2, int t2>
     vector_proxy(const T& lhs, const vector_units<m2, d2, t2>& rhs)
-      : vector_vector_binary_proxy<T, U, op>(lhs, rhs.m_x, rhs.m_y, rhs.m_z) { }
+      : vvv_proxy<T, U, op>(lhs, rhs.m_x, rhs.m_y, rhs.m_z) { }
 
     template <int m2, int d2, int t2>
     vector_proxy(const vector_units<m2, d2, t2>& lhs, const U& rhs)
-      : vector_vector_binary_proxy<T, U, op>(lhs.m_x, lhs.m_y, lhs.m_z, rhs) { }
+      : vvv_proxy<T, U, op>(lhs.m_x, lhs.m_y, lhs.m_z, rhs) { }
 
     template <int m1, int m2, int d1, int d2, int t1, int t2>
     vector_proxy(const vector_units<m1, d2, t2>& lhs,
 		 const vector_units<m2, d2, t2>& rhs)
-      : vector_vector_binary_proxy<T, U, op>(lhs.m_x, lhs.m_y, lhs.m_z,
-					     rhs.m_x, lhs.m_y, lhs.m_z) { }
+      : vvv_proxy<T, U, op>(lhs.m_x, lhs.m_y, lhs.m_z,
+                            rhs.m_x, rhs.m_y, rhs.m_z) { }
+  };
+
+  template <int m, int d, int t, typename T, typename U, typename op>
+  class vector_proxy<m, d, t, vvs_proxy<T, U, op> > : public vvs_proxy<T, U, op>
+  {
+  public:
+    vector_proxy(const T& lhs, const U& rhs)
+      : vvs_proxy<T, U, op>(lhs, rhs) { }
+
+    template <int m2, int d2, int t2>
+    vector_proxy(const T& lhs, const scalar_units<m2, d2, t2>& rhs)
+      : vvs_proxy<T, U, op>(lhs, rhs.fp) { }
+
+    template <int m2, int d2, int t2>
+    vector_proxy(const vector_units<m2, d2, t2>& lhs, const U& rhs)
+      : vvs_proxy<T, U, op>(lhs.m_x, lhs.m_y, lhs.m_z, rhs) { }
+
+    template <int m1, int m2, int d1, int d2, int t1, int t2>
+    vector_proxy(const vector_units<m1, d2, t2>& lhs,
+		 const scalar_units<m2, d2, t2>& rhs)
+      : vvs_proxy<T, U, op>(lhs.m_x, lhs.m_y, lhs.m_z, rhs.m_fp) { }
   };
 }
 

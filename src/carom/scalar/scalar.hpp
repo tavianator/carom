@@ -21,18 +21,17 @@
 #define CAROM_SCALAR_SCALAR_HPP
 
 #include <mpfr.h>
-#include <cstdlib>
-#include <stdexcept>
-#include <string>
 
 namespace carom
 {
-  template <int m, int d, int t> class vector_units;
+  template <int m, int d, int t>              class vector_units;
+  template <int m, int d, int t, typename op> class vector_proxy;
 
   template <int m, int d, int t>
   class scalar_units
   {
     template <int m2, int d2, int t2, typename op> friend class scalar_proxy;
+    template <int m2, int d2, int t2, typename op> friend class vector_proxy;
     template <int m2, int d2, int t2>              friend class vector_units;
 
     // Intentionally non-template friend functions; declared in situ. Use
@@ -88,14 +87,8 @@ namespace carom
     { mpfr_sub(m_fp, m_fp, rhs.m_fp, GMP_RNDN); return *this; }
     scalar_units& operator*=(const scalar_units<0, 0, 0>& rhs)
     { mpfr_mul(m_fp, m_fp, rhs.m_fp, GMP_RNDN); return *this; }
-
-    scalar_units& operator/=(const scalar_units<0, 0, 0>& rhs) {
-      if (mpfr_zero_p(rhs.m_fp)) {
-        throw std::domain_error("Division by zero");
-      }
-
-      mpfr_div(m_fp, m_fp, rhs.m_fp, GMP_RNDN); return *this;
-    }
+    scalar_units& operator/=(const scalar_units<0, 0, 0>& rhs)
+    { mpfr_div(m_fp, m_fp, rhs.m_fp, GMP_RNDN); return *this; }
 
     template <typename T> const T to() const { return mpfr_to<T>(m_fp); }
 

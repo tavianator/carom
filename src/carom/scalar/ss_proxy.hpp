@@ -17,20 +17,21 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. *
  *************************************************************************/
 
-#ifndef CAROM_SCALAR_UNARY_PROXY_HPP
-#define CAROM_SCALAR_UNARY_PROXY_HPP
+#ifndef CAROM_SCALAR_SS_PROXY_HPP
+#define CAROM_SCALAR_SS_PROXY_HPP
 
 #include <mpfr.h>
 
 namespace carom
 {
+  // A unary proxy returning a scalar, and taking a scalar
   template <typename T, typename op>
-  class scalar_unary_proxy
+  class ss_proxy
   {
   public:
-    scalar_unary_proxy(const T& n) : m_n(n) { }
-    // scalar_unary_proxy(const scalar_unary_proxy&);
-    // ~scalar_unary_proxy();
+    ss_proxy(const T& n) : m_n(n) { }
+    // ss_proxy(const ss_proxy&);
+    // ~ss_proxy();
 
     void eval(mpfr_t store) const {
       mpfr_t temp;
@@ -43,16 +44,16 @@ namespace carom
   private:
     T m_n;
 
-    scalar_unary_proxy& operator=(const scalar_unary_proxy&);
+    ss_proxy& operator=(const ss_proxy&);
   };
 
   template <typename op>
-  class scalar_unary_proxy<mpfr_t, op>
+  class ss_proxy<mpfr_t, op>
   {
   public:
-    scalar_unary_proxy(mpfr_t n) : m_n(n) { }
-    // scalar_unary_proxy(const scalar_unary_proxy&);
-    // ~scalar_unary_proxy();
+    ss_proxy(mpfr_t n) : m_n(n) { }
+    // ss_proxy(const ss_proxy&);
+    // ~ss_proxy();
 
     void eval(mpfr_t store) const {
       op::eval(store, m_n);
@@ -61,8 +62,8 @@ namespace carom
   private:
     mpfr_ptr m_n; // mpfr_t can't be used in initializer lists
 
-    scalar_unary_proxy& operator=(const scalar_unary_proxy&);
+    ss_proxy& operator=(const ss_proxy&);
   };
 }
 
-#endif // CAROM_SCALAR_UNARY_PROXY_HPP
+#endif // CAROM_SCALAR_SS_PROXY_HPP
