@@ -22,7 +22,7 @@ namespace carom
     return info;
   }
 
-  const vector_displacement mesh::center() const {
+  vector_displacement mesh::center() const {
     // Find the geometric center of the mesh. This algorithm is O(n).
 
     vector_displacement r = 0;

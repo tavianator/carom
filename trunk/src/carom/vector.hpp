@@ -20,11 +20,296 @@
 #ifndef CAROM_VECTOR_HPP
 #define CAROM_VECTOR_HPP
 
+#include <mpfr.h>
+#include <algorithm> // For std::swap
+
 namespace carom
 {
-  // Foreward declarations
-  template <int m, int d, int t, typename op> class vector_proxy;
-  template <int m, int d, int t>              class vector_units;
+  template <int m, int d, int t>
+  class vector_units
+  {
+    // Intentionally non-template friend functions; declared in situ. Use
+    // -Wno-non-template-friends to suppress g++'s warning.
+
+    friend bool operator==(const vector_units<m, d, t>& lhs,
+                           const vector_units<m, d, t>& rhs) {
+      return mpfr_equal_p(lhs.m_x, rhs.m_x) &&
+             mpfr_equal_p(lhs.m_y, rhs.m_y) &&
+             mpfr_equal_p(lhs.m_z, rhs.m_z);
+    }
+
+    friend bool operator!=(const vector_units<m, d, t>& lhs,
+                           const vector_units<m, d, t>& rhs) {
+      return !(mpfr_equal_p(lhs.m_x, rhs.m_x) &&
+               mpfr_equal_p(lhs.m_y, rhs.m_y) &&
+               mpfr_equal_p(lhs.m_z, rhs.m_z));
+    }
+
+  public:
+    vector_units() { mpfr_init(m_x); mpfr_init(m_y); mpfr_init(m_z); }
+
+    vector_units(void*) { // For constructs like vector v = 0; if (v == 0) { }
+      mpfr_init_set_ui(m_x, 0, GMP_RNDN);
+      mpfr_init_set_ui(m_y, 0, GMP_RNDN);
+      mpfr_init_set_ui(m_z, 0, GMP_RNDN);
+    }
+
+    template <typename T, typename U, typename V>
+    vector_units(T x, U y, V z) {
+      mpfr_init(m_x); mpfr_init(m_y); mpfr_init(m_z);
+      mpfr_from(m_x, x); mpfr_from(m_y, y); mpfr_from(m_z, z);
+    }
+
+    vector_units(const scalar_units<m, d, t>& x,
+                 const scalar_units<m, d, t>& y,
+                 const scalar_units<m, d, t>& z) {
+      mpfr_init_set(m_x, x.m_fp, GMP_RNDN);
+      mpfr_init_set(m_y, y.m_fp, GMP_RNDN);
+      mpfr_init_set(m_z, z.m_fp, GMP_RNDN);
+    }
+
+#if 0
+    vector_units(scalar_units<m, d, t>&& x,
+                 scalar_units<m, d, t>&& y,
+                 scalar_units<m, d, t>&& z)
+      : m_x(x.m_fp), m_y(y.m_fp), m_z(z.m_fp) {
+      x.m_fp = 0; y.m_fp = 0; z.m_fp = 0;
+    }
+#endif
+
+    vector_units(const vector_units<m, d, t>& n) {
+      mpfr_init_set(m_x, n.m_x, GMP_RNDN);
+      mpfr_init_set(m_y, n.m_y, GMP_RNDN);
+      mpfr_init_set(m_z, n.m_z, GMP_RNDN);
+    }
+
+#if 0
+    vector_units(vector_units<m, d, t>&& n)
+      : m_x(n.m_x), m_y(n.m_y), m_z(n.m_z) { n.m_x = 0; n.m_y = 0; n.m_z = 0; }
+#endif
+
+    ~vector_units() {
+      if (m_x != 0) { mpfr_clear(m_x); }
+      if (m_y != 0) { mpfr_clear(m_y); }
+      if (m_z != 0) { mpfr_clear(m_z); }
+    }
+
+    vector_units& operator=(const vector_units<m, d, t>& n) {
+      mpfr_set(m_x, n.m_x, GMP_RNDN);
+      mpfr_set(m_y, n.m_y, GMP_RNDN);
+      mpfr_set(m_z, n.m_z, GMP_RNDN);
+      return *this;
+    }
+
+#if 0
+    vector_units& operator=(vector_units<m, d, t>&& n) {
+      std::swap(m_x, n.m_x);
+      std::swap(m_y, n.m_y);
+      std::swap(m_z, n.m_z);
+      return *this;
+    }
+#endif
+
+    vector_units& operator+=(const vector_units<m, d, t>& n) {
+      mpfr_add(m_x, m_x, n.m_x, GMP_RNDN);
+      mpfr_add(m_y, m_y, n.m_y, GMP_RNDN);
+      mpfr_add(m_z, m_z, n.m_z, GMP_RNDN);
+      return *this;
+    }
+
+    vector_units& operator-=(const vector_units<m, d, t>& n) {
+      mpfr_sub(m_x, m_x, n.m_x, GMP_RNDN);
+      mpfr_sub(m_y, m_y, n.m_y, GMP_RNDN);
+      mpfr_sub(m_z, m_z, n.m_z, GMP_RNDN);
+      return *this;
+    }
+
+    vector_units& operator*=(const scalar_units<0, 0, 0>& n) {
+      mpfr_mul(m_x, m_x, n.m_fp, GMP_RNDN);
+      mpfr_mul(m_y, m_y, n.m_fp, GMP_RNDN);
+      mpfr_mul(m_z, m_z, n.m_fp, GMP_RNDN);
+      return *this;
+    }
+
+    vector_units& operator/=(const scalar_units<0, 0, 0>& n) {
+      mpfr_div(m_x, m_x, n.m_fp, GMP_RNDN);
+      mpfr_div(m_y, m_y, n.m_fp, GMP_RNDN);
+      mpfr_div(m_z, m_z, n.m_fp, GMP_RNDN);
+      return *this;
+    }
+
+    scalar_units<m, d, t> x() const
+    { scalar_units<m, d, t> r; mpfr_set(r.m_fp, m_x, GMP_RNDN); return r; }
+    scalar_units<m, d, t> y() const
+    { scalar_units<m, d, t> r; mpfr_set(r.m_fp, m_y, GMP_RNDN); return r; }
+    scalar_units<m, d, t> z() const
+    { scalar_units<m, d, t> r; mpfr_set(r.m_fp, m_z, GMP_RNDN); return r; }
+
+    mpfr_ptr mpfr_x() const { return m_x; }
+    mpfr_ptr mpfr_y() const { return m_y; }
+    mpfr_ptr mpfr_z() const { return m_z; }
+
+  private:
+    mutable mpfr_t m_x, m_y, m_z;
+  };
+
+  // Operators
+
+  template <int m, int d, int t>
+  inline vector_units<m, d, t>
+  operator+(const vector_units<m, d, t>& n) {
+    return n;
+  }
+
+  template <int m, int d, int t>
+  inline vector_units<m, d, t>
+  operator-(const vector_units<m, d, t>& n) {
+    vector_units<m, d, t> r;
+    mpfr_neg(r.mpfr_x(), n.mpfr_x(), GMP_RNDN);
+    mpfr_neg(r.mpfr_y(), n.mpfr_y(), GMP_RNDN);
+    mpfr_neg(r.mpfr_z(), n.mpfr_z(), GMP_RNDN);
+    return r;
+  }
+
+  template <int m, int d, int t>
+  inline vector_units<m, d, t>
+  operator+(const vector_units<m, d, t>& lhs,
+            const vector_units<m, d, t>& rhs) {
+    vector_units<m, d, t> r;
+    mpfr_add(r.mpfr_x(), lhs.mpfr_x(), rhs.mpfr_x(), GMP_RNDN);
+    mpfr_add(r.mpfr_y(), lhs.mpfr_y(), rhs.mpfr_y(), GMP_RNDN);
+    mpfr_add(r.mpfr_z(), lhs.mpfr_z(), rhs.mpfr_z(), GMP_RNDN);
+    return r;
+  }
+
+  template <int m, int d, int t>
+  inline vector_units<m, d, t>
+  operator-(const vector_units<m, d, t>& lhs,
+            const vector_units<m, d, t>& rhs) {
+    vector_units<m, d, t> r;
+    mpfr_sub(r.mpfr_x(), lhs.mpfr_x(), rhs.mpfr_x(), GMP_RNDN);
+    mpfr_sub(r.mpfr_y(), lhs.mpfr_y(), rhs.mpfr_y(), GMP_RNDN);
+    mpfr_sub(r.mpfr_z(), lhs.mpfr_z(), rhs.mpfr_z(), GMP_RNDN);
+    return r;
+  }
+
+  template <int m1, int m2, int d1, int d2, int t1, int t2>
+  inline vector_units<m1 + m2, d1 + d2, t1 + t2>
+  operator*(const vector_units<m1, d1, t1>& lhs,
+            const scalar_units<m2, d2, t2>& rhs) {
+    vector_units<m1 + m2, d1 + d2, t1 + t2> r;
+    mpfr_mul(r.mpfr_x(), lhs.mpfr_x(), rhs.mpfr(), GMP_RNDN);
+    mpfr_mul(r.mpfr_y(), lhs.mpfr_y(), rhs.mpfr(), GMP_RNDN);
+    mpfr_mul(r.mpfr_z(), lhs.mpfr_z(), rhs.mpfr(), GMP_RNDN);
+    return r;
+  }
+
+  template <int m1, int m2, int d1, int d2, int t1, int t2>
+  inline vector_units<m1 + m2, d1 + d2, t1 + t2>
+  operator*(const scalar_units<m1, d1, t1>& lhs,
+            const vector_units<m2, d2, t2>& rhs) {
+    vector_units<m1 + m2, d1 + d2, t1 + t2> r;
+    mpfr_mul(r.mpfr_x(), lhs.mpfr(), rhs.mpfr_x(), GMP_RNDN);
+    mpfr_mul(r.mpfr_y(), lhs.mpfr(), rhs.mpfr_y(), GMP_RNDN);
+    mpfr_mul(r.mpfr_z(), lhs.mpfr(), rhs.mpfr_z(), GMP_RNDN);
+    return r;
+  }
+
+  template <int m, int d, int t, typename T>
+  inline vector_units<m, d, t>
+  operator*(const vector_units<m, d, t>& lhs, T rhs) {
+    vector_units<m, d, t> r;
+    scalar_units<m, d, t> temp(rhs);
+    mpfr_mul(r.mpfr_x(), lhs.mpfr_x(), temp.mpfr(), GMP_RNDN);
+    mpfr_mul(r.mpfr_y(), lhs.mpfr_y(), temp.mpfr(), GMP_RNDN);
+    mpfr_mul(r.mpfr_z(), lhs.mpfr_z(), temp.mpfr(), GMP_RNDN);
+    return r;
+  }
+
+  template <int m, int d, int t, typename T>
+  inline vector_units<m, d, t>
+  operator*(T lhs, const vector_units<m, d, t>& rhs) {
+    vector_units<m, d, t> r;
+    scalar_units<m, d, t> temp(lhs);
+    mpfr_mul(r.mpfr_x(), temp.mpfr(), rhs.mpfr_x(), GMP_RNDN);
+    mpfr_mul(r.mpfr_y(), temp.mpfr(), rhs.mpfr_y(), GMP_RNDN);
+    mpfr_mul(r.mpfr_z(), temp.mpfr(), rhs.mpfr_z(), GMP_RNDN);
+    return r;
+  }
+
+  template <int m1, int m2, int d1, int d2, int t1, int t2>
+  inline vector_units<m1 - m2, d1 - d2, t1 - t2>
+  operator/(const vector_units<m1, d1, t1>& lhs,
+            const scalar_units<m2, d2, t2>& rhs) {
+    vector_units<m1 - m2, d1 - d2, t1 - t2> r;
+    mpfr_div(r.mpfr_x(), lhs.mpfr_x(), rhs.mpfr(), GMP_RNDN);
+    mpfr_div(r.mpfr_y(), lhs.mpfr_y(), rhs.mpfr(), GMP_RNDN);
+    mpfr_div(r.mpfr_z(), lhs.mpfr_z(), rhs.mpfr(), GMP_RNDN);
+    return r;
+  }
+
+  template <int m, int d, int t, typename T>
+  inline vector_units<m, d, t>
+  operator/(const vector_units<m, d, t>& lhs, T rhs) {
+    vector_units<m, d, t> r;
+    scalar_units<m, d, t> temp(rhs);
+    mpfr_div(r.mpfr_x(), lhs.mpfr_x(), temp.mpfr(), GMP_RNDN);
+    mpfr_div(r.mpfr_y(), lhs.mpfr_y(), temp.mpfr(), GMP_RNDN);
+    mpfr_div(r.mpfr_z(), lhs.mpfr_z(), temp.mpfr(), GMP_RNDN);
+    return r;
+  }
+
+  template <int m, int d, int t>
+  inline scalar_units<m, d, t>
+  norm(const vector_units<m, d, t>& n) {
+    scalar_units<m, d, t> r, temp;
+    mpfr_sqr(temp.mpfr(), n.mpfr_x(), GMP_RNDN);            // temp = x*x;
+    mpfr_sqr(r.mpfr(), n.mpfr_y(), GMP_RNDN);               // r = y*y;
+    mpfr_add(temp.mpfr(), temp.mpfr(), r.mpfr(), GMP_RNDN); // temp += r;
+    mpfr_sqr(r.mpfr(), n.mpfr_z(), GMP_RNDN);               // r = z*z;
+    mpfr_add(temp.mpfr(), temp.mpfr(), r.mpfr(), GMP_RNDN); // temp += r;
+    mpfr_sqrt(r.mpfr(), temp.mpfr(), GMP_RNDN);             // r = sqrt(temp);
+  }
+
+  template <int m, int d, int t>
+  inline vector_units<m, d, t>
+  normalized(const vector_units<m, d, t>& n) {
+    return n/norm(n);
+  }
+
+  template <int m1, int m2, int d1, int d2, int t1, int t2>
+  inline scalar_units<m1 + m2, d1 + d2, t1 + t2>
+  dot(const vector_units<m1, d1, t1>& lhs,
+      const vector_units<m2, d2, t2>& rhs) {
+    scalar_units<m1 + m2, d1 + d2, t1 + t2> r, temp;
+    mpfr_mul(r.mpfr(), lhs.mpfr_x(), rhs.mpfr_x(), GMP_RNDN);
+    mpfr_mul(temp.mpfr(), lhs.mpfr_y(), rhs.mpfr_y(), GMP_RNDN);
+    mpfr_add(r.mpfr(), r.mpfr(), temp.mpfr(), GMP_RNDN);
+    mpfr_mul(temp.mpfr(), lhs.mpfr_z(), rhs.mpfr_z(), GMP_RNDN);
+    mpfr_add(r.mpfr(), r.mpfr(), temp.mpfr(), GMP_RNDN);
+    return r;
+  }
+
+  template <int m1, int m2, int d1, int d2, int t1, int t2>
+  inline vector_units<m1 + m2, d1 + d2, t1 + t2>
+  cross(const vector_units<m1, d1, t1>& lhs,
+        const vector_units<m2, d2, t2>& rhs) {
+    // xyzzy
+    vector_units<m1 + m2, d1 + d2, t1 + t2> r;
+    scalar_units<m1 + m2, d1 + d2, t1 + t2> temp;
+    mpfr_mul(r.mpfr_x(), lhs.mpfr_y(), rhs.mpfr_z(), GMP_RNDN);
+    mpfr_mul(temp.mpfr(), lhs.mpfr_z(), rhs.mpfr_y(), GMP_RNDN);
+    mpfr_sub(r.mpfr_x(), r.mpfr_x(), temp.mpfr(), GMP_RNDN);
+
+    mpfr_mul(r.mpfr_y(), lhs.mpfr_z(), rhs.mpfr_x(), GMP_RNDN);
+    mpfr_mul(temp.mpfr(), lhs.mpfr_x(), rhs.mpfr_z(), GMP_RNDN);
+    mpfr_sub(r.mpfr_y(), r.mpfr_y(), temp.mpfr(), GMP_RNDN);
+
+    mpfr_mul(r.mpfr_z(), lhs.mpfr_x(), rhs.mpfr_y(), GMP_RNDN);
+    mpfr_mul(temp.mpfr(), lhs.mpfr_y(), rhs.mpfr_x(), GMP_RNDN);
+    mpfr_sub(r.mpfr_z(), r.mpfr_z(), temp.mpfr(), GMP_RNDN);
+    return r;
+  }
 
   // Convenient typedefs
   typedef vector_units<0, 0, 0>  vector;
@@ -34,15 +319,5 @@ namespace carom
   typedef vector_units<0, 1, -2> vector_acceleration;
   typedef vector_units<1, 1, -2> vector_force;
 }
-
-#include <carom/vector/sv_proxy.hpp>
-#include <carom/vector/svv_proxy.hpp>
-#include <carom/vector/scalar_proxy.hpp>
-#include <carom/vector/vv_proxy.hpp>
-#include <carom/vector/vvv_proxy.hpp>
-#include <carom/vector/vvs_proxy.hpp>
-#include <carom/vector/vector_proxy.hpp>
-#include <carom/vector/vector.hpp>
-#include <carom/vector/ops.hpp>
 
 #endif // CAROM_VECTOR_HPP
