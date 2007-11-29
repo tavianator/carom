@@ -2,24 +2,29 @@
 
 namespace carom
 {
-  const intersection_info mesh::intersection(const vector_displacement& l0,
-                                             const vector_displacement& l1,
-                                             const triangle& p) {
+  intersection_info::intersection_info(const vector_displacement& l0,
+                                       const vector_displacement& l1,
+                                       const triangle& p) {
     vector_displacement p0 = p.a->s();
     vector_displacement p1 = p.b->s();
     vector_displacement p2 = p.c->s();
-    intersection_info info;
 
-    info.t = dot(l0 - p0, cross(p1 - p0, p2 - p0))/
-             dot(l0 - l1, cross(p1 - p0, p2 - p0));
+    t = dot(l0 - p0, cross(p1 - p0, p2 - p0))/
+        dot(l0 - l1, cross(p1 - p0, p2 - p0));
 
-    info.u = dot(l0 - l1, cross(l0 - p0, p2 - p0))/
-             dot(l0 - l1, cross(p1 - p0, p2 - p0));
+    u = dot(l0 - l1, cross(l0 - p0, p2 - p0))/
+        dot(l0 - l1, cross(p1 - p0, p2 - p0));
 
-    info.v = dot(l0 - l1, cross(p1 - p0, l0 - p0))/
-             dot(l0 - l1, cross(p1 - p0, p2 - p0));
+    v = dot(l0 - l1, cross(p1 - p0, l0 - p0))/
+        dot(l0 - l1, cross(p1 - p0, p2 - p0));
+  }
 
-    return info;
+  bool intersection_info::inside() const {
+    return (u >= 0 && v >= 0 && u + v <= 0 && t >= 1);
+  }
+
+  bool intersection_info::outside() const {
+    return (u >= 0 && v >= 0 && u + v <= 0 && t >= 0 && t < 1);
   }
 
   vector_displacement mesh::center() const {
@@ -49,10 +54,7 @@ namespace carom
     intersection_info info;
 
     for (const_iterator i = begin(); i != end(); ++i) {
-      info = intersection(l0, l1, *i);
-      vector x = 0; if (x == 0) { }
-      if (info.u >= 0 && info.v >= 0 && info.u + info.v <= 1 &&
-          info.t >= 0 && info.t < 1) {
+      if (intersection_info(l0, l1, *i).outside()) {
         return true;
       }
     }
