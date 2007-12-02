@@ -311,6 +311,13 @@ namespace carom
     return r;
   }
 
+  template <int m1, int m2, int d1, int d2, int t1, int t2>
+  inline vector_units<m2, d2, t2>
+  proj(const vector_units<m1, d1, t1>& u,
+       const vector_units<m2, d2, t2>& d) {
+    return u * dot(u, d)/dot(u, u);
+  }
+
   // Convenient typedefs
   typedef vector_units<0, 0, 0>  vector;
   typedef vector_units<0, 1, 0>  vector_displacement;

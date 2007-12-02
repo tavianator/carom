@@ -42,14 +42,14 @@ namespace carom
     bool inside() const;
     bool outside() const;
 
-    scalar t() const { return t; }
-    scalar u() const { return u; }
-    scalar v() const { return v; }
+    scalar t() const { return m_t; }
+    scalar u() const { return m_u; }
+    scalar v() const { return m_v; }
 
   private:
-    scalar t;
-    scalar u;
-    scalar v;
+    scalar m_t;
+    scalar m_u;
+    scalar m_v;
   };
 
   class mesh
@@ -70,11 +70,15 @@ namespace carom
 
     vector_displacement center() const;
 
-    bool inside(const vector_displacement& l0,
-                const vector_displacement& l1) const;
+    // If l1 is inside the mesh, return the triangle it is inside of. Otherwise,
+    // return end().
+    iterator inside(const vector_displacement& l0,
+                    const vector_displacement& l1);
 
-    bool outside(const vector_displacement& l0,
-                 const vector_displacement& l1) const;
+    // If l1 is outside the mesh, return the triangle it is outside of.
+    // Otherwise, return end().
+    iterator outside(const vector_displacement& l0,
+                     const vector_displacement& l1);
 
   private:
     std::list<triangle> m_triangles;
