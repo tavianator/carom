@@ -30,10 +30,10 @@ namespace carom
     impenetrable() { }
     virtual ~impenetrable() { }
 
-    mesh& surface() { return m_surface; }
+    mesh&       surface()       { return m_surface; }
+    const mesh& surface() const { return m_surface; }
 
-    virtual void collision(mesh::iterator p, const vector_momentum& I) = 0;
-    virtual void collision(body& b) = 0;
+    virtual void collision(mesh::iterator i, const vector_momentum& I) = 0;
 
   private:
     mesh m_surface;
@@ -50,9 +50,18 @@ namespace carom
     // impenetrable_body();
     // virtual ~impenetrable_body();
 
-    virtual void collision(mesh::iterator p, const vector_momentum& I);
-    virtual void collision(body& b);
+    virtual void collision(mesh::iterator i, const vector_momentum& I);
   };
+
+  void collision(body& b1, body& b2);
+
+  template <typename T>
+  void impenetrable_body<T>::collision(mesh::iterator i,
+                                       const vector_momentum& I) {
+    i->a->p(i->a->p() + I/3);
+    i->b->p(i->b->p() + I/3);
+    i->c->p(i->c->p() + I/3);
+  }
 }
 
 #endif // CAROM_UTILITY_IMPENETRABLE_HPP

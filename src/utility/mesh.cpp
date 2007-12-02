@@ -9,22 +9,22 @@ namespace carom
     vector_displacement p1 = p.b->s();
     vector_displacement p2 = p.c->s();
 
-    t = dot(l0 - p0, cross(p1 - p0, p2 - p0))/
-        dot(l0 - l1, cross(p1 - p0, p2 - p0));
+    m_t = dot(l0 - p0, cross(p1 - p0, p2 - p0))/
+          dot(l0 - l1, cross(p1 - p0, p2 - p0));
 
-    u = dot(l0 - l1, cross(l0 - p0, p2 - p0))/
-        dot(l0 - l1, cross(p1 - p0, p2 - p0));
+    m_u = dot(l0 - l1, cross(l0 - p0, p2 - p0))/
+          dot(l0 - l1, cross(p1 - p0, p2 - p0));
 
-    v = dot(l0 - l1, cross(p1 - p0, l0 - p0))/
-        dot(l0 - l1, cross(p1 - p0, p2 - p0));
+    m_v = dot(l0 - l1, cross(p1 - p0, l0 - p0))/
+          dot(l0 - l1, cross(p1 - p0, p2 - p0));
   }
 
   bool intersection_info::inside() const {
-    return (u >= 0 && v >= 0 && u + v <= 0 && t >= 1);
+    return (m_u >= 0 && m_v >= 0 && m_u + m_v <= 0 && m_t >= 1);
   }
 
   bool intersection_info::outside() const {
-    return (u >= 0 && v >= 0 && u + v <= 0 && t >= 0 && t < 1);
+    return (m_u >= 0 && m_v >= 0 && m_u + m_v <= 0 && m_t >= 0 && m_t < 1);
   }
 
   vector_displacement mesh::center() const {
@@ -39,26 +39,36 @@ namespace carom
     return r / size();
   }
 
-  bool mesh::inside(const vector_displacement& l0,
-                    const vector_displacement& l1) const {
-    return !outside(l0, l1);
-  }
+  mesh::iterator mesh::inside(const vector_displacement& l0,
+                              const vector_displacement& l1) {
+    // If l1 is inside any triangle in the mesh, and outside no triangles in
+    // the mesh, then l1 is inside the mesh.
 
-  bool mesh::outside(const vector_displacement& l0,
-                     const vector_displacement& l1) const {
-    // A line through l0 and l1 intersects a triangle iff u >= 0, v >= 0,
-    // and (u + v) <= 1. l1 is outside the triangle iff t >= 0 and t < 1. If,
-    // for any triangle in the mesh, these conditions are met, then l1 is
-    // outside the mesh. This algorithm is O(n).
+    iterator r = end();
 
-    intersection_info info;
+    for (iterator i = begin(); i != end(); ++i) {
+      intersection_info info(l0, l1, *i);
 
-    for (const_iterator i = begin(); i != end(); ++i) {
-      if (intersection_info(l0, l1, *i).outside()) {
-        return true;
+      if (info.inside()) {
+        r = i;
+      } else if (info.outside()) {
+        return end();
       }
     }
 
-    return false;
+    return r;
+  }
+
+  mesh::iterator mesh::outside(const vector_displacement& l0,
+                               const vector_displacement& l1) {
+    // If l1 is outside any triangle in the mesh, then it is outside the mesh.
+
+    for (iterator i = begin(); i != end(); ++i) {
+      if (intersection_info(l0, l1, *i).outside()) {
+        return i;
+      }
+    }
+
+    return end();
   }
 }
