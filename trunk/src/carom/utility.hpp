@@ -20,6 +20,33 @@
 #ifndef CAROM_UTILITY_HPP
 #define CAROM_UTILITY_HPP
 
+namespace carom
+{
+  scalar_mass         mass          (const body& b);
+  vector_displacement center_of_mass(const body& b);
+  vector_velocity     velocity      (const body& b);
+  vector_momentum     momentum      (const body& b);
+  vector_acceleration acceleration  (const body& b);
+  vector_force        force         (const body& b);
+
+  scalar_moment_of_inertia
+  moment_of_inertia(const body& b, const vector_displacement& o,
+                    const vector& axis);
+
+  vector_angular_velocity
+  angular_velocity(const body& b, const vector_displacement& o,
+                   const vector& axis);
+
+  vector_angular_momentum
+  angular_momentum(const body& b, const vector_displacement& o);
+
+  vector_angular_acceleration
+  angular_acceleration(const body& b, const vector_displacement& o,
+                       const vector& axis);
+
+  vector_torque torque(const body& b, const vector_displacement& o);
+}
+
 #include <carom/utility/mesh.hpp>
 #include <carom/utility/impenetrable.hpp>
 

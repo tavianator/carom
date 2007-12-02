@@ -325,6 +325,10 @@ namespace carom
   typedef vector_units<1, 1, -1> vector_momentum;
   typedef vector_units<0, 1, -2> vector_acceleration;
   typedef vector_units<1, 1, -2> vector_force;
+  typedef vector_units<0, 0, -1> vector_angular_velocity;
+  typedef vector_units<1, 2, -1> vector_angular_momentum;
+  typedef vector_units<0, 0, -2> vector_angular_acceleration;
+  typedef vector_units<1, 2, -2> vector_torque;
 }
 
 #endif // CAROM_VECTOR_HPP

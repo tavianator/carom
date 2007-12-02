@@ -266,6 +266,11 @@ namespace carom
   typedef scalar_units<1, 1, -1> scalar_momentum;
   typedef scalar_units<0, 1, -2> scalar_acceleration;
   typedef scalar_units<1, 1, -2> scalar_force;
+  typedef scalar_units<1, 2, 0>  scalar_moment_of_inertia;
+  typedef scalar_units<0, 0, -1> scalar_angular_speed;
+  typedef scalar_units<1, 2, -1> scalar_angular_momentum;
+  typedef scalar_units<0, 0, -2> scalar_angular_acceleration;
+  typedef scalar_units<1, 2, -2> scalar_torque;
   typedef scalar_units<1, 2, -2> scalar_energy;
   typedef scalar_units<1, 2, -3> scalar_power;
 }

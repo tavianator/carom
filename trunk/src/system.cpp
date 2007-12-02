@@ -18,6 +18,7 @@
  *************************************************************************/
 
 #include <carom.hpp>
+#include <boost/next_prior.hpp> // For next()/prior()
 
 namespace carom
 {
@@ -52,6 +53,14 @@ namespace carom
 
     for (iterator i = begin(); i != end(); ++i) {
       i->apply();
+    }
+  }
+
+  void system::collision() {
+    for (iterator i = begin(); i != end(); ++i) {
+      for (iterator j = boost::next(i); j != end(); ++j) {
+        carom::collision(*i, *j); // collision() is hidden by system::collision
+      }
     }
   }
 }
