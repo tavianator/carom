@@ -42,6 +42,7 @@ namespace carom
     std::size_t size() const { return m_bodies.size(); }
 
     void integrate(const scalar_time& t);
+    void collision();
 
   private:
     polymorphic_list<body> m_bodies;
