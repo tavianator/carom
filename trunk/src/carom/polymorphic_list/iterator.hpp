@@ -21,9 +21,9 @@
 #define CAROM_POLYMORPHIC_LIST_ITERATOR_HPP
 
 #include <boost/utility.hpp>
-#include <cstddef>
-#include <iterator>
-#include <typeinfo>
+#include <cstddef> // for std::ptrdiff_t
+#include <iterator> // for std::biderectional_iterator_tag
+#include <typeinfo> // for dynamic_cast
 
 namespace carom
 {

@@ -47,11 +47,11 @@ namespace carom
     virtual void calculate_k3() { }
     virtual void calculate_k4() { }
 
-    virtual void apply_k1() { }
-    virtual void apply_k2() { }
-    virtual void apply_k3() { }
+    virtual void apply_k1(const scalar_time& t) { }
+    virtual void apply_k2(const scalar_time& t) { }
+    virtual void apply_k3(const scalar_time& t) { }
 
-    virtual void apply() { }
+    virtual void apply(const scalar_time& t) { }
 
   private:
     polymorphic_list<particle> m_particles;

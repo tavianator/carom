@@ -24,6 +24,35 @@ namespace carom
 {
   class rigid_body : public body
   {
+  public:
+    // rigid_body();
+    // virtual ~rigid_body();
+
+    virtual void calculate_k1();
+    virtual void calculate_k2();
+    virtual void calculate_k3();
+    virtual void calculate_k4();
+
+    virtual void apply_k1(const scalar_time& t);
+    virtual void apply_k2(const scalar_time& t);
+    virtual void apply_k3(const scalar_time& t);
+
+    virtual void apply(const scalar_time& t);
+
+  private:
+    scalar_mass              m_m;
+    scalar_moment_of_inertia m_I;
+    vector_displacement      m_o;
+    vector_displacement      m_s;
+    vector_angle             m_theta;
+    vector_momentum          m_p;
+    vector_angular_momentum  m_L;
+    vector_force             m_F1, m_F2, m_F3, m_F4;
+    vector_torque            m_T1, m_T2, m_T3, m_T4;
+
+    void advance(const scalar_time& t, const vector_force& F,
+                 const vector_torque& T);
+    void retreat();
   };
 }
 

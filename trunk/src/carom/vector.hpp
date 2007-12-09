@@ -269,10 +269,11 @@ namespace carom
     mpfr_sqr(r.mpfr(), n.mpfr_z(), GMP_RNDN);               // r = z*z;
     mpfr_add(temp.mpfr(), temp.mpfr(), r.mpfr(), GMP_RNDN); // temp += r;
     mpfr_sqrt(r.mpfr(), temp.mpfr(), GMP_RNDN);             // r = sqrt(temp);
+    return r;
   }
 
   template <int m, int d, int t>
-  inline vector_units<m, d, t>
+  inline vector_units<0, 0, 0>
   normalized(const vector_units<m, d, t>& n) {
     return n/norm(n);
   }
@@ -320,6 +321,7 @@ namespace carom
 
   // Convenient typedefs
   typedef vector_units<0, 0, 0>  vector;
+  typedef vector_units<0, 0, 0>  vector_angle;
   typedef vector_units<0, 1, 0>  vector_displacement;
   typedef vector_units<0, 1, -1> vector_velocity;
   typedef vector_units<1, 1, -1> vector_momentum;
