@@ -66,7 +66,7 @@ namespace carom
                     const vector& axis) {
     scalar_moment_of_inertia I = 0;
     for (body::const_iterator i = b.begin(); i != b.end(); ++i) {
-      scalar_distance r = norm(proj(axis, i->s() - o));
+      scalar_distance r = norm(i->s() - proj(axis, i->s() - o));
       I += i->m()*r*r;
     }
     return I;
