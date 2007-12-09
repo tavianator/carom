@@ -28,7 +28,7 @@ namespace carom
     }
 
     for (iterator i = begin(); i != end(); ++i) {
-      i->apply_k1();
+      i->apply_k1(t/2);
     }
 
     for (iterator i = begin(); i != end(); ++i) {
@@ -36,7 +36,7 @@ namespace carom
     }
 
     for (iterator i = begin(); i != end(); ++i) {
-      i->apply_k2();
+      i->apply_k2(t/2);
     }
 
     for (iterator i = begin(); i != end(); ++i) {
@@ -44,7 +44,7 @@ namespace carom
     }
 
     for (iterator i = begin(); i != end(); ++i) {
-      i->apply_k3();
+      i->apply_k3(t);
     }
 
     for (iterator i = begin(); i != end(); ++i) {
@@ -52,7 +52,7 @@ namespace carom
     }
 
     for (iterator i = begin(); i != end(); ++i) {
-      i->apply();
+      i->apply(t);
     }
   }
 

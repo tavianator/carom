@@ -41,12 +41,12 @@ namespace carom
     particle() { }
     virtual ~particle() { }
 
-    scalar_mass         m() { return m_mass; }
-    vector_displacement s() { return m_position; }
-    vector_velocity     v() { return m_momentum / m_mass; }
-    vector_momentum     p() { return m_momentum; }
-    vector_acceleration a() { return m_force / m_mass; }
-    vector_force        F() { return m_force; }
+    scalar_mass         m() const { return m_mass; }
+    vector_displacement s() const { return m_position; }
+    vector_velocity     v() const { return m_momentum / m_mass; }
+    vector_momentum     p() const { return m_momentum; }
+    vector_acceleration a() const { return m_force / m_mass; }
+    vector_force        F() const { return m_force; }
 
     void m(const scalar_mass& m)         { m_mass = m; }
     void s(const vector_displacement& s) { m_position = s; }
