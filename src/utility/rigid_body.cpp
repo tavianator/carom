@@ -42,31 +42,36 @@ namespace carom
   }
 
   void rigid_body::calculate_k1() {
+    m_backup = new body();
+
+    for (const_iterator i = begin(); i != end(); ++i) {
+      iterator j = m_backup->insert(new particle());
+      j->m(i->m());
+      j->s(i->s());
+      j->p(i->p());
+    }
+
     apply_forces(*this);
-    m_m = mass(*this);
-    m_o = center_of_mass(*this);
-    m_p = momentum(*this);
-    m_L = angular_momentum(*this, m_o);
     m_F1 = force(*this);
-    m_T1 = torque(*this, m_o);
+    m_T1 = torque(*this, center_of_mass(*this));
   }
 
   void rigid_body::calculate_k2() {
     apply_forces(*this);
     m_F2 = force(*this);
-    m_T2 = torque(*this, m_o);
+    m_T2 = torque(*this, center_of_mass(*this));
   }
 
   void rigid_body::calculate_k3() {
     apply_forces(*this);
     m_F3 = force(*this);
-    m_T3 = torque(*this, m_o);
+    m_T3 = torque(*this, center_of_mass(*this));
   }
 
   void rigid_body::calculate_k4() {
     apply_forces(*this);
     m_F4 = force(*this);
-    m_T4 = torque(*this, m_o);
+    m_T4 = torque(*this, center_of_mass(*this));
   }
 
   void rigid_body::apply_k1(const scalar_time& t) {
@@ -88,41 +93,40 @@ namespace carom
     advance(t, (m_F1 + 2*m_F2 + 2*m_F3 + m_F4)/6,
             (m_T1 + 2*m_T2 + 2*m_T3 + m_T4)/6);
     clear_forces(*this);
+    delete m_backup;
   }
 
   void rigid_body::advance(const scalar_time& t, const vector_force& F,
                            const vector_torque& T) {
-    m_s = (m_p*t + F*t*t/2)/m_m;
+    scalar_mass m = mass(*this);
+    vector_displacement o = center_of_mass(*this);
+    vector_momentum p = momentum(*this);
+    vector_angular_momentum L = angular_momentum(*this, o);
+    vector_displacement s = (p*t + F*t*t/2)/m;
 
-    if (m_L*t + T*t*t/2 == 0) {
-      m_theta = 0;
-
+    if (L*t + T*t*t/2 == 0) {
       for (iterator i = begin(); i != end(); ++i) {
-        i->s(i->s() + m_s);
-        i->p(m_p + F*t);
+        i->s(i->s() + s);
+        i->v((p + F*t)/m);
       }
     } else {
-      m_I = moment_of_inertia(*this, m_o, normalized(m_L*t + T*t*t/2));
-      m_theta = (m_L*t + T*t*t/2)/m_I;
+      scalar_moment_of_inertia I =
+        moment_of_inertia(*this, o, normalized(L*t + T*t*t/2));
+      vector_angle theta = (L*t + T*t*t/2)/I;
 
       for (iterator i = begin(); i != end(); ++i) {
-        i->s(rotate(i->s(), m_o, m_theta) + m_s);
-        i->v((m_p + F*t)/m_m + cross((m_L + T*t)/m_I, i->s() - m_o));
+        i->s(rotate(i->s(), o, theta) + s);
+        i->v((p + F*t)/m + cross((L + T*t)/I, i->s() - o));
       }
     }
   }
 
   void rigid_body::retreat() {
-    if (m_theta == 0) {
-      for (iterator i = begin(); i != end(); ++i) {
-        i->s(i->s() - m_s);
-        i->p(m_p);
-      }
-    } else {
-      for (iterator i = begin(); i != end(); ++i) {
-        i->s(rotate(i->s() - m_s, m_o, -m_theta));
-        i->v(m_p/m_m + cross(m_L/m_I, i->s() - m_o));
-      }
+    for (iterator i = begin(), j = m_backup->begin();
+         i != end() && j != m_backup->end();
+         ++i, ++j) {
+      i->s(j->s());
+      i->p(j->p());
     }
   }
 }
