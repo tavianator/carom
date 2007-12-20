@@ -117,6 +117,7 @@ namespace carom
       for (iterator i = begin(); i != end(); ++i) {
         i->s(rotate(i->s(), o, theta) + s);
         i->v((p + F*t)/m + cross((L + T*t)/I, i->s() - o));
+        i->a(F/m - norm(L/I)*norm(L/I)*(i->s() - o));
       }
     }
   }

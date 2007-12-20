@@ -22,7 +22,6 @@
 
 #include <mpfr.h>
 #include <boost/utility.hpp> // For boost::enable_if_c
-#include <algorithm> // For std::swap
 
 namespace carom
 {
@@ -31,18 +30,16 @@ namespace carom
   template <int m, int d, int t>
   class scalar_units
   {
-    template <int m2, int d2, int t2> friend class vector_units;
-
     // Intentionally non-template friend functions; declared in situ. Use
     // -Wno-non-template-friends to suppress g++'s warning.
-    friend bool operator< (const scalar_units<m, d, t>& lhs,
-                           const scalar_units<m, d, t>& rhs)
+    friend bool operator<(const scalar_units<m, d, t>& lhs,
+                          const scalar_units<m, d, t>& rhs)
     { return mpfr_less_p(lhs.m_fp, rhs.m_fp); }
     friend bool operator<=(const scalar_units<m, d, t>& lhs,
                            const scalar_units<m, d, t>& rhs)
     { return mpfr_lessequal_p(lhs.m_fp, rhs.m_fp); }
-    friend bool operator> (const scalar_units<m, d, t>& lhs,
-                           const scalar_units<m, d, t>& rhs)
+    friend bool operator>(const scalar_units<m, d, t>& lhs,
+                          const scalar_units<m, d, t>& rhs)
     { return mpfr_greater_p(lhs.m_fp, rhs.m_fp); }
     friend bool operator>=(const scalar_units<m, d, t>& lhs,
                            const scalar_units<m, d, t>& rhs)
@@ -57,22 +54,15 @@ namespace carom
   public:
     scalar_units() { mpfr_init(m_fp); }
     template <typename T>
-    scalar_units(T n) { mpfr_init(m_fp); mpfr_from(m_fp, n); }
+    scalar_units(const T& n) { mpfr_init(m_fp); mpfr_from(m_fp, n); }
     scalar_units(const scalar_units<m, d, t>& n)
     { mpfr_init_set(m_fp, n.m_fp, GMP_RNDN); }
-#if 0
-    scalar_units(scalar_units<m, d, t>&& n) : m_fp(n.m_fp) { n.m_fp = 0; }
-#endif
-    ~scalar_units() { if (m_fp != 0) { mpfr_clear(m_fp); } }
+    ~scalar_units() { mpfr_clear(m_fp); }
 
     template <typename T>
     scalar_units& operator=(T n) { mpfr_from(m_fp, n); return *this; }
     scalar_units& operator=(const scalar_units<m, d, t>& n)
     { mpfr_set(m_fp, n.m_fp, GMP_RNDN); return *this; }
-#if 0
-    scalar_units& operator=(scalar_units<m, d, t>&& n)
-    { std::swap(m_fp, n.m_fp); return *this; }
-#endif
 
     scalar_units& operator+=(const scalar_units<m, d, t>& n)
     { mpfr_add(m_fp, m_fp, n.m_fp, GMP_RNDN); return *this; }

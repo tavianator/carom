@@ -54,44 +54,16 @@ namespace carom
       mpfr_init_set_ui(m_z, 0, GMP_RNDN);
     }
 
-    template <typename T, typename U, typename V>
-    vector_units(T x, U y, V z) {
-      mpfr_init(m_x); mpfr_init(m_y); mpfr_init(m_z);
-      mpfr_from(m_x, x); mpfr_from(m_y, y); mpfr_from(m_z, z);
-    }
-
-    vector_units(const scalar_units<m, d, t>& x,
-                 const scalar_units<m, d, t>& y,
-                 const scalar_units<m, d, t>& z) {
-      mpfr_init_set(m_x, x.m_fp, GMP_RNDN);
-      mpfr_init_set(m_y, y.m_fp, GMP_RNDN);
-      mpfr_init_set(m_z, z.m_fp, GMP_RNDN);
-    }
-
-#if 0
-    vector_units(scalar_units<m, d, t>&& x,
-                 scalar_units<m, d, t>&& y,
-                 scalar_units<m, d, t>&& z)
-      : m_x(x.m_fp), m_y(y.m_fp), m_z(z.m_fp) {
-      x.m_fp = 0; y.m_fp = 0; z.m_fp = 0;
-    }
-#endif
-
     vector_units(const vector_units<m, d, t>& n) {
       mpfr_init_set(m_x, n.m_x, GMP_RNDN);
       mpfr_init_set(m_y, n.m_y, GMP_RNDN);
       mpfr_init_set(m_z, n.m_z, GMP_RNDN);
     }
 
-#if 0
-    vector_units(vector_units<m, d, t>&& n)
-      : m_x(n.m_x), m_y(n.m_y), m_z(n.m_z) { n.m_x = 0; n.m_y = 0; n.m_z = 0; }
-#endif
-
     ~vector_units() {
-      if (m_x != 0) { mpfr_clear(m_x); }
-      if (m_y != 0) { mpfr_clear(m_y); }
-      if (m_z != 0) { mpfr_clear(m_z); }
+      mpfr_clear(m_x);
+      mpfr_clear(m_y);
+      mpfr_clear(m_z);
     }
 
     vector_units& operator=(const vector_units<m, d, t>& n) {
@@ -100,15 +72,6 @@ namespace carom
       mpfr_set(m_z, n.m_z, GMP_RNDN);
       return *this;
     }
-
-#if 0
-    vector_units& operator=(vector_units<m, d, t>&& n) {
-      std::swap(m_x, n.m_x);
-      std::swap(m_y, n.m_y);
-      std::swap(m_z, n.m_z);
-      return *this;
-    }
-#endif
 
     vector_units& operator+=(const vector_units<m, d, t>& n) {
       mpfr_add(m_x, m_x, n.m_x, GMP_RNDN);
@@ -125,25 +88,25 @@ namespace carom
     }
 
     vector_units& operator*=(const scalar_units<0, 0, 0>& n) {
-      mpfr_mul(m_x, m_x, n.m_fp, GMP_RNDN);
-      mpfr_mul(m_y, m_y, n.m_fp, GMP_RNDN);
-      mpfr_mul(m_z, m_z, n.m_fp, GMP_RNDN);
+      mpfr_mul(m_x, m_x, n.mpfr(), GMP_RNDN);
+      mpfr_mul(m_y, m_y, n.mpfr(), GMP_RNDN);
+      mpfr_mul(m_z, m_z, n.mpfr(), GMP_RNDN);
       return *this;
     }
 
     vector_units& operator/=(const scalar_units<0, 0, 0>& n) {
-      mpfr_div(m_x, m_x, n.m_fp, GMP_RNDN);
-      mpfr_div(m_y, m_y, n.m_fp, GMP_RNDN);
-      mpfr_div(m_z, m_z, n.m_fp, GMP_RNDN);
+      mpfr_div(m_x, m_x, n.mpfr(), GMP_RNDN);
+      mpfr_div(m_y, m_y, n.mpfr(), GMP_RNDN);
+      mpfr_div(m_z, m_z, n.mpfr(), GMP_RNDN);
       return *this;
     }
 
     scalar_units<m, d, t> x() const
-    { scalar_units<m, d, t> r; mpfr_set(r.m_fp, m_x, GMP_RNDN); return r; }
+    { scalar_units<m, d, t> r; mpfr_set(r.mpfr(), m_x, GMP_RNDN); return r; }
     scalar_units<m, d, t> y() const
-    { scalar_units<m, d, t> r; mpfr_set(r.m_fp, m_y, GMP_RNDN); return r; }
+    { scalar_units<m, d, t> r; mpfr_set(r.mpfr(), m_y, GMP_RNDN); return r; }
     scalar_units<m, d, t> z() const
-    { scalar_units<m, d, t> r; mpfr_set(r.m_fp, m_z, GMP_RNDN); return r; }
+    { scalar_units<m, d, t> r; mpfr_set(r.mpfr(), m_z, GMP_RNDN); return r; }
 
     mpfr_ptr mpfr_x() const { return m_x; }
     mpfr_ptr mpfr_y() const { return m_y; }

@@ -20,10 +20,38 @@
 #ifndef CAROM_UTILITY_SIMPLE_BODY_HPP
 #define CAROM_UTILITY_SIMPLE_BODY_HPP
 
+#include <list>
+
 namespace carom
 {
   class simple_body : public body
   {
+  public:
+    // simple_body();
+    // virtual ~simple_body();
+
+    virtual void calculate_k1();
+    virtual void calculate_k2();
+    virtual void calculate_k3();
+    virtual void calculate_k4();
+
+    virtual void apply_k1(const scalar_time& t);
+    virtual void apply_k2(const scalar_time& t);
+    virtual void apply_k3(const scalar_time& t);
+
+    virtual void apply(const scalar_time& t);
+
+  private:
+    body* m_backup;
+
+    std::list<vector_force> m_F1;
+    std::list<vector_force> m_F2;
+    std::list<vector_force> m_F3;
+    std::list<vector_force> m_F4;
+
+    void calculate(std::list<vector_force>& F);
+    void advance(const scalar_time& t);
+    void retreat();
   };
 }
 
