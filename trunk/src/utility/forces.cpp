@@ -21,13 +21,12 @@
 
 namespace carom
 {
-  void particle::apply_forces() {
-    m_force = 0;
+  vector_force constant_force::force(const particle& x) const {
+    return m_F;
+  }
 
-    for (polymorphic_list<applied_force>::iterator i = m_forces.begin();
-         i != m_forces.end();
-         ++i) {
-      m_force += i->force(*this);
-    }
+  vector_force centripetal_force::force(const particle& x) const {
+    vector_displacement r = x.s() - m_o;
+    return -x.m()*norm(x.v())*norm(x.v())*normalized(r)/norm(r);
   }
 }

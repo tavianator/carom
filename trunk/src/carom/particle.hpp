@@ -22,13 +22,15 @@
 
 namespace carom
 {
+  class particle;
+
   class applied_force
   {
   public:
     applied_force() { }
     virtual ~applied_force() { }
 
-    virtual vector_force force() = 0;
+    virtual vector_force force(const particle& x) const = 0;
 
   private:
     applied_force(const applied_force&);
