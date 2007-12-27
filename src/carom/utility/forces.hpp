@@ -17,17 +17,34 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. *
  *************************************************************************/
 
-#include <carom.hpp>
+#ifndef CAROM_UTILITY_FORCES_HPP
+#define CAROM_UTILITY_FORCES_HPP
 
 namespace carom
 {
-  void particle::apply_forces() {
-    m_force = 0;
+  class constant_force : public applied_force
+  {
+  public:
+    constant_force(const vector_force& F) : m_F(F) { }
+    // virtual ~constant_force();
 
-    for (polymorphic_list<applied_force>::iterator i = m_forces.begin();
-         i != m_forces.end();
-         ++i) {
-      m_force += i->force(*this);
-    }
-  }
+    virtual vector_force force(const particle& x) const;
+
+  private:
+    vector_force m_F;
+  };
+
+  class centripetal_force : public applied_force
+  {
+  public:
+    centripetal_force(const vector_displacement& o) : m_o(o) { }
+    // virtual ~centripetal_force();
+
+    virtual vector_force force(const particle& x) const;
+
+  private:
+    vector_displacement m_o;
+  };
 }
+
+#endif // CAROM_UTILITY_FORCES_HPP

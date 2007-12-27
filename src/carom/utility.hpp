@@ -57,4 +57,6 @@ namespace carom
 #include <carom/utility/rigid_body.hpp>
 #include <carom/utility/fluid_body.hpp>
 
+#include <carom/utility/forces.hpp>
+
 #endif // CAROM_UTILITY_HPP

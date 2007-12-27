@@ -107,6 +107,13 @@ namespace carom
     return r;
   }
 
+  template <typename T, int m, int d, int t>
+  inline T convert(const scalar_units<m, d, t>& n) {
+    T r;
+    mpfr_set(r.mpfr(), n.mpfr(), GMP_RNDN);
+    return r;
+  }
+
   // Operators
 
   inline scalar_units<0, 0, 0> pi() {
@@ -160,6 +167,14 @@ namespace carom
   tan(const scalar_units<0, 0, 0>& n) {
     scalar_units<0, 0, 0> r;
     mpfr_tan(r.mpfr(), n.mpfr(), GMP_RNDN);
+    return r;
+  }
+
+  template <int m, int d, int t>
+  inline scalar_units<0, 0, 0>
+  atan2(const scalar_units<m, d, t>& x, const scalar_units<m, d, t>& y) {
+    scalar_units<0, 0, 0> r;
+    mpfr_atan2(r.mpfr(), x.mpfr(), y.mpfr(), GMP_RNDN);
     return r;
   }
 

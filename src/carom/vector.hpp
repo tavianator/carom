@@ -21,7 +21,6 @@
 #define CAROM_VECTOR_HPP
 
 #include <mpfr.h>
-#include <algorithm> // For std::swap
 
 namespace carom
 {
@@ -129,6 +128,15 @@ namespace carom
   template <int m1, int d1, int t1, int m2, int d2, int t2>
   inline vector_units<m1, d1, t1> convert(const vector_units<m2, d2, t2>& n) {
     vector_units<m1, d1, t1> r;
+    mpfr_set(r.mpfr_x(), n.mpfr_x(), GMP_RNDN);
+    mpfr_set(r.mpfr_y(), n.mpfr_y(), GMP_RNDN);
+    mpfr_set(r.mpfr_z(), n.mpfr_z(), GMP_RNDN);
+    return r;
+  }
+
+  template <typename T, int m, int d, int t>
+  inline T convert(const vector_units<m, d, t>& n) {
+    T r;
     mpfr_set(r.mpfr_x(), n.mpfr_x(), GMP_RNDN);
     mpfr_set(r.mpfr_y(), n.mpfr_y(), GMP_RNDN);
     mpfr_set(r.mpfr_z(), n.mpfr_z(), GMP_RNDN);
