@@ -21,5 +21,5 @@
 
 namespace carom
 {
-  mpfr_stack mpfr;
+  mpfr_stack mpfr_pool;
 }

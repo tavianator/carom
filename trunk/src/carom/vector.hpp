@@ -45,32 +45,36 @@ namespace carom
     }
 
   public:
-    vector_units() { mpfr_init(m_x); mpfr_init(m_y); mpfr_init(m_z); }
+    vector_units() { init(); }
 
-    vector_units(void*) { // For constructs like vector v = 0; if (v == 0) { }
-      mpfr_init_set_ui(m_x, 0, GMP_RNDN);
-      mpfr_init_set_ui(m_y, 0, GMP_RNDN);
-      mpfr_init_set_ui(m_z, 0, GMP_RNDN);
+    // For constructs like vector v = 0; if (v == 0) { }
+    vector_units(void*) {
+      init();
+      mpfr_set_ui(m_x, 0, GMP_RNDN);
+      mpfr_set_ui(m_y, 0, GMP_RNDN);
+      mpfr_set_ui(m_z, 0, GMP_RNDN);
     }
 
     vector_units(const scalar_units<m, d, t>& x,
                  const scalar_units<m, d, t>& y,
                  const scalar_units<m, d, t>& z) {
-      mpfr_init_set(m_x, x.mpfr(), GMP_RNDN);
-      mpfr_init_set(m_y, y.mpfr(), GMP_RNDN);
-      mpfr_init_set(m_z, z.mpfr(), GMP_RNDN);
+      init();
+      mpfr_set(m_x, x.mpfr(), GMP_RNDN);
+      mpfr_set(m_y, y.mpfr(), GMP_RNDN);
+      mpfr_set(m_z, z.mpfr(), GMP_RNDN);
     }
 
     vector_units(const vector_units<m, d, t>& n) {
-      mpfr_init_set(m_x, n.m_x, GMP_RNDN);
-      mpfr_init_set(m_y, n.m_y, GMP_RNDN);
-      mpfr_init_set(m_z, n.m_z, GMP_RNDN);
+      init();
+      mpfr_set(m_x, n.m_x, GMP_RNDN);
+      mpfr_set(m_y, n.m_y, GMP_RNDN);
+      mpfr_set(m_z, n.m_z, GMP_RNDN);
     }
 
     ~vector_units() {
-      mpfr_clear(m_x);
-      mpfr_clear(m_y);
-      mpfr_clear(m_z);
+      mpfr_pool.release(m_x);
+      mpfr_pool.release(m_y);
+      mpfr_pool.release(m_z);
     }
 
     vector_units& operator=(const vector_units<m, d, t>& n) {
@@ -120,7 +124,13 @@ namespace carom
     mpfr_ptr mpfr_z() const { return m_z; }
 
   private:
-    mutable mpfr_t m_x, m_y, m_z;
+    mpfr_ptr m_x, m_y, m_z;
+
+    void init() {
+      m_x = mpfr_pool.acquire();
+      m_y = mpfr_pool.acquire();
+      m_z = mpfr_pool.acquire();
+    }
   };
 
   // A method of bypassing the unit-correctness system, needed in some cases
