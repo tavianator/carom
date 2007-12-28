@@ -42,7 +42,7 @@ namespace carom
   //    this may not always produce propper rounding.
   //  - NRVO is expected to be implemented to provide decent performance, as is
   //    function inlining.
-  //  - Move symantics provides even more optimization; see scalar.hpp0x
+  //  - Move symantics will provide even more optimization
 
   template <int m, int d, int t>
   class scalar_units
@@ -69,12 +69,12 @@ namespace carom
     { return !mpfr_equal_p(lhs.m_fp, rhs.m_fp); }
 
   public:
-    scalar_units() { mpfr_init(m_fp); }
+    scalar_units() { init(); }
     template <typename T>
-    scalar_units(const T& n) { mpfr_init(m_fp); mpfr_from(m_fp, n); }
+    scalar_units(const T& n) { init(); mpfr_from(m_fp, n); }
     scalar_units(const scalar_units<m, d, t>& n)
-    { mpfr_init_set(m_fp, n.m_fp, GMP_RNDN); }
-    ~scalar_units() { mpfr_clear(m_fp); }
+    { init(); mpfr_set(m_fp, n.m_fp, GMP_RNDN); }
+    ~scalar_units() { mpfr_pool.release(m_fp); }
 
     template <typename T>
     scalar_units& operator=(T n) { mpfr_from(m_fp, n); return *this; }
@@ -95,7 +95,9 @@ namespace carom
     template <typename T> T to() const { return mpfr_to<T>(m_fp); }
 
   private:
-    mutable mpfr_t m_fp;
+    mpfr_ptr m_fp;
+
+    void init() { m_fp = mpfr_pool.acquire(); }
   };
 
   // A method of bypassing the unit-correctness system, needed in some cases
