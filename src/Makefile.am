@@ -9,6 +9,6 @@ nobase_include_HEADERS = $(HPP_SOURCES)
 
 lib_LTLIBRARIES      = libcarom.la
 libcarom_la_SOURCES  = $(CPP_SOURCES) $(HPP_SOURCES)
-libcarom_la_LIBADD   = -lgmp -lmpfr
+libcarom_la_LIBADD   = -lgmp -lmpfr -lboost_thread-mt
 libcarom_la_LDFLAGS  = -version-info $(LIBCAROM_VERSION)
 libcarom_la_CXXFLAGS = -Wall -Wno-non-template-friend

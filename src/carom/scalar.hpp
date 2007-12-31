@@ -74,21 +74,44 @@ namespace carom
     scalar_units(const T& n) { init(); mpfr_from(m_fp, n); }
     scalar_units(const scalar_units<m, d, t>& n)
     { init(); mpfr_set(m_fp, n.m_fp, GMP_RNDN); }
-    ~scalar_units() { mpfr_pool.release(m_fp); }
+    ~scalar_units() { pool->release(m_fp); }
 
     template <typename T>
-    scalar_units& operator=(T n) { mpfr_from(m_fp, n); return *this; }
-    scalar_units& operator=(const scalar_units<m, d, t>& n)
-    { mpfr_set(m_fp, n.m_fp, GMP_RNDN); return *this; }
+    scalar_units& operator=(T n) {
+      update_precision(); // In case precision has changed
+      mpfr_from(m_fp, n);
+      return *this;
+    }
 
-    scalar_units& operator+=(const scalar_units<m, d, t>& n)
-    { mpfr_add(m_fp, m_fp, n.m_fp, GMP_RNDN); return *this; }
-    scalar_units& operator-=(const scalar_units<m, d, t>& n)
-    { mpfr_sub(m_fp, m_fp, n.m_fp, GMP_RNDN); return *this; }
-    scalar_units& operator*=(const scalar_units<0, 0, 0>& n)
-    { mpfr_mul(m_fp, m_fp, n.m_fp, GMP_RNDN); return *this; }
-    scalar_units& operator/=(const scalar_units<0, 0, 0>& n)
-    { mpfr_div(m_fp, m_fp, n.m_fp, GMP_RNDN); return *this; }
+    scalar_units& operator=(const scalar_units<m, d, t>& n) {
+      update_precision();
+      mpfr_set(m_fp, n.m_fp, GMP_RNDN);
+      return *this;
+    }
+
+    scalar_units& operator+=(const scalar_units<m, d, t>& n) {
+      update_precision();
+      mpfr_add(m_fp, m_fp, n.m_fp, GMP_RNDN);
+      return *this;
+    }
+
+    scalar_units& operator-=(const scalar_units<m, d, t>& n) {
+      update_precision();
+      mpfr_sub(m_fp, m_fp, n.m_fp, GMP_RNDN);
+      return *this;
+    }
+
+    scalar_units& operator*=(const scalar_units<0, 0, 0>& n) {
+      update_precision();
+      mpfr_mul(m_fp, m_fp, n.m_fp, GMP_RNDN);
+      return *this;
+    }
+
+    scalar_units& operator/=(const scalar_units<0, 0, 0>& n) {
+      update_precision();
+      mpfr_div(m_fp, m_fp, n.m_fp, GMP_RNDN);
+      return *this;
+    }
 
     mpfr_ptr mpfr() const { return m_fp; }
 
@@ -97,7 +120,8 @@ namespace carom
   private:
     mpfr_ptr m_fp;
 
-    void init() { m_fp = mpfr_pool.acquire(); }
+    void init() { m_fp = pool->acquire(); }
+    void update_precision() { mpfr_prec_round(m_fp, precision(), GMP_RNDN); }
   };
 
   // A method of bypassing the unit-correctness system, needed in some cases

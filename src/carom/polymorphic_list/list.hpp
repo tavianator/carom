@@ -20,13 +20,14 @@
 #ifndef CAROM_POLYMORPHIC_LIST_LIST_HPP
 #define CAROM_POLYMORPHIC_LIST_LIST_HPP
 
+#include <boost/utility.hpp> // For noncopyable
 #include <algorithm>
 #include <iterator>
 
 namespace carom
 {
   template <typename T>
-  class polymorphic_list
+  class polymorphic_list : private boost::noncopyable
   {
   public:
     typedef T                                     value_type;
@@ -77,9 +78,6 @@ namespace carom
   private:
     mutable polymorphic_node<T> m_list;
     mutable polymorphic_node<T> m_end;
-
-    polymorphic_list(const polymorphic_list&);
-    polymorphic_list& operator=(const polymorphic_list&);
   };
 
   template <typename T>

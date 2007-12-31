@@ -20,14 +20,16 @@
 #ifndef CAROM_UTILITY_IMPENETRABLE_HPP
 #define CAROM_UTILITY_IMPENETRABLE_HPP
 
+#include <boost/utility.hpp>
+
 namespace carom
 {
   // Abstract base class. A body is considered impenetrable if dynamic_cast'ing
   // it to impenetrable* returns non-null.
-  class impenetrable
+  class impenetrable : private boost::noncopyable
   {
   public:
-    impenetrable() { }
+    // impenetrable();
     virtual ~impenetrable() { }
 
     mesh&       surface()       { return m_surface; }
@@ -37,9 +39,6 @@ namespace carom
 
   private:
     mesh m_surface;
-
-    impenetrable(const impenetrable&);
-    impenetrable& operator=(const impenetrable&);
   };
 
   // An impenetrable body; T should derrive from body
