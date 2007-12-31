@@ -21,6 +21,8 @@
 #define CAROM_MPFR_UTILS_HPP
 
 #include <mpfr.h>
+#include <boost/utility.hpp> // For noncopyable
+#include <boost/thread.hpp> // For thread_specific_ptr
 #include <string>
 #include <list>
 #include <iostream>
@@ -30,48 +32,21 @@ namespace carom
   inline void precision(unsigned long prec) { mpfr_set_default_prec(prec); }
   inline unsigned long precision() { return mpfr_get_default_prec(); }
 
-  // A list of mpfr_t's, which stores every mpfr_t ever initialized. Few
-  // temporaries should actually have to be initialized when using this class.
-  class mpfr_stack
+  class optimization
   {
   public:
-    mpfr_stack() { }
+    optimization();
+    ~optimization();
 
-    ~mpfr_stack() {
-      while (!m_list.empty()) {
-        mpfr_clear(m_list.front());
-        delete m_list.front();
-        m_list.pop_front();
-      }
-    }
-
-    mpfr_ptr acquire() {
-      mpfr_ptr r;
-
-      if (m_list.empty()) {
-        r = new __mpfr_struct;
-        mpfr_init2(r, precision());
-      } else {
-        r = m_list.front();
-        mpfr_set_prec(r, precision()); // Usually a no-op
-        m_list.pop_front();
-      }
-
-      return r;
-    }
-
-    void release(mpfr_ptr op) {
-      m_list.push_front(op);
-    }
+    mpfr_ptr acquire();
+    void release(mpfr_ptr op);
 
   private:
     std::list<mpfr_ptr> m_list;
-
-    mpfr_stack(const mpfr_stack&);
-    mpfr_stack& operator=(const mpfr_stack&);
+    optimization* m_backup;
   };
 
-  extern mpfr_stack mpfr_pool;
+  extern boost::thread_specific_ptr<optimization> pool;
 
   inline void mpfr_from(mpfr_t rop, signed short n)
   { mpfr_set_si(rop, n, GMP_RNDN); }

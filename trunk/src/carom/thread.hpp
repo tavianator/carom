@@ -17,47 +17,70 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. *
  *************************************************************************/
 
-#ifndef CAROM_BODY_HPP
-#define CAROM_BODY_HPP
+#ifndef CAROM_THREAD_HPP
+#define CAROM_THREAD_HPP
 
+#include <pthread.h>
 #include <boost/utility.hpp> // For noncopyable
 
 namespace carom
 {
-  class body : public boost::noncopyable
+  class mutex : private boost::noncopyable
   {
   public:
-    typedef polymorphic_list<particle>::iterator iterator;
-    typedef polymorphic_list<particle>::const_iterator const_iterator;
+    mutex() { pthread_mutex_init(&m_mutex, 0); }
+    ~mutex() { pthread_mutex_destroy(&m_mutex); }
 
-    // body();
-    virtual ~body() { }
-
-    iterator insert(particle* x)
-    { return m_particles.insert(m_particles.end(), x); }
-    void erase(iterator i) { m_particles.erase(i); }
-
-    iterator       begin()       { return m_particles.begin(); }
-    const_iterator begin() const { return m_particles.begin(); }
-    iterator       end()         { return m_particles.end(); }
-    const_iterator end() const   { return m_particles.end(); }
-
-    std::size_t size() const { return m_particles.size(); }
-
-    virtual void calculate_k1() { }
-    virtual void calculate_k2() { }
-    virtual void calculate_k3() { }
-    virtual void calculate_k4() { }
-
-    virtual void apply_k1(const scalar_time& t) { }
-    virtual void apply_k2(const scalar_time& t) { }
-    virtual void apply_k3(const scalar_time& t) { }
-
-    virtual void apply(const scalar_time& t) { }
+    void lock() { pthread_mutex_lock(&m_mutex); }
+    void unlock() { pthread_mutex_unlock(&m_mutex); }
 
   private:
-    polymorphic_list<particle> m_particles;
+    pthread_mutex_t m_mutex;
+  };
+
+  class rwlock : private boost::noncopyable
+  {
+  public:
+    rwlock() { pthread_rwlock_init(&m_lock, 0); }
+    ~rwlock() { pthread_rwlock_destroy(&m_lock); }
+
+    void read_lock() { pthread_rwlock_rdlock(&m_lock); }
+    void write_lock() { pthread_rwlock_wrlock(&m_lock); }
+    void unlock() { pthread_rwlock_unlock(&m_lock); }
+
+  private:
+    pthread_rwlock_t m_lock;
+  };
+
+  class lock : private boost::noncopyable
+  {
+  public:
+    lock(mutex& m) : m_mutex(&m) { m_mutex->lock(); }
+    ~lock() { m_mutex->unlock(); }
+
+  private:
+    mutex* m_mutex;
+  };
+
+  class read_lock : private boost::noncopyable
+  {
+  public:
+    read_lock(rwlock& l) : m_lock(&l) { m_lock->read_lock(); }
+    ~read_lock() { m_lock->unlock(); }
+
+  private:
+    rwlock* m_lock;
+  };
+
+  class write_lock : private boost::noncopyable
+  {
+  public:
+    write_lock(rwlock& l) : m_lock(&l) { m_lock->write_lock(); }
+    ~write_lock() { m_lock->unlock(); }
+
+  private:
+    rwlock* m_lock;
   };
 }
 
-#endif // CAROM_BODY_HPP
+#endif // CAROM_THREAD_HPP

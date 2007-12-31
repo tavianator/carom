@@ -20,6 +20,7 @@
 #ifndef CAROM_UTILITY_MESH_HPP
 #define CAROM_UTILITY_MESH_HPP
 
+#include <boost/utility.hpp>
 #include <list>
 
 namespace carom
@@ -58,7 +59,7 @@ namespace carom
     typedef std::list<triangle>::iterator iterator;
     typedef std::list<triangle>::const_iterator const_iterator;
 
-    mesh() { }
+    // mesh();
     // ~mesh();
 
     iterator       begin()       { return m_triangles.begin(); }
@@ -82,9 +83,6 @@ namespace carom
 
   private:
     std::list<triangle> m_triangles;
-
-    mesh(const mesh&);
-    mesh& operator=(const mesh&);
   };
 }
 

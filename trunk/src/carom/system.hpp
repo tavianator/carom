@@ -20,15 +20,17 @@
 #ifndef CAROM_SYSTEM_HPP
 #define CAROM_SYSTEM_HPP
 
+#include <boost/utility.hpp> // For noncopyable
+
 namespace carom
 {
-  class system
+  class system : private boost::noncopyable
   {
   public:
     typedef polymorphic_list<body>::iterator iterator;
     typedef polymorphic_list<body>::const_iterator const_iterator;
 
-    system() { }
+    // system();
     // ~system();
 
     iterator insert(body* b) { return m_bodies.insert(m_bodies.end(), b); }
@@ -46,9 +48,6 @@ namespace carom
 
   private:
     polymorphic_list<body> m_bodies;
-
-    system(const system&);
-    system& operator=(const system&);
   };
 }
 

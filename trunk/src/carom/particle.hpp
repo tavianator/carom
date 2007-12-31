@@ -20,27 +20,25 @@
 #ifndef CAROM_PARTICLE_HPP
 #define CAROM_PARTICLE_HPP
 
+#include <boost/utility.hpp> // For noncopyable
+
 namespace carom
 {
   class particle;
 
-  class applied_force
+  class applied_force : private boost::noncopyable
   {
   public:
-    applied_force() { }
+    // applied_force();
     virtual ~applied_force() { }
 
     virtual vector_force force(const particle& x) const = 0;
-
-  private:
-    applied_force(const applied_force&);
-    applied_force& operator=(const applied_force&);
   };
 
-  class particle
+  class particle : private boost::noncopyable
   {
   public:
-    particle() { }
+    // particle();
     virtual ~particle() { }
 
     scalar_mass         m() const { return m_mass; }
@@ -68,9 +66,6 @@ namespace carom
     vector_force        m_force;
 
     polymorphic_list<applied_force> m_forces;
-
-    particle(const particle&);
-    particle& operator=(const particle&);
   };
 }
 

@@ -72,12 +72,13 @@ namespace carom
     }
 
     ~vector_units() {
-      mpfr_pool.release(m_x);
-      mpfr_pool.release(m_y);
-      mpfr_pool.release(m_z);
+      pool->release(m_x);
+      pool->release(m_y);
+      pool->release(m_z);
     }
 
     vector_units& operator=(const vector_units<m, d, t>& n) {
+      update_precision(); // In case precision has changed
       mpfr_set(m_x, n.m_x, GMP_RNDN);
       mpfr_set(m_y, n.m_y, GMP_RNDN);
       mpfr_set(m_z, n.m_z, GMP_RNDN);
@@ -85,6 +86,7 @@ namespace carom
     }
 
     vector_units& operator+=(const vector_units<m, d, t>& n) {
+      update_precision();
       mpfr_add(m_x, m_x, n.m_x, GMP_RNDN);
       mpfr_add(m_y, m_y, n.m_y, GMP_RNDN);
       mpfr_add(m_z, m_z, n.m_z, GMP_RNDN);
@@ -92,6 +94,7 @@ namespace carom
     }
 
     vector_units& operator-=(const vector_units<m, d, t>& n) {
+      update_precision();
       mpfr_sub(m_x, m_x, n.m_x, GMP_RNDN);
       mpfr_sub(m_y, m_y, n.m_y, GMP_RNDN);
       mpfr_sub(m_z, m_z, n.m_z, GMP_RNDN);
@@ -99,6 +102,7 @@ namespace carom
     }
 
     vector_units& operator*=(const scalar_units<0, 0, 0>& n) {
+      update_precision();
       mpfr_mul(m_x, m_x, n.mpfr(), GMP_RNDN);
       mpfr_mul(m_y, m_y, n.mpfr(), GMP_RNDN);
       mpfr_mul(m_z, m_z, n.mpfr(), GMP_RNDN);
@@ -106,6 +110,7 @@ namespace carom
     }
 
     vector_units& operator/=(const scalar_units<0, 0, 0>& n) {
+      update_precision();
       mpfr_div(m_x, m_x, n.mpfr(), GMP_RNDN);
       mpfr_div(m_y, m_y, n.mpfr(), GMP_RNDN);
       mpfr_div(m_z, m_z, n.mpfr(), GMP_RNDN);
@@ -127,9 +132,15 @@ namespace carom
     mpfr_ptr m_x, m_y, m_z;
 
     void init() {
-      m_x = mpfr_pool.acquire();
-      m_y = mpfr_pool.acquire();
-      m_z = mpfr_pool.acquire();
+      m_x = pool->acquire();
+      m_y = pool->acquire();
+      m_z = pool->acquire();
+    }
+
+    void update_precision() {
+      mpfr_prec_round(m_x, precision(), GMP_RNDN);
+      mpfr_prec_round(m_y, precision(), GMP_RNDN);
+      mpfr_prec_round(m_z, precision(), GMP_RNDN);
     }
   };
 
