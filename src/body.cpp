@@ -17,42 +17,54 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. *
  *************************************************************************/
 
-#ifndef CAROM_SYSTEM_HPP
-#define CAROM_SYSTEM_HPP
-
-#include <boost/utility.hpp> // For noncopyable
+#include <carom.hpp>
+#include <tr1/memory> // For shared_ptr
 
 namespace carom
 {
-  class system : private boost::noncopyable
-  {
-  public:
-    typedef polymorphic_list<body>::iterator       iterator;
-    typedef polymorphic_list<body>::const_iterator const_iterator;
+  k_base::~k_base() {
+  }
 
-    // system();
-    // ~system();
+  k_base* k_base::add(const k_base& k) const {
+    return new k_base();
+  }
 
-    iterator insert(body* b) { return m_bodies.insert(m_bodies.end(), b); }
-    void erase(iterator i) { m_bodies.erase(i); }
+  k_base* k_base::subtract(const k_base& k) const {
+    return new k_base();
+  }
 
-    iterator       begin()       { return m_bodies.begin(); }
-    const_iterator begin() const { return m_bodies.begin(); }
-    iterator       end()         { return m_bodies.end(); }
-    const_iterator end() const   { return m_bodies.end(); }
+  k_base* k_base::multiply(const scalar& n) const {
+    return new k_base();
+  }
 
-    std::size_t size() const { return m_bodies.size(); }
+  k_base* k_base::divide(const scalar& n) const {
+    return new k_base();
+  }
 
-    void        integrate_Euler   (const scalar_time& t);
-    void        integrate_midpoint(const scalar_time& t);
-    void        integrate_RK4     (const scalar_time& t);
-    scalar_time integrate_DP      (const scalar_time& t, scalar_time& elapsed);
+  y_base::~y_base() {
+  }
 
-    void collision();
+  scalar y_base::subtract(const y_base& y) const {
+    return 0;
+  }
 
-  private:
-    polymorphic_list<body> m_bodies;
-  };
+  body::~body() {
+  }
+
+  void body::begin_integration() {
+  }
+
+  void body::end_integration() {
+  }
+
+  k_value body::k() {
+    return k_value();
+  }
+
+  y_value body::y() {
+    return y_value();
+  }
+
+  void body::step(const k_value& k, const scalar_time& t) {
+  }
 }
-
-#endif // CAROM_SYSTEM_HPP
