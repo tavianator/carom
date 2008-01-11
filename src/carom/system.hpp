@@ -21,6 +21,7 @@
 #define CAROM_SYSTEM_HPP
 
 #include <boost/utility.hpp> // For noncopyable
+#include <vector>
 
 namespace carom
 {
@@ -30,7 +31,7 @@ namespace carom
     typedef polymorphic_list<body>::iterator       iterator;
     typedef polymorphic_list<body>::const_iterator const_iterator;
 
-    // system();
+    system() : m_DP_err(0), m_DP_steps(0) { }
     // ~system();
 
     iterator insert(body* b) { return m_bodies.insert(m_bodies.end(), b); }
@@ -46,12 +47,21 @@ namespace carom
     void        integrate_Euler   (const scalar_time& t);
     void        integrate_midpoint(const scalar_time& t);
     void        integrate_RK4     (const scalar_time& t);
-    scalar_time integrate_DP      (const scalar_time& t, scalar_time& elapsed);
+    scalar_time integrate_DP      (const scalar_time& t, scalar_time& elapsed,
+                                   const scalar& tol);
+
+    scalar DP_average_error();
+    scalar DP_accumulated_error();
+    unsigned long DP_steps();
 
     void collision();
 
   private:
     polymorphic_list<body> m_bodies;
+    scalar_time m_DP_last_elapsed;
+    std::vector<k_value> m_DP_k7_vec;
+    scalar m_DP_err;
+    unsigned long m_DP_steps;
   };
 }
 

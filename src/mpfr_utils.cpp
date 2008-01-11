@@ -22,40 +22,30 @@
 
 namespace carom
 {
-  boost::thread_specific_ptr<optimization> pool;
+  boost::thread_specific_ptr<optimization>* pool_ptr;
 
-  optimization::optimization() {
-    m_backup = pool.release();
-    pool.reset(this);
-  }
+  int pool_init::s_refcount;
+  optimization* pool_init::s_context;
 
-  optimization::~optimization() {
-    while (!m_list.empty()) {
-      mpfr_clear(m_list.front());
-      delete m_list.front();
-      m_list.pop_front();
+  pool_init::pool_init() {
+    // To ensure that s_refcount is set to zero, we use a local static variable
+    static int refcount = 0;
+
+    if (refcount == 0) {
+      pool_ptr = new boost::thread_specific_ptr<optimization>();
+      s_context = new optimization();
     }
 
-    pool.release();
-    pool.reset(m_backup);
+    ++refcount;
+    s_refcount = refcount;
   }
 
-  mpfr_ptr optimization::acquire() {
-    mpfr_ptr r;
-
-    if (m_list.empty()) {
-      r = new __mpfr_struct;
-      mpfr_init2(r, precision());
-    } else {
-      r = m_list.front();
-      m_list.pop_front();
-      mpfr_set_prec(r, precision()); // Usually a no-op
+  pool_init::~pool_init() {
+    if (s_refcount == 0) {
+      delete s_context;
+      delete pool_ptr;
     }
 
-    return r;
-  }
-
-  void optimization::release(mpfr_ptr op) {
-    m_list.push_back(op);
+    --s_refcount;
   }
 }

@@ -32,21 +32,78 @@ namespace carom
   inline void precision(unsigned long prec) { mpfr_set_default_prec(prec); }
   inline unsigned long precision() { return mpfr_get_default_prec(); }
 
-  class optimization
+  class optimization;
+
+  extern boost::thread_specific_ptr<optimization>* pool_ptr;
+
+  // A simple, useful optimization. Rather than call mpfr_init for every scalar
+  // or vector constructed, this class stores mpfr_ptr's in a list, and returns
+  // already initialized ones when it can.
+  class optimization : private boost::noncopyable
   {
   public:
-    optimization();
-    ~optimization();
+    optimization() {
+      m_backup = pool_ptr->release();
+      pool_ptr->reset(this);
+    }
 
-    mpfr_ptr acquire();
-    void release(mpfr_ptr op);
+    ~optimization() {
+      while (!m_list.empty()) {
+        mpfr_clear(m_list.front());
+        delete m_list.front();
+        m_list.pop_front();
+      }
+
+      pool_ptr->release();
+      pool_ptr->reset(m_backup);
+    }
+
+    mpfr_ptr acquire() {
+      mpfr_ptr r;
+
+      if (m_list.empty()) {
+        r = new __mpfr_struct;
+        mpfr_init2(r, precision());
+      } else {
+        r = m_list.front();
+        m_list.pop_front();
+        mpfr_set_prec(r, precision()); // Usually a no-op
+      }
+
+      return r;
+    }
+
+    void release(mpfr_ptr op) { m_list.push_back(op); }
 
   private:
     std::list<mpfr_ptr> m_list;
     optimization* m_backup;
   };
 
-  extern boost::thread_specific_ptr<optimization> pool;
+  // Returns a thread-specific instance of the optimization class
+  inline optimization& pool() { return **pool_ptr; }
+
+  // A helper class, working much like std::ios_base::Init, to ensure that
+  // pool() always returns a constructed optimization
+  class pool_init
+  {
+  public:
+    pool_init();
+    ~pool_init();
+
+  private:
+    static int s_refcount;
+    static optimization* s_context;
+  };
+
+  // Every translation unit has an instance of this class constructed before
+  // anything can possibly use pool()
+  namespace
+  {
+    pool_init piniter_;
+  }
+
+  // Helper routines for working with the MPFR library
 
   inline void mpfr_from(mpfr_t rop, signed short n)
   { mpfr_set_si(rop, n, GMP_RNDN); }

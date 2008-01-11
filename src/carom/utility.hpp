@@ -52,6 +52,7 @@ namespace carom
 
 #include <carom/utility/mesh.hpp>
 #include <carom/utility/impenetrable.hpp>
+#include <carom/utility/revertable.hpp>
 
 #include <carom/utility/simple_body.hpp>
 #include <carom/utility/rigid_body.hpp>

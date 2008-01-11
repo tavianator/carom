@@ -18,89 +18,123 @@
  *************************************************************************/
 
 #include <carom.hpp>
+#include <algorithm> // For max()
 #include <list>
 
 namespace carom
 {
-  void simple_body::calculate_k1() {
-    m_backup = new body();
+  simple_k_base::~simple_k_base() {
+  }
 
-    for (const_iterator i = begin(); i != end(); ++i) {
-      iterator j = m_backup->insert(new particle());
-      j->m(i->m());
-      j->s(i->s());
-      j->p(i->p());
+  k_base* simple_k_base::add(const k_base& k) const {
+    simple_k_base* r = new simple_k_base;
+    const simple_k_base& rhs = dynamic_cast<const simple_k_base&>(k);
+
+    for (std::list<vector_force>::const_iterator i = forces.begin(),
+                                                 j = rhs.forces.begin();
+         i != forces.end() && j != rhs.forces.end();
+         ++i, ++j) {
+      r->forces.push_back(*i + *j);
     }
 
-    calculate(m_F1);
+    return r;
   }
 
-  void simple_body::calculate_k2() {
-    calculate(m_F2);
-  }
+  k_base* simple_k_base::subtract(const k_base& k) const {
+    simple_k_base* r = new simple_k_base;
+    const simple_k_base& rhs = dynamic_cast<const simple_k_base&>(k);
 
-  void simple_body::calculate_k3() {
-    calculate(m_F3);
-  }
-
-  void simple_body::calculate_k4() {
-    calculate(m_F4);
-  }
-
-  void simple_body::apply_k1(const scalar_time& t) {
-    advance(t);
-  }
-
-  void simple_body::apply_k2(const scalar_time& t) {
-    retreat();
-    advance(t);
-  }
-
-  void simple_body::apply_k3(const scalar_time& t) {
-    retreat();
-    advance(t);
-  }
-
-  void simple_body::apply(const scalar_time& t) {
-    retreat();
-
-    std::list<vector_force>::iterator i = m_F1.begin();
-    std::list<vector_force>::iterator j = m_F2.begin();
-    std::list<vector_force>::iterator k = m_F3.begin();
-    std::list<vector_force>::iterator l = m_F4.begin();
-    for (iterator m = begin(); m != end(); ++i, ++j, ++k, ++l, ++m) {
-      m->F((*i + 2*(*j) + 2*(*k) + *l)/6);
+    for (std::list<vector_force>::const_iterator i = forces.begin(),
+                                                 j = rhs.forces.begin();
+         i != forces.end() && j != rhs.forces.end();
+         ++i, ++j) {
+      r->forces.push_back(*i - *j);
     }
 
-    advance(t);
-    clear_forces(*this);
-    m_F1.clear();
-    m_F2.clear();
-    m_F3.clear();
-    m_F4.clear();
-    delete m_backup;
+    return r;
   }
 
-  void simple_body::calculate(std::list<vector_force>& F) {
+  k_base* simple_k_base::multiply(const scalar& n) const {
+    simple_k_base* r = new simple_k_base;
+
+    for (std::list<vector_force>::const_iterator i = forces.begin();
+         i != forces.end();
+         ++i) {
+      r->forces.push_back(n*(*i));
+    }
+
+    return r;
+  }
+
+  k_base* simple_k_base::divide(const scalar& n) const {
+    simple_k_base* r = new simple_k_base;
+
+    for (std::list<vector_force>::const_iterator i = forces.begin();
+         i != forces.end();
+         ++i) {
+      r->forces.push_back((*i)/n);
+    }
+
+    return r;
+  }
+
+  simple_y_base::~simple_y_base() {
+  }
+
+  scalar simple_y_base::subtract(const y_base& y) const {
+    scalar err = 0;
+    const simple_y_base& rhs = dynamic_cast<const simple_y_base&>(y);
+
+    std::list<vector_displacement>::const_iterator s1 = displacements.begin(),
+      s2 = rhs.displacements.begin();
+    std::list<vector_velocity>::const_iterator v1 = velocities.begin(),
+      v2 = rhs.velocities.begin();
+    for (;
+         s1 != displacements.end() && s2 != rhs.displacements.end() &&
+           v1 != velocities.end() && v2 != rhs.velocities.end();
+         ++s1, ++s2, ++v1, ++v2) {
+      err = std::max(err, convert<scalar>(norm(*s1 - *s2)) +
+                     convert<scalar>(norm(*v1 - *v2)));
+    }
+
+    return err;
+  }
+
+  k_value simple_body::k() {
+    simple_k_base* r = new simple_k_base;
+
     apply_forces(*this);
     for (iterator i = begin(); i != end(); ++i) {
-      F.push_back(i->F());
+      r->forces.push_back(i->F());
     }
+
+    return k_value(r);
   }
 
-  void simple_body::advance(const scalar_time& t) {
+  y_value simple_body::y() {
+    simple_y_base* r = new simple_y_base;
+
     for (iterator i = begin(); i != end(); ++i) {
-      i->s(i->s() + i->v()*t + i->a()*t*t/2);
-      i->v(i->v() + i->a()*t);
+      r->displacements.push_back(i->s());
+      r->velocities.push_back(i->v());
     }
+
+    return y_value(r);
   }
 
-  void simple_body::retreat() {
-    for (iterator i = begin(), j = m_backup->begin();
-         i != end() && j != m_backup->end();
-         ++i, ++j) {
-      i->s(j->s());
-      i->p(j->p());
+  void simple_body::step(const k_value& k, const scalar_time& t) {
+    revert();
+
+    const simple_k_base* simple_k =
+      &dynamic_cast<const simple_k_base&>(*k.base());
+
+    iterator i;
+    std::list<vector_force>::const_iterator F;
+    for (i = begin(), F = simple_k->forces.begin();
+         i != end() && F != simple_k->forces.end();
+         ++i, ++F) {
+      i->s(i->s() + i->v()*t + (*F)*t*t/(2*i->m()));
+      i->p(i->p() + (*F)*t);
     }
   }
 }

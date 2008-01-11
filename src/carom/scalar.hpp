@@ -74,7 +74,7 @@ namespace carom
     scalar_units(const T& n) { init(); mpfr_from(m_fp, n); }
     scalar_units(const scalar_units<m, d, t>& n)
     { init(); mpfr_set(m_fp, n.m_fp, GMP_RNDN); }
-    ~scalar_units() { pool->release(m_fp); }
+    ~scalar_units() { pool().release(m_fp); }
 
     template <typename T>
     scalar_units& operator=(T n) {
@@ -120,7 +120,7 @@ namespace carom
   private:
     mpfr_ptr m_fp;
 
-    void init() { m_fp = pool->acquire(); }
+    void init() { m_fp = pool().acquire(); }
     void update_precision() { mpfr_prec_round(m_fp, precision(), GMP_RNDN); }
   };
 
@@ -163,6 +163,14 @@ namespace carom
   }
 
   template <int m, int d, int t>
+  inline scalar_units<m, d, t>
+  abs(const scalar_units<m, d, t>& n) {
+    scalar_units<m, d, t> r;
+    mpfr_abs(r.mpfr(), n.mpfr(), GMP_RNDN);
+    return r;
+  }
+
+  template <int m, int d, int t>
   inline scalar_units<m/2, d/2, t/2>
   sqrt(const scalar_units<m, d, t>& n) {
     // Use TMP to ensure that m, d, and t are even
@@ -201,6 +209,13 @@ namespace carom
   atan2(const scalar_units<m, d, t>& x, const scalar_units<m, d, t>& y) {
     scalar_units<0, 0, 0> r;
     mpfr_atan2(r.mpfr(), x.mpfr(), y.mpfr(), GMP_RNDN);
+    return r;
+  }
+
+  inline scalar_units<0, 0, 0>
+  pow(const scalar_units<0, 0, 0>& b, const scalar_units<0, 0, 0>& e) {
+    scalar_units<0, 0, 0> r;
+    mpfr_pow(r.mpfr(), b.mpfr(), e.mpfr(), GMP_RNDN);
     return r;
   }
 
@@ -263,7 +278,7 @@ namespace carom
     return r;
   }
 
-  template <int m1, int m2, int d1, int d2, int t1, int t2>
+  template <int m1, int d1, int t1, int m2, int d2, int t2>
   inline scalar_units<m1 + m2, d1 + d2, t1 + t2>
   operator*(const scalar_units<m1, d1, t1>& lhs,
             const scalar_units<m2, d2, t2>& rhs) {
@@ -288,7 +303,7 @@ namespace carom
     return r;
   }
 
-  template <int m1, int m2, int d1, int d2, int t1, int t2>
+  template <int m1, int d1, int t1, int m2, int d2, int t2>
   inline scalar_units<m1 - m2, d1 - d2, t1 - t2>
   operator/(const scalar_units<m1, d1, t1>& lhs,
             const scalar_units<m2, d2, t2>& rhs) {
