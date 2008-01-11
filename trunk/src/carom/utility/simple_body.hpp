@@ -24,34 +24,48 @@
 
 namespace carom
 {
-  class simple_body : public body
+  struct simple_k_base : public k_base
+  {
+  public:
+    // simple_k_base();
+    // simple_k_base(const simple_k_base& k);
+    virtual ~simple_k_base();
+
+    // simple_k_base& operator=(const simple_k_base& k);
+
+    virtual k_base* add     (const k_base& k) const;
+    virtual k_base* subtract(const k_base& k) const;
+    virtual k_base* multiply(const scalar& n) const;
+    virtual k_base* divide  (const scalar& n) const;
+
+    std::list<vector_force> forces;
+  };
+
+  struct simple_y_base : public y_base
+  {
+  public:
+    // simple_y_base();
+    // simple_y_base(const simple_y_base& y);
+    virtual ~simple_y_base();
+
+    // simple_y_base& operator=(const simple_y_base& y);
+
+    virtual scalar subtract(const y_base& y) const;
+
+    std::list<vector_displacement> displacements;
+    std::list<vector_velocity>     velocities;
+  };
+
+  class simple_body : public revertable_body
   {
   public:
     // simple_body();
     // virtual ~simple_body();
 
-    virtual void calculate_k1();
-    virtual void calculate_k2();
-    virtual void calculate_k3();
-    virtual void calculate_k4();
+    virtual k_value k();
+    virtual y_value y();
 
-    virtual void apply_k1(const scalar_time& t);
-    virtual void apply_k2(const scalar_time& t);
-    virtual void apply_k3(const scalar_time& t);
-
-    virtual void apply(const scalar_time& t);
-
-  private:
-    body* m_backup;
-
-    std::list<vector_force> m_F1;
-    std::list<vector_force> m_F2;
-    std::list<vector_force> m_F3;
-    std::list<vector_force> m_F4;
-
-    void calculate(std::list<vector_force>& F);
-    void advance(const scalar_time& t);
-    void retreat();
+    virtual void step(const k_value& k, const scalar_time& t);
   };
 }
 

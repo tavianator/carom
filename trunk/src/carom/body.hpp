@@ -25,7 +25,7 @@
 
 namespace carom
 {
-  class k_base
+  struct k_base
   {
   public:
     // k_base();
@@ -40,7 +40,7 @@ namespace carom
     virtual k_base* divide  (const scalar& n) const;
   };
 
-  class y_base
+  struct y_base
   {
   public:
     // y_base();
@@ -56,7 +56,7 @@ namespace carom
   {
   public:
     k_value() { }
-    k_value(k_base* k) : m_base(k) { }
+    explicit k_value(k_base* k) : m_base(k) { }
     // k_value(const k_value& k);
     // ~k_value();
 
@@ -81,7 +81,7 @@ namespace carom
   {
   public:
     y_value() { }
-    y_value(y_base* y) : m_base(y) { }
+    explicit y_value(y_base* y) : m_base(y) { }
     // y_value(const y_value& y);
     // ~y_value();
 
@@ -115,7 +115,7 @@ namespace carom
     std::size_t size() const { return m_particles.size(); }
 
     virtual void begin_integration();
-    virtual void end_integration  ();
+    virtual void end_integration();
 
     virtual k_value k();
     virtual y_value y();
@@ -125,6 +125,10 @@ namespace carom
   private:
     polymorphic_list<particle> m_particles;
   };
+
+  inline k_value operator-(const k_value& k) {
+    return k_value(k.base()->multiply(-1));
+  }
 
   inline k_value operator+(const k_value& lhs, const k_value& rhs) {
     return k_value(lhs.base()->add(*rhs.base()));

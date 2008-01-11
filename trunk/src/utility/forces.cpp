@@ -26,7 +26,16 @@ namespace carom
   }
 
   vector_force centripetal_force::force(const particle& x) const {
+    // F = m*v^2/r;
     vector_displacement r = x.s() - m_o;
     return -x.m()*norm(x.v())*norm(x.v())*normalized(r)/norm(r);
+  }
+
+  scalar_units<-1, 3, -2> gravitational_force::s_G("6.6742e-11");
+
+  vector_force gravitational_force::force(const particle& x) const {
+    // F = G*m1*m2/r^2
+    vector_displacement r = m_i->s() - x.s();
+    return G()*x.m()*m_i->m()*normalized(r)/(norm(r)*norm(r));
   }
 }

@@ -72,9 +72,9 @@ namespace carom
     }
 
     ~vector_units() {
-      pool->release(m_x);
-      pool->release(m_y);
-      pool->release(m_z);
+      pool().release(m_x);
+      pool().release(m_y);
+      pool().release(m_z);
     }
 
     vector_units& operator=(const vector_units<m, d, t>& n) {
@@ -132,9 +132,9 @@ namespace carom
     mpfr_ptr m_x, m_y, m_z;
 
     void init() {
-      m_x = pool->acquire();
-      m_y = pool->acquire();
-      m_z = pool->acquire();
+      m_x = pool().acquire();
+      m_y = pool().acquire();
+      m_z = pool().acquire();
     }
 
     void update_precision() {
@@ -204,7 +204,7 @@ namespace carom
     return r;
   }
 
-  template <int m1, int m2, int d1, int d2, int t1, int t2>
+  template <int m1, int d1, int t1, int m2, int d2, int t2>
   inline vector_units<m1 + m2, d1 + d2, t1 + t2>
   operator*(const vector_units<m1, d1, t1>& lhs,
             const scalar_units<m2, d2, t2>& rhs) {
@@ -215,7 +215,7 @@ namespace carom
     return r;
   }
 
-  template <int m1, int m2, int d1, int d2, int t1, int t2>
+  template <int m1, int d1, int t1, int m2, int d2, int t2>
   inline vector_units<m1 + m2, d1 + d2, t1 + t2>
   operator*(const scalar_units<m1, d1, t1>& lhs,
             const vector_units<m2, d2, t2>& rhs) {
@@ -248,7 +248,7 @@ namespace carom
     return r;
   }
 
-  template <int m1, int m2, int d1, int d2, int t1, int t2>
+  template <int m1, int d1, int t1, int m2, int d2, int t2>
   inline vector_units<m1 - m2, d1 - d2, t1 - t2>
   operator/(const vector_units<m1, d1, t1>& lhs,
             const scalar_units<m2, d2, t2>& rhs) {
@@ -289,7 +289,7 @@ namespace carom
     return n/norm(n);
   }
 
-  template <int m1, int m2, int d1, int d2, int t1, int t2>
+  template <int m1, int d1, int t1, int m2, int d2, int t2>
   inline scalar_units<m1 + m2, d1 + d2, t1 + t2>
   dot(const vector_units<m1, d1, t1>& lhs,
       const vector_units<m2, d2, t2>& rhs) {
@@ -302,7 +302,7 @@ namespace carom
     return r;
   }
 
-  template <int m1, int m2, int d1, int d2, int t1, int t2>
+  template <int m1, int d1, int t1, int m2, int d2, int t2>
   inline vector_units<m1 + m2, d1 + d2, t1 + t2>
   cross(const vector_units<m1, d1, t1>& lhs,
         const vector_units<m2, d2, t2>& rhs) {
@@ -323,7 +323,7 @@ namespace carom
     return r;
   }
 
-  template <int m1, int m2, int d1, int d2, int t1, int t2>
+  template <int m1, int d1, int t1, int m2, int d2, int t2>
   inline vector_units<m2, d2, t2>
   proj(const vector_units<m1, d1, t1>& u,
        const vector_units<m2, d2, t2>& d) {
