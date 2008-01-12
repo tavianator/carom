@@ -37,14 +37,12 @@ namespace carom
     // y[n + 1] = y[n] + t*f(y[n])
 
     scalar b[1] = { 1 };
-    scalar c[1] = { 0 };
 
     std::vector<std::vector<scalar> > a_vec;
     std::vector<scalar> b_vec(b, b + 1);
-    std::vector<scalar> c_vec(c, c + 1);
 
-    tableau tab(a_vec, b_vec, c_vec, *this);
-    tab.integrate(t);
+    tableau tab(a_vec, b_vec, *this);
+    tab.apply(tab.integrate(t));
   }
 
   void system::integrate_midpoint(const scalar_time& t) {
@@ -62,15 +60,13 @@ namespace carom
 
     scalar a2[1] = { scalar(1)/2 };
     scalar b[2] = { 0, 1 };
-    scalar c[2] = { 0, scalar(1)/2 };
 
     std::vector<scalar> a_vec_arr[1] = { std::vector<scalar>(a2, a2 + 1) };
     std::vector<std::vector<scalar> > a_vec(a_vec_arr, a_vec_arr + 1);
     std::vector<scalar> b_vec(b, b + 2);
-    std::vector<scalar> c_vec(c, c + 2);
 
-    tableau tab(a_vec, b_vec, c_vec, *this);
-    tab.integrate(t);
+    tableau tab(a_vec, b_vec, *this);
+    tab.apply(tab.integrate(t));
   }
 
   void system::integrate_RK4(const scalar_time& t) {
@@ -94,17 +90,15 @@ namespace carom
     scalar a3[2] = { 0          , scalar(1)/2 };
     scalar a4[3] = { 0          , 0          , 1 };
     scalar b[4] = { scalar(1)/6, scalar(1)/3, scalar(1)/3, scalar(1)/6 };
-    scalar c[4] = { 0, scalar(1)/2, scalar(1)/2, 1 };
 
     std::vector<scalar> a_vec_arr[3] = { std::vector<scalar>(a2, a2 + 1),
                                          std::vector<scalar>(a3, a3 + 2),
                                          std::vector<scalar>(a4, a4 + 3) };
     std::vector<std::vector<scalar> > a_vec(a_vec_arr, a_vec_arr + 3);
     std::vector<scalar> b_vec(b, b + 4);
-    std::vector<scalar> c_vec(c, c + 4);
 
-    tableau tab(a_vec, b_vec, c_vec, *this);
-    tab.integrate(t);
+    tableau tab(a_vec, b_vec, *this);
+    tab.apply(tab.integrate(t));
   }
 
   scalar_time system::integrate_RKF45(const scalar_time& t,
@@ -130,9 +124,6 @@ namespace carom
     scalar bstar[7] = { scalar(25)/216, 0, scalar(1408)/2565, scalar(2197)/4104,
                         -scalar(1)/5, 0 };
 
-    scalar c[7] = { 0, scalar(1)/4, scalar(3)/8, scalar(12)/13, 1,
-                    scalar(1)/2 };
-
     std::vector<scalar> a_vec_arr[6] = { std::vector<scalar>(a2, a2 + 1),
                                          std::vector<scalar>(a3, a3 + 2),
                                          std::vector<scalar>(a4, a4 + 3),
@@ -141,36 +132,27 @@ namespace carom
     std::vector<std::vector<scalar> > a_vec(a_vec_arr, a_vec_arr + 5);
     std::vector<scalar> b_vec(b, b + 6);
     std::vector<scalar> bstar_vec(bstar, bstar + 6);
-    std::vector<scalar> c_vec(c, c + 6);
 
-    tableau tab(a_vec, b_vec, bstar_vec, c_vec, *this);
+    tableau tab(a_vec, b_vec, bstar_vec, *this);
 
     bool rejected = true;
     scalar_time tprime = t, dt;
     scalar err;
 
-    iterator i;
-
     while (rejected) {
-      tab.integrate_star(tprime);
-
-      // Store the y_value's of the fourth-order step
-
-      std::vector<y_value> ystar_vec(size());
-      std::vector<y_value>::iterator ystar;
-
-      for (i = begin(), ystar = ystar_vec.begin(); i != end(); ++i, ++ystar) {
-        *ystar = i->y();
-      }
-
-      tab.integrate(tprime);
+      // Store the y_value's of the fourth- and fifth-order steps
+      std::vector<y_value> y_vec = tab.integrate(tprime);
+      std::vector<y_value> ystar_vec = tab.integrate_star(tprime);
 
       // Find the error: the maximum error of any body, where the error of a
       // body is the difference between the y_value's of the fifth- and fourth-
       // order steps.
       err = 0;
-      for (i = begin(), ystar = ystar_vec.begin(); i != end(); ++i, ++ystar) {
-        err = std::max(err, i->y() - *ystar);
+      for (std::vector<y_value>::iterator y = y_vec.begin(),
+             ystar = ystar_vec.begin();
+           y != y_vec.end() && ystar != ystar_vec.end();
+           ++y, ++ystar) {
+        err = std::max(err, *y - *ystar);
       }
 
       // Store the stepsize used for the integration
@@ -188,9 +170,11 @@ namespace carom
           ++m_rejected;
           rejected = true;
         } else {
+          tab.apply(y_vec);
           rejected = false;
         }
       } else {
+        tab.apply(y_vec);
         rejected = false;
       }
     }
@@ -225,9 +209,6 @@ namespace carom
                         scalar(393)/640, -scalar(92097)/339200,
                         scalar(187)/2100, scalar(1)/40 };
 
-    scalar c[7] = { 0, scalar(1)/5, scalar(3)/10, scalar(4)/5, scalar(8)/9,
-                    1, 1 };
-
     std::vector<scalar> a_vec_arr[6] = { std::vector<scalar>(a2, a2 + 1),
                                          std::vector<scalar>(a3, a3 + 2),
                                          std::vector<scalar>(a4, a4 + 3),
@@ -237,56 +218,39 @@ namespace carom
     std::vector<std::vector<scalar> > a_vec(a_vec_arr, a_vec_arr + 6);
     std::vector<scalar> b_vec(b, b + 7);
     std::vector<scalar> bstar_vec(bstar, bstar + 7);
-    std::vector<scalar> c_vec(c, c + 7);
 
-    tableau tab(a_vec, b_vec, bstar_vec, c_vec, *this);
+    tableau tab(a_vec, b_vec, bstar_vec, *this);
 
     bool rejected = true;
     scalar_time tprime = t, dt;
     scalar err;
 
-    iterator i;
-
     while (rejected) {
-      tab.integrate_star(tprime);
+      std::vector<y_value> y_vec = tab.integrate(tprime);
+      std::vector<y_value> ystar_vec = tab.integrate_star(tprime);
 
-      // Store the y_value's of the fourth-order step
-
-      std::vector<y_value> ystar_vec(size());
-      std::vector<y_value>::iterator ystar;
-
-      for (i = begin(), ystar = ystar_vec.begin(); i != end(); ++i, ++ystar) {
-        *ystar = i->y();
-      }
-
-      tab.integrate(tprime);
-
-      // Find the error: the maximum error of any body, where the error of a
-      // body is the difference between the y_value's of the fifth- and fourth-
-      // order steps.
       err = 0;
-      for (i = begin(), ystar = ystar_vec.begin(); i != end(); ++i, ++ystar) {
-        err = std::max(err, i->y() - *ystar);
+      for (std::vector<y_value>::iterator y = y_vec.begin(),
+             ystar = ystar_vec.begin();
+           y != y_vec.end() && ystar != ystar_vec.end();
+           ++y, ++ystar) {
+        err = std::max(err, *y - *ystar);
       }
 
-      // Store the stepsize used for the integration
       dt = tprime;
 
       if (steps() > 0) {
-        // Find t', the t value that we estimate would have given an error of
-        // average_error()/(1 + tol). The formula has a power of 1/5, because
-        // the error calculated is that of the fourth-order step. If the step
-        // is rejected, this is our new stepsize; otherwise, this is our
-        // recommended stepsize for the next iteration.
         tprime = tprime*pow(average_error()/((1 + tol)*err), scalar(1)/5);
 
         if (err > (1 + tol)*average_error()) {
           ++m_rejected;
           rejected = true;
         } else {
+          tab.apply(y_vec);
           rejected = false;
         }
       } else {
+        tab.apply(y_vec);
         rejected = false;
       }
     }
@@ -323,6 +287,122 @@ namespace carom
     for (iterator i = begin(); i != end(); ++i) {
       for (iterator j = boost::next(i); j != end(); ++j) {
         carom::collision(*i, *j); // collision() is hidden by system::collision
+      }
+    }
+  }
+
+  tableau::tableau(const std::vector<std::vector<scalar> >& a,
+                   const std::vector<scalar>& b, system& sys)
+    : m_a(a), m_b(b), m_sys(&sys)
+  {
+    init();
+  }
+
+  tableau::tableau(const std::vector<std::vector<scalar> >& a,
+                   const std::vector<scalar>& b,
+                   const std::vector<scalar>& bstar, system& sys)
+    : m_a(a), m_b(b), m_bstar(bstar), m_sys(&sys)
+  {
+    init();
+  }
+
+  std::vector<y_value> tableau::integrate(const scalar_time& t) {
+    std::vector<y_value> r;
+    base_integrate(m_b, r, t);
+    return r;
+  }
+
+  std::vector<y_value> tableau::integrate_star(const scalar_time& t) {
+    std::vector<y_value> r;
+    base_integrate(m_bstar, r, t);
+    return r;
+  }
+
+  void tableau::apply(const std::vector<y_value>& y) {
+    system::iterator i;
+    std::vector<y_value>::const_iterator j;
+    for (i = m_sys->begin(), j = y.begin(); i != m_sys->end(); ++i, ++j) {
+      *i = *j;
+    }
+  }
+
+  void tableau::init() {
+    m_f1.reserve(m_sys->size());
+    m_y.reserve(m_sys->size());
+    for (system::iterator i = m_sys->begin(); i != m_sys->end(); ++i) {
+      m_f1.push_back(i->f());
+      m_y.push_back(i->y());
+    }
+  }
+
+  void tableau::base_integrate(const std::vector<scalar>& b_vec,
+                               std::vector<y_value>& y_vec,
+                               const scalar_time& t) {
+    std::vector<std::vector<k_value> > k_vecs(m_sys->size());
+    std::vector<std::vector<k_value> >::iterator k_vec;
+
+    // Find k1 using m_f1
+    std::vector<f_value>::iterator f;
+    for (k_vec = k_vecs.begin(), f = m_f1.begin();
+         k_vec != k_vecs.end() && f != m_f1.end();
+         ++k_vec, ++f) {
+      k_vec->resize(b_vec.size());
+      *k_vec->begin() = t*(*f);
+    }
+
+    // Find k2..n
+    y_vec.resize(m_sys->size());
+    unsigned int n;
+    std::vector<std::vector<scalar> >::iterator a_vec;
+    for (n = 1, a_vec = m_a.begin();
+         n < b_vec.size() && a_vec != m_a.end();
+         ++n, ++a_vec) {
+      system::iterator i;
+
+      std::vector<y_value>::iterator y, y0;
+      for (i = m_sys->begin(), y = y_vec.begin(), y0 = m_y.begin(),
+             k_vec = k_vecs.begin();
+           i != m_sys->end() && y != y_vec.end() && y0 != m_y.end() &&
+             k_vec != k_vecs.end();
+           ++i, ++y, ++y0, ++k_vec) {
+        *y = *y0;
+
+        // k_vec->begin() + n is ambiguous?
+        std::vector<k_value>::iterator k = k_vec->begin() + std::ptrdiff_t(n);
+
+        std::vector<k_value>::iterator kn;
+        std::vector<scalar>::iterator a;
+        for (kn = k_vec->begin(), a = a_vec->begin();
+             kn != k && a != a_vec->end();
+             ++kn, ++a) {
+          *y += (*a)*(*kn);
+        }
+
+        *i = *y;
+      }
+
+      for (i = m_sys->begin(), k_vec = k_vecs.begin();
+           i != m_sys->end() && k_vec != k_vecs.end();
+           ++i) {
+        std::vector<k_value>::iterator k = k_vec->begin() + std::ptrdiff_t(n);
+
+        *k = t*i->f();
+      }
+    }
+
+    // Store the apropriate y-values in y_vec
+    std::vector<y_value>::iterator y, y0;
+    for (y = y_vec.begin(), y0 = m_y.begin(), k_vec = k_vecs.begin();
+         y != y_vec.end() && y0 != m_y.end() && k_vec != k_vecs.end();
+         ++y, ++y0, ++k_vec) {
+      *y = *y0;
+
+      std::vector<scalar>::const_iterator b;
+      std::vector<k_value>::iterator k;
+      for (b = b_vec.begin(), k = k_vec->begin();
+           b != b_vec.end() && k != k_vec->end();
+           ++b, ++k) {
+        *y += (*b)*(*k);
       }
     }
   }

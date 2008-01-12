@@ -70,22 +70,26 @@ namespace carom
   {
   public:
     tableau(const std::vector<std::vector<scalar> >& a,
-            const std::vector<scalar>& b, const std::vector<scalar>& c,
-            system& sys);
+            const std::vector<scalar>& b, system& sys);
     tableau(const std::vector<std::vector<scalar> >& a,
             const std::vector<scalar>& b, const std::vector<scalar>& bstar,
-            const std::vector<scalar>& c, system& sys);
+            system& sys);
 
-    void integrate(const scalar_time& t);
-    void integrate_star(const scalar_time& t);
+    std::vector<y_value> integrate     (const scalar_time& t);
+    std::vector<y_value> integrate_star(const scalar_time& t);
+    void apply(const std::vector<y_value>& y);
 
   private:
     std::vector<std::vector<scalar> > m_a;
     std::vector<scalar> m_b;
     std::vector<scalar> m_bstar;
-    std::vector<scalar> m_c;
+    system* m_sys;
     std::vector<f_value> m_f1;
     std::vector<y_value> m_y;
+
+    void init();
+    void base_integrate(const std::vector<scalar>& b_vec,
+                        std::vector<y_value>& y_vec, const scalar_time& t);
   };
 }
 
