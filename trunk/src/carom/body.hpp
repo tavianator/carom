@@ -25,6 +25,20 @@
 
 namespace carom
 {
+  struct k_base;
+
+  struct f_base
+  {
+  public:
+    // f_base();
+    // f_base(const f_base& k);
+    virtual ~f_base();
+
+    // f_base& operator=(const f_base& k);
+
+    virtual k_base* multiply(const scalar_time& t) const;
+  };
+
   struct k_base
   {
   public:
@@ -49,7 +63,23 @@ namespace carom
 
     // y_base& operator=(const y_base& y);
 
-    virtual scalar subtract(const y_base& y) const;
+    virtual y_base* add     (const k_base& k) const;
+    virtual scalar  subtract(const y_base& y) const;
+  };
+
+  class f_value
+  {
+  public:
+    f_value() { }
+    explicit f_value(f_base* k) : m_base(k) { }
+    // f_value(const f_value& k);
+    // ~f_value();
+
+    f_base*       base()       { return m_base.get(); }
+    const f_base* base() const { return m_base.get(); }
+
+  private:
+    std::tr1::shared_ptr<f_base> m_base;
   };
 
   class k_value
@@ -64,13 +94,13 @@ namespace carom
     const k_base* base() const { return m_base.get(); }
 
     // k_value& operator=(const k_value& k);
-    virtual k_value& operator+=(const k_value& k)
+    k_value& operator+=(const k_value& k)
     { m_base.reset(m_base->add(*k.base())); return *this; }
-    virtual k_value& operator-=(const k_value& k)
+    k_value& operator-=(const k_value& k)
     { m_base.reset(m_base->subtract(*k.base())); return *this; }
-    virtual k_value& operator*=(const scalar& n)
+    k_value& operator*=(const scalar& n)
     { m_base.reset(m_base->multiply(n)); return *this; }
-    virtual k_value& operator/=(const scalar& n)
+    k_value& operator/=(const scalar& n)
     { m_base.reset(m_base->divide(n)); return *this; }
 
   private:
@@ -88,7 +118,9 @@ namespace carom
     y_base*       base()       { return m_base.get(); }
     const y_base* base() const { return m_base.get(); }
 
-    // y_value& operator=(const y_value& k);
+    // y_value& operator=(const y_value& y);
+    y_value& operator+=(const k_value& k)
+    { m_base.reset(m_base->add(*k.base())); return *this; }
 
   private:
     std::tr1::shared_ptr<y_base> m_base;
@@ -114,20 +146,16 @@ namespace carom
 
     std::size_t size() const { return m_particles.size(); }
 
-    virtual void begin_integration();
-    virtual void end_integration();
-
-    virtual k_value k();
+    virtual f_value f();
     virtual y_value y();
-
-    virtual void step(const k_value& k, const scalar_time& t);
+    virtual body& operator=(const y_value& y);
 
   private:
     polymorphic_list<particle> m_particles;
   };
 
-  inline k_value operator-(const k_value& k) {
-    return k_value(k.base()->multiply(-1));
+  inline k_value operator*(const scalar_time& lhs, const f_value& rhs) {
+    return k_value(rhs.base()->multiply(lhs));
   }
 
   inline k_value operator+(const k_value& lhs, const k_value& rhs) {
@@ -138,16 +166,16 @@ namespace carom
     return k_value(lhs.base()->subtract(*rhs.base()));
   }
 
-  inline k_value operator*(const k_value& lhs, const scalar& rhs) {
-    return k_value(lhs.base()->multiply(rhs));
-  }
-
   inline k_value operator*(const scalar& lhs, const k_value& rhs) {
     return k_value(rhs.base()->multiply(lhs));
   }
 
   inline k_value operator/(const k_value& lhs, const scalar& rhs) {
     return k_value(lhs.base()->divide(rhs));
+  }
+
+  inline y_value operator+(const y_value& lhs, const k_value& rhs) {
+    return y_value(lhs.base()->add(*rhs.base()));
   }
 
   inline scalar operator-(const y_value& lhs, const y_value& rhs) {

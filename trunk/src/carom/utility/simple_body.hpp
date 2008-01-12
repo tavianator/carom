@@ -24,6 +24,20 @@
 
 namespace carom
 {
+  struct simple_f_base : public f_base
+  {
+  public:
+    // simple_f_base();
+    // simple_f_base(const simple_f_base& k);
+    virtual ~simple_f_base();
+
+    // simple_f_base& operator=(const simple_f_base& k);
+
+    virtual k_base* multiply(const scalar_time& t) const;
+
+    std::list<vector_force> forces;
+  };
+
   struct simple_k_base : public k_base
   {
   public:
@@ -38,7 +52,7 @@ namespace carom
     virtual k_base* multiply(const scalar& n) const;
     virtual k_base* divide  (const scalar& n) const;
 
-    std::list<vector_force> forces;
+    std::list<vector_momentum> momenta;
   };
 
   struct simple_y_base : public y_base
@@ -56,16 +70,15 @@ namespace carom
     std::list<vector_velocity>     velocities;
   };
 
-  class simple_body : public revertable_body
+  class simple_body : public body
   {
   public:
     // simple_body();
     // virtual ~simple_body();
 
-    virtual k_value k();
+    virtual f_value f();
     virtual y_value y();
-
-    virtual void step(const k_value& k, const scalar_time& t);
+    virtual body& operator=(const y_value& y);
   };
 }
 
