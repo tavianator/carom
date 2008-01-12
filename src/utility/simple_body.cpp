@@ -29,11 +29,8 @@ namespace carom
   k_base* simple_f_base::multiply(const scalar_time& t) const {
     simple_k_base* r = new simple_k_base;
 
-    for (std::list<vector_force>::const_iterator i = forces.begin();
-         i != forces.end();
-         ++i) {
-      r->momenta.push_back(t*(*i));
-    }
+    r->t = t;
+    r->forces = forces;
 
     return r;
   }
@@ -45,12 +42,8 @@ namespace carom
     simple_k_base* r = new simple_k_base;
     const simple_k_base& rhs = dynamic_cast<const simple_k_base&>(k);
 
-    for (std::list<vector_momentum>::const_iterator i = momenta.begin(),
-           j = rhs.momenta.begin();
-         i != momenta.end() && j != rhs.momenta.end();
-         ++i, ++j) {
-      r->momenta.push_back(*i + *j);
-    }
+    r->t = t + rhs.t;
+    r->forces = forces;
 
     return r;
   }
@@ -59,12 +52,8 @@ namespace carom
     simple_k_base* r = new simple_k_base;
     const simple_k_base& rhs = dynamic_cast<const simple_k_base&>(k);
 
-    for (std::list<vector_momentum>::const_iterator i = momenta.begin(),
-           j = rhs.momenta.begin();
-         i != momenta.end() && j != rhs.momenta.end();
-         ++i, ++j) {
-      r->momenta.push_back(*i - *j);
-    }
+    r->t = t - rhs.t;
+    r->forces = forces;
 
     return r;
   }
@@ -72,11 +61,8 @@ namespace carom
   k_base* simple_k_base::multiply(const scalar& n) const {
     simple_k_base* r = new simple_k_base;
 
-    for (std::list<vector_momentum>::const_iterator i = momenta.begin();
-         i != momenta.end();
-         ++i) {
-      r->momenta.push_back(n*(*i));
-    }
+    r->t = n*t;
+    r->forces = forces;
 
     return r;
   }
@@ -84,11 +70,8 @@ namespace carom
   k_base* simple_k_base::divide(const scalar& n) const {
     simple_k_base* r = new simple_k_base;
 
-    for (std::list<vector_momentum>::const_iterator i = momenta.begin();
-         i != momenta.end();
-         ++i) {
-      r->momenta.push_back((*i)/n);
-    }
+    r->t = t/n;
+    r->forces = forces;
 
     return r;
   }
@@ -96,20 +79,33 @@ namespace carom
   simple_y_base::~simple_y_base() {
   }
 
+  y_base* simple_y_base::add(const k_base& k) const {
+    simple_y_base* r = new simple_y_base;
+    const simple_k_base& rhs = dynamic_cast<const simple_k_base&>(k);
+
+    body::const_iterator i;
+    std::list<vector_force>::const_iterator j;
+    for (i = b.begin(), j = rhs.forces.begin();
+         i != b.end() && j != rhs.forces.end();
+         ++i, ++j) {
+      body::iterator k = r->b.insert(new particle()); 
+      k->m(i->m());
+      k->s(i->s() + rhs.t*i->v());
+      k->v(i->v() + rhs.t*(*j)/i->m());
+    }
+
+    return r;
+  }
+
   scalar simple_y_base::subtract(const y_base& y) const {
     scalar err = 0;
     const simple_y_base& rhs = dynamic_cast<const simple_y_base&>(y);
 
-    std::list<vector_displacement>::const_iterator s1 = displacements.begin(),
-      s2 = rhs.displacements.begin();
-    std::list<vector_velocity>::const_iterator v1 = velocities.begin(),
-      v2 = rhs.velocities.begin();
-    for (;
-         s1 != displacements.end() && s2 != rhs.displacements.end() &&
-           v1 != velocities.end() && v2 != rhs.velocities.end();
-         ++s1, ++s2, ++v1, ++v2) {
-      err = std::max(err, convert<scalar>(norm(*s1 - *s2)) +
-                     convert<scalar>(norm(*v1 - *v2)));
+    for (body::const_iterator i = b.begin(), j = rhs.b.begin();
+         i != b.end() && j != rhs.b.end();
+         ++i, ++j) {
+      err = std::max(err, std::max(convert<scalar>(norm(i->s() - j->s())),
+                                   convert<scalar>(norm(i->v() - j->v()))));
     }
 
     return err;
@@ -130,8 +126,10 @@ namespace carom
     simple_y_base* r = new simple_y_base;
 
     for (iterator i = begin(); i != end(); ++i) {
-      r->displacements.push_back(i->s());
-      r->velocities.push_back(i->v());
+      iterator j = r->b.insert(new particle());
+      j->m(i->m());
+      j->s(i->s());
+      j->v(i->v());
     }
 
     return y_value(r);
@@ -141,13 +139,10 @@ namespace carom
     const simple_y_base& rhs = dynamic_cast<const simple_y_base&>(*y.base());
 
     iterator i;
-    std::list<vector_displacement>::const_iterator j;
-    std::list<vector_velocity>::const_iterator k;
-    for (i = begin(), j = rhs.displacements.begin(), k = rhs.velocities.begin();
-         i != end();
-         ++i, ++j, ++k) {
-      i->s(*j);
-      i->v(*k);
+    const_iterator j;
+    for (i = begin(), j = rhs.b.begin(); i != end(); ++i, ++j) {
+      i->s(j->s());
+      i->v(j->v());
     }
 
     return *this;

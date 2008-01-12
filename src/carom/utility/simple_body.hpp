@@ -52,7 +52,8 @@ namespace carom
     virtual k_base* multiply(const scalar& n) const;
     virtual k_base* divide  (const scalar& n) const;
 
-    std::list<vector_momentum> momenta;
+    scalar_time t;
+    std::list<vector_force> forces;
   };
 
   struct simple_y_base : public y_base
@@ -64,10 +65,10 @@ namespace carom
 
     // simple_y_base& operator=(const simple_y_base& y);
 
-    virtual scalar subtract(const y_base& y) const;
+    virtual y_base* add     (const k_base& k) const;
+    virtual scalar  subtract(const y_base& y) const;
 
-    std::list<vector_displacement> displacements;
-    std::list<vector_velocity>     velocities;
+    body b;
   };
 
   class simple_body : public body
