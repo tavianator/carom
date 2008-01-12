@@ -23,6 +23,21 @@
 
 namespace carom
 {
+  simple_f_base::~simple_f_base() {
+  }
+
+  k_base* simple_f_base::multiply(const scalar_time& t) const {
+    simple_k_base* r = new simple_k_base;
+
+    for (std::list<vector_force>::const_iterator i = forces.begin();
+         i != forces.end();
+         ++i) {
+      r->momenta.push_back(t*(*i));
+    }
+
+    return r;
+  }
+
   simple_k_base::~simple_k_base() {
   }
 
@@ -30,11 +45,11 @@ namespace carom
     simple_k_base* r = new simple_k_base;
     const simple_k_base& rhs = dynamic_cast<const simple_k_base&>(k);
 
-    for (std::list<vector_force>::const_iterator i = forces.begin(),
-                                                 j = rhs.forces.begin();
-         i != forces.end() && j != rhs.forces.end();
+    for (std::list<vector_momentum>::const_iterator i = momenta.begin(),
+           j = rhs.momenta.begin();
+         i != momenta.end() && j != rhs.momenta.end();
          ++i, ++j) {
-      r->forces.push_back(*i + *j);
+      r->momenta.push_back(*i + *j);
     }
 
     return r;
@@ -44,11 +59,11 @@ namespace carom
     simple_k_base* r = new simple_k_base;
     const simple_k_base& rhs = dynamic_cast<const simple_k_base&>(k);
 
-    for (std::list<vector_force>::const_iterator i = forces.begin(),
-                                                 j = rhs.forces.begin();
-         i != forces.end() && j != rhs.forces.end();
+    for (std::list<vector_momentum>::const_iterator i = momenta.begin(),
+           j = rhs.momenta.begin();
+         i != momenta.end() && j != rhs.momenta.end();
          ++i, ++j) {
-      r->forces.push_back(*i - *j);
+      r->momenta.push_back(*i - *j);
     }
 
     return r;
@@ -57,10 +72,10 @@ namespace carom
   k_base* simple_k_base::multiply(const scalar& n) const {
     simple_k_base* r = new simple_k_base;
 
-    for (std::list<vector_force>::const_iterator i = forces.begin();
-         i != forces.end();
+    for (std::list<vector_momentum>::const_iterator i = momenta.begin();
+         i != momenta.end();
          ++i) {
-      r->forces.push_back(n*(*i));
+      r->momenta.push_back(n*(*i));
     }
 
     return r;
@@ -69,10 +84,10 @@ namespace carom
   k_base* simple_k_base::divide(const scalar& n) const {
     simple_k_base* r = new simple_k_base;
 
-    for (std::list<vector_force>::const_iterator i = forces.begin();
-         i != forces.end();
+    for (std::list<vector_momentum>::const_iterator i = momenta.begin();
+         i != momenta.end();
          ++i) {
-      r->forces.push_back((*i)/n);
+      r->momenta.push_back((*i)/n);
     }
 
     return r;
@@ -100,15 +115,15 @@ namespace carom
     return err;
   }
 
-  k_value simple_body::k() {
-    simple_k_base* r = new simple_k_base;
+  f_value simple_body::f() {
+    simple_f_base* r = new simple_f_base;
 
     apply_forces(*this);
     for (iterator i = begin(); i != end(); ++i) {
       r->forces.push_back(i->F());
     }
 
-    return k_value(r);
+    return f_value(r);
   }
 
   y_value simple_body::y() {
@@ -122,19 +137,19 @@ namespace carom
     return y_value(r);
   }
 
-  void simple_body::step(const k_value& k, const scalar_time& t) {
-    revert();
-
-    const simple_k_base* simple_k =
-      &dynamic_cast<const simple_k_base&>(*k.base());
+  body& simple_body::operator=(const y_value& y) {
+    const simple_y_base& rhs = dynamic_cast<const simple_y_base&>(*y.base());
 
     iterator i;
-    std::list<vector_force>::const_iterator F;
-    for (i = begin(), F = simple_k->forces.begin();
-         i != end() && F != simple_k->forces.end();
-         ++i, ++F) {
-      i->s(i->s() + i->v()*t + (*F)*t*t/(2*i->m()));
-      i->p(i->p() + (*F)*t);
+    std::list<vector_displacement>::const_iterator j;
+    std::list<vector_velocity>::const_iterator k;
+    for (i = begin(), j = rhs.displacements.begin(), k = rhs.velocities.begin();
+         i != end();
+         ++i, ++j, ++k) {
+      i->s(*j);
+      i->v(*k);
     }
+
+    return *this;
   }
 }

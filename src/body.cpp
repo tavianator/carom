@@ -22,6 +22,13 @@
 
 namespace carom
 {
+  f_base::~f_base() {
+  }
+
+  k_base* f_base::multiply(const scalar_time& t) const {
+    return new k_base();
+  }
+
   k_base::~k_base() {
   }
 
@@ -44,6 +51,10 @@ namespace carom
   y_base::~y_base() {
   }
 
+  y_base* y_base::add(const k_base& k) const {
+    return new y_base;
+  }
+
   scalar y_base::subtract(const y_base& y) const {
     return 0;
   }
@@ -51,20 +62,15 @@ namespace carom
   body::~body() {
   }
 
-  void body::begin_integration() {
-  }
-
-  void body::end_integration() {
-  }
-
-  k_value body::k() {
-    return k_value();
+  f_value body::f() {
+    return f_value();
   }
 
   y_value body::y() {
     return y_value();
   }
 
-  void body::step(const k_value& k, const scalar_time& t) {
+  body& body::operator=(const y_value& y) {
+    return *this;
   }
 }

@@ -24,6 +24,9 @@
 
 namespace carom
 {
+  // All of these functions will look nicer when initialization lists are added
+  // to C++
+
   void system::integrate_Euler(const scalar_time& t) {
     // Euler method. Simplest Runge-Kutta method. First order. Its tableau is:
     //
@@ -33,26 +36,15 @@ namespace carom
     //
     // y[n + 1] = y[n] + t*f(y[n])
 
-    std::vector<k_value> k_vec(size());
+    scalar b[1] = { 1 };
+    scalar c[1] = { 0 };
 
-    std::vector<k_value>::iterator k;
-    iterator i;
+    std::vector<std::vector<scalar> > a_vec;
+    std::vector<scalar> b_vec(b, b + 1);
+    std::vector<scalar> c_vec(c, c + 1);
 
-    for (i = begin(); i != end(); ++i) {
-      i->begin_integration();
-    }
-
-    for (i = begin(), k = k_vec.begin(); i != end(); ++i, ++k) {
-      *k = i->k();
-    }
-
-    for (i = begin(), k = k_vec.begin(); i != end(); ++i, ++k) {
-      i->step(*k, t);
-    }
-
-    for (i = begin(); i != end(); ++i) {
-      i->end_integration();
-    }
+    tableau tab(a_vec, b_vec, c_vec, *this);
+    tab.integrate(t);
   }
 
   void system::integrate_midpoint(const scalar_time& t) {
@@ -64,39 +56,21 @@ namespace carom
     //   ---+-----
     //      |0   1
     //
-    //    k1    = f(y[n])
-    //    k2    = f(y[n] + (t/2)*k1)
-    // y[n + 1] = y[n] + t*k2
+    //    k1    = t*f(y[n])
+    //    k2    = t*f(y[n] + (t/2)*k1)
+    // y[n + 1] = y[n] + k2
 
-    std::vector<k_value> k1_vec(size());
-    std::vector<k_value> k2_vec(size());
+    scalar a2[1] = { scalar(1)/2 };
+    scalar b[2] = { 0, 1 };
+    scalar c[2] = { 0, scalar(1)/2 };
 
-    std::vector<k_value>::iterator k1, k2;
-    iterator i;
+    std::vector<scalar> a_vec_arr[1] = { std::vector<scalar>(a2, a2 + 1) };
+    std::vector<std::vector<scalar> > a_vec(a_vec_arr, a_vec_arr + 1);
+    std::vector<scalar> b_vec(b, b + 2);
+    std::vector<scalar> c_vec(c, c + 2);
 
-    for (i = begin(); i != end(); ++i) {
-      i->begin_integration();
-    }
-
-    for (i = begin(), k1 = k1_vec.begin(); i != end(); ++i, ++k1) {
-      *k1 = i->k();
-    }
-
-    for (i = begin(), k1 = k1_vec.begin(); i != end(); ++i, ++k1) {
-      i->step(*k1, t/2);
-    }
-
-    for (i = begin(), k2 = k2_vec.begin(); i != end(); ++i, ++k2) {
-      *k2 = i->k();
-    }
-
-    for (i = begin(), k2 = k2_vec.begin(); i != end(); ++i, ++k2) {
-      i->step(*k2, t);
-    }
-
-    for (i = begin(); i != end(); ++i) {
-      i->end_integration();
-    }
+    tableau tab(a_vec, b_vec, c_vec, *this);
+    tab.integrate(t);
   }
 
   void system::integrate_RK4(const scalar_time& t) {
@@ -110,233 +84,108 @@ namespace carom
     //   ---+---------------
     //      |1/6 1/3 1/3 1/6
     //
-    //    k1    = f(y[n])
-    //    k2    = f(y[n] + (t/2)*k1)
-    //    k3    = f(y[n] + (t/2)*k2)
-    //    k4    = f(y[n] + t*k3)
-    // y[n + 1] = y[n] + t*(k1 + 2*k2 + 2*k3 + k4)/6
+    //    k1    = t*f(y[n])
+    //    k2    = t*f(y[n] + (t/2)*k1)
+    //    k3    = t*f(y[n] + (t/2)*k2)
+    //    k4    = t*f(y[n] + t*k3)
+    // y[n + 1] = y[n] + (k1 + 2*k2 + 2*k3 + k4)/6
 
-    std::vector<k_value> k1_vec(size());
-    std::vector<k_value> k2_vec(size());
-    std::vector<k_value> k3_vec(size());
-    std::vector<k_value> k4_vec(size());
+    scalar a2[1] = { scalar(1)/2 };
+    scalar a3[2] = { 0          , scalar(1)/2 };
+    scalar a4[3] = { 0          , 0          , 1 };
+    scalar b[4] = { scalar(1)/6, scalar(1)/3, scalar(1)/3, scalar(1)/6 };
+    scalar c[4] = { 0, scalar(1)/2, scalar(1)/2, 1 };
 
-    std::vector<k_value>::iterator k1, k2, k3, k4;
-    iterator i;
+    std::vector<scalar> a_vec_arr[3] = { std::vector<scalar>(a2, a2 + 1),
+                                         std::vector<scalar>(a3, a3 + 2),
+                                         std::vector<scalar>(a4, a4 + 3) };
+    std::vector<std::vector<scalar> > a_vec(a_vec_arr, a_vec_arr + 3);
+    std::vector<scalar> b_vec(b, b + 4);
+    std::vector<scalar> c_vec(c, c + 4);
 
-    for (i = begin(); i != end(); ++i) {
-      i->begin_integration();
-    }
-
-    for (i = begin(), k1 = k1_vec.begin(); i != end(); ++i, ++k1) {
-      *k1 = i->k();
-    }
-
-    for (i = begin(), k1 = k1_vec.begin(); i != end(); ++i, ++k1) {
-      i->step(*k1, t/2);
-    }
-
-    for (i = begin(), k2 = k2_vec.begin(); i != end(); ++i, ++k2) {
-      *k2 = i->k();
-    }
-
-    for (i = begin(), k2 = k2_vec.begin(); i != end(); ++i, ++k2) {
-      i->step(*k2, t/2);
-    }
-
-    for (i = begin(), k3 = k3_vec.begin(); i != end(); ++i, ++k3) {
-      *k3 = i->k();
-    }
-
-    for (i = begin(), k3 = k3_vec.begin(); i != end(); ++i, ++k3) {
-      i->step(*k3, t);
-    }
-
-    for (i = begin(), k4 = k4_vec.begin(); i != end(); ++i, ++k4) {
-      *k4 = i->k();
-    }
-
-    for (i = begin(), k1 = k1_vec.begin(), k2 = k2_vec.begin(),
-                      k3 = k3_vec.begin(), k4 = k4_vec.begin();
-         i != end();
-         ++i, ++k1, ++k2, ++k3, ++k4) {
-      k_value k = (*k1 + 2*(*k2) + 2*(*k3) + *k4)/6;
-      i->step(k, t);
-    }
-
-    for (i = begin(); i != end(); ++i) {
-      i->end_integration();
-    }
+    tableau tab(a_vec, b_vec, c_vec, *this);
+    tab.integrate(t);
   }
 
-  scalar_time system::integrate_DP(const scalar_time& t, scalar_time& elapsed,
-                                   const scalar& tol) {
-    // Fifth-order Dormand-Prince method, with embeded fourth-order formula
-    // for adaptive stepsize control. Confer to Numerical Recipies S17.2 for an
-    // overview. In this implementation, an average error is stored. If the
-    // current step's error is greater than the average by a factor of 1 + tol,
-    // we reject the step, find a new estimate for the stepsize, and try again.
-    // This routine also increments elapsed by the stepsize used, and returns a
-    // suggestion for the next stepsize. This routine also calls collision() in
-    // the right places, so that the stepsize adjusts to the error in collision
-    // handling as well. This can be quite expensive.
+  scalar_time system::integrate_RKF45(const scalar_time& t,
+                                      scalar_time& elapsed, const scalar& tol) {
+    // Fifth-order Runge-Kutta-Fehlberg adaptive method. Requires 6 function
+    // evaluations per step. An embeded fourth-order method gives an estimate
+    // of the local truncation error, which is used to either reject the step
+    // or find a recommendation for the next stepsize. Steps are rejected if
+    // they exceed the average local error by a factor of 1 + tol. This average
+    // error is shared between this method and the Dormand-Prince method.
 
-    scalar a21 = scalar(1)/5;
-    scalar a31 = scalar(3)/40, a32 = scalar(9)/40;
-    scalar a41 = scalar(44)/45, a42 = -scalar(56)/15, a43 = scalar(32)/9;
-    scalar a51 = scalar(19372)/6561, a52 = -scalar(25360)/2187,
-      a53 = scalar(64448)/6561, a54 = -scalar(212)/729;
-    scalar a61 = scalar(9017)/3168, a62 = -scalar(355)/33,
-      a63 = scalar(46732)/5247, a64 = scalar(49)/176, a65 = -scalar(5103)/18656;
+    scalar a2[1] = { scalar(1)/4 };
+    scalar a3[2] = { scalar(3)/32, scalar(9)/32 };
+    scalar a4[3] = { scalar(1932)/2197, -scalar(7200)/2197, scalar(7296)/2197 };
+    scalar a5[4] = { scalar(439)/216, -8, scalar(3680)/513,
+                     -scalar(845)/4104 };
+    scalar a6[5] = { -scalar(8)/27, 2, -scalar(3544)/2565, scalar(1859)/4104,
+                     -scalar(11)/40 };
 
-    scalar b1 = scalar(35)/384, b2 = 0, b3 = scalar(500)/1113,
-      b4 = scalar(125)/192, b5 = -scalar(2187)/6784, b6 = scalar(11)/84;
+    scalar b[7] = { scalar(16)/135, 0, scalar(6656)/12825, scalar(29561)/56430,
+                    -scalar(9)/50, scalar(2)/55 };
 
-    // b*'s
-    scalar bs1 = scalar(5179)/576000, bs2 = 0, bs3 = scalar(7571)/16695,
-      bs4 = scalar(393)/640, bs5 = -scalar(92097)/339200,
-      bs6 = scalar(187)/2100, bs7 = scalar(1)/40;
+    scalar bstar[7] = { scalar(25)/216, 0, scalar(1408)/2565, scalar(2197)/4104,
+                        -scalar(1)/5, 0 };
 
-    scalar c2 = scalar(1)/5, c3 = scalar(3)/10, c4 = scalar(4)/5,
-      c5 = scalar(8)/9, c6 = 1, c7 = 1;
+    scalar c[7] = { 0, scalar(1)/4, scalar(3)/8, scalar(12)/13, 1,
+                    scalar(1)/2 };
+
+    std::vector<scalar> a_vec_arr[6] = { std::vector<scalar>(a2, a2 + 1),
+                                         std::vector<scalar>(a3, a3 + 2),
+                                         std::vector<scalar>(a4, a4 + 3),
+                                         std::vector<scalar>(a5, a5 + 4),
+                                         std::vector<scalar>(a6, a6 + 5) };
+    std::vector<std::vector<scalar> > a_vec(a_vec_arr, a_vec_arr + 5);
+    std::vector<scalar> b_vec(b, b + 6);
+    std::vector<scalar> bstar_vec(bstar, bstar + 6);
+    std::vector<scalar> c_vec(c, c + 6);
+
+    tableau tab(a_vec, b_vec, bstar_vec, c_vec, *this);
 
     bool rejected = true;
     scalar_time tprime = t, dt;
     scalar err;
 
-    std::vector<k_value> k1_vec(size());
-    std::vector<k_value> k2_vec(size());
-    std::vector<k_value> k3_vec(size());
-    std::vector<k_value> k4_vec(size());
-    std::vector<k_value> k5_vec(size());
-    std::vector<k_value> k6_vec(size());
-
-    std::vector<k_value>::iterator k1, k2, k3, k4, k5, k6, k7;
     iterator i;
 
-    for (i = begin(); i != end(); ++i) {
-      i->begin_integration();
-    }
-
-    // Can we use FSAL?
-    if (DP_steps() > 0 && elapsed == m_DP_last_elapsed) {
-      k1_vec = m_DP_k7_vec;
-    } else {
-      for (i = begin(), k1 = k1_vec.begin(); i != end(); ++i, ++k1) {
-        *k1 = i->k();
-      }
-    }
-
     while (rejected) {
-      // Calculate k2..6
+      tab.integrate_star(tprime);
 
-      for (i = begin(), k1 = k1_vec.begin(); i != end(); ++i, ++k1) {
-        i->step(a21*(*k1), c2*t);
+      // Store the y_value's of the fourth-order step
+
+      std::vector<y_value> ystar_vec(size());
+      std::vector<y_value>::iterator ystar;
+
+      for (i = begin(), ystar = ystar_vec.begin(); i != end(); ++i, ++ystar) {
+        *ystar = i->y();
       }
 
-      for (i = begin(), k2 = k2_vec.begin(); i != end(); ++i, ++k2) {
-        *k2 = i->k();
-      }
-
-      for (i = begin(), k1 = k1_vec.begin(), k2 = k2_vec.begin();
-           i != end();
-           ++i, ++k1, ++k2) {
-        i->step(a31*(*k1) + a32*(*k2), c3*t);
-      }
-
-      for (i = begin(), k3 = k3_vec.begin(); i != end(); ++i, ++k3) {
-        *k3 = i->k();
-      }
-
-      for (i = begin(), k1 = k1_vec.begin(), k2 = k2_vec.begin(),
-             k3 = k3_vec.begin();
-           i != end();
-           ++i, ++k1, ++k2, ++k3) {
-        i->step(a41*(*k1) + a42*(*k2) + a43*(*k3), c4*t);
-      }
-
-      for (i = begin(), k4 = k4_vec.begin(); i != end(); ++i, ++k4) {
-        *k4 = i->k();
-      }
-
-      for (i = begin(), k1 = k1_vec.begin(), k2 = k2_vec.begin(),
-             k3 = k3_vec.begin(), k4 = k4_vec.begin();
-           i != end();
-           ++i, ++k1, ++k2, ++k3, ++k4) {
-        i->step(a51*(*k1) + a52*(*k2) + a53*(*k3) + a54*(*k4), c5*t);
-      }
-
-      for (i = begin(), k5 = k5_vec.begin(); i != end(); ++i, ++k5) {
-        *k5 = i->k();
-      }
-
-      for (i = begin(), k1 = k1_vec.begin(), k2 = k2_vec.begin(),
-             k3 = k3_vec.begin(), k4 = k4_vec.begin(), k5 = k5_vec.begin();
-           i != end();
-           ++i, ++k1, ++k2, ++k3, ++k4, ++k5) {
-        i->step(a61*(*k1) + a62*(*k2) + a63*(*k3) + a64*(*k4) + a65*(*k5),
-                c6*t);
-      }
-
-      for (i = begin(), k6 = k6_vec.begin(); i != end(); ++i, ++k6) {
-        *k6 = i->k();
-      }
-
-      // Apply the fifth-order step
-      for (i = begin(), k1 = k1_vec.begin(), k2 = k2_vec.begin(),
-             k3 = k3_vec.begin(), k4 = k4_vec.begin(), k5 = k5_vec.begin(),
-             k6 = k6_vec.begin();
-           i != end();
-           ++i, ++k1, ++k2, ++k3, ++k4, ++k5, ++k6) {
-        i->step(b1*(*k1) + b2*(*k2) + b3*(*k3) + b4*(*k4) + b5*(*k5) +
-                b6*(*k6), t);
-      }
-
-      // Calculate k7, and store it for FSAL
-      m_DP_k7_vec.resize(size());
-      for (i = begin(), k7 = m_DP_k7_vec.begin(); i != end(); ++i, ++k7) {
-        *k7 = i->k();
-      }
-
-      // Store the y_value's of the fifth-order step
-
-      std::vector<y_value> y_vec(size());
-      std::vector<y_value>::iterator y;
-
-      for (i = begin(), y = y_vec.begin(); i != end(); ++i, ++y) {
-        *y = i->y();
-      }
-
-      // Apply the fourth-order step
-      for (i = begin(), k1 = k1_vec.begin(), k2 = k2_vec.begin(),
-             k3 = k3_vec.begin(), k4 = k4_vec.begin(), k5 = k5_vec.begin(),
-             k6 = k6_vec.begin(), k7 = m_DP_k7_vec.begin();
-           i != end();
-           ++i, ++k1, ++k2, ++k3, ++k4, ++k5, ++k6) {
-        i->step(bs1*(*k1) + bs2*(*k2) + bs3*(*k3) + bs4*(*k4) + bs5*(*k5) +
-                bs6*(*k6) + bs7*(*k7), t);
-      }
+      tab.integrate(tprime);
 
       // Find the error: the maximum error of any body, where the error of a
       // body is the difference between the y_value's of the fifth- and fourth-
       // order steps.
       err = 0;
-      for (i = begin(), y = y_vec.begin(); i != end(); ++i, ++y) {
-        err = std::max(err, i->y() - *y);
+      for (i = begin(), ystar = ystar_vec.begin(); i != end(); ++i, ++ystar) {
+        err = std::max(err, i->y() - *ystar);
       }
 
       // Store the stepsize used for the integration
       dt = tprime;
 
-      if (DP_steps() > 0) {
+      if (steps() > 0) {
         // Find t', the t value that we estimate would have given an error of
-        // DP_average_error()/(1 + tol). The formula has a power of 1/5, because
+        // average_error()/(1 + tol). The formula has a power of 1/5, because
         // the error calculated is that of the fourth-order step. If the step
         // is rejected, this is our new stepsize; otherwise, this is our
         // recommended stepsize for the next iteration.
-        tprime = tprime*pow(DP_average_error()/((1 + tol)*err), scalar(1)/5);
+        tprime = tprime*pow(average_error()/((1 + tol)*err), scalar(1)/5);
 
-        if (err > (1 + tol)*DP_average_error()) {
+        if (err > (1 + tol)*average_error()) {
+          ++m_rejected;
           rejected = true;
         } else {
           rejected = false;
@@ -346,43 +195,128 @@ namespace carom
       }
     }
 
-    // Re-apply the fifth-order step
+    elapsed += dt;
+    m_err += err;
+    ++m_steps;
 
-    for (i = begin(), k1 = k1_vec.begin(), k2 = k2_vec.begin(),
-           k3 = k3_vec.begin(), k4 = k4_vec.begin(), k5 = k5_vec.begin(),
-           k6 = k6_vec.begin();
-         i != end();
-         ++i, ++k1, ++k2, ++k3, ++k4, ++k5, ++k6) {
-      i->step(b1*(*k1) + b2*(*k2) + b3*(*k3) + b4*(*k4) + b5*(*k5) +
-              b6*(*k6), t);
-    }
+    return tprime;
+  }
 
-    for (i = begin(); i != end(); ++i) {
-      i->end_integration();
+  scalar_time system::integrate_DP45(const scalar_time& t, scalar_time& elapsed,
+                                     const scalar& tol) {
+    // Fifth-order Dormand-Prince adaptive method. Requires 7 function
+    // evaluations, rather than 6, because the FSAL optimization can't be
+    // applied in this case.
+
+    scalar a2[1] = { scalar(1)/5 };
+    scalar a3[2] = { scalar(3)/40, scalar(9)/40 };
+    scalar a4[3] = { scalar(44)/45, -scalar(56)/15, scalar(32)/9 };
+    scalar a5[4] = { scalar(19372)/6561, -scalar(25360)/2187,
+                     scalar(64448)/6561, -scalar(212)/729 };
+    scalar a6[5] = { scalar(9017)/3168, -scalar(355)/33, scalar(46732)/5247,
+                     scalar(49)/176, -scalar(5103)/18656 };
+    scalar a7[6] = { scalar(35)/384, 0, scalar(500)/1113, scalar(125)/192,
+                     -scalar(2187)/6784, scalar(11)/84 };
+
+    scalar b[7] = { scalar(35)/384, 0, scalar(500)/1113, scalar(125)/192,
+                    -scalar(2187)/6784, scalar(11)/84, 0 };
+
+    scalar bstar[7] = { scalar(5179)/576000, 0, scalar(7571)/16695,
+                        scalar(393)/640, -scalar(92097)/339200,
+                        scalar(187)/2100, scalar(1)/40 };
+
+    scalar c[7] = { 0, scalar(1)/5, scalar(3)/10, scalar(4)/5, scalar(8)/9,
+                    1, 1 };
+
+    std::vector<scalar> a_vec_arr[6] = { std::vector<scalar>(a2, a2 + 1),
+                                         std::vector<scalar>(a3, a3 + 2),
+                                         std::vector<scalar>(a4, a4 + 3),
+                                         std::vector<scalar>(a5, a5 + 4),
+                                         std::vector<scalar>(a6, a6 + 5),
+                                         std::vector<scalar>(a7, a7 + 6) };
+    std::vector<std::vector<scalar> > a_vec(a_vec_arr, a_vec_arr + 6);
+    std::vector<scalar> b_vec(b, b + 7);
+    std::vector<scalar> bstar_vec(bstar, bstar + 7);
+    std::vector<scalar> c_vec(c, c + 7);
+
+    tableau tab(a_vec, b_vec, bstar_vec, c_vec, *this);
+
+    bool rejected = true;
+    scalar_time tprime = t, dt;
+    scalar err;
+
+    iterator i;
+
+    while (rejected) {
+      tab.integrate_star(tprime);
+
+      // Store the y_value's of the fourth-order step
+
+      std::vector<y_value> ystar_vec(size());
+      std::vector<y_value>::iterator ystar;
+
+      for (i = begin(), ystar = ystar_vec.begin(); i != end(); ++i, ++ystar) {
+        *ystar = i->y();
+      }
+
+      tab.integrate(tprime);
+
+      // Find the error: the maximum error of any body, where the error of a
+      // body is the difference between the y_value's of the fifth- and fourth-
+      // order steps.
+      err = 0;
+      for (i = begin(), ystar = ystar_vec.begin(); i != end(); ++i, ++ystar) {
+        err = std::max(err, i->y() - *ystar);
+      }
+
+      // Store the stepsize used for the integration
+      dt = tprime;
+
+      if (steps() > 0) {
+        // Find t', the t value that we estimate would have given an error of
+        // average_error()/(1 + tol). The formula has a power of 1/5, because
+        // the error calculated is that of the fourth-order step. If the step
+        // is rejected, this is our new stepsize; otherwise, this is our
+        // recommended stepsize for the next iteration.
+        tprime = tprime*pow(average_error()/((1 + tol)*err), scalar(1)/5);
+
+        if (err > (1 + tol)*average_error()) {
+          ++m_rejected;
+          rejected = true;
+        } else {
+          rejected = false;
+        }
+      } else {
+        rejected = false;
+      }
     }
 
     elapsed += dt;
-    m_DP_last_elapsed = elapsed;
-    m_DP_err += err;
-    ++m_DP_steps;
+    m_err += err;
+    ++m_steps;
 
     return tprime;
   }
 
   // Returns the average error per step of DP.
-  scalar system::DP_average_error() {
-    return DP_accumulated_error()/DP_steps();
+  scalar system::average_error() {
+    return accumulated_error()/steps();
   }
 
   // Returns the accumulated error in the worst-case scenario, where all the
   // errors are assumed to add together with the same sign
-  scalar system::DP_accumulated_error() {
-    return m_DP_err;
+  scalar system::accumulated_error() {
+    return m_err;
   }
 
   // The number of steps that have been integrated by DP.
-  unsigned long system::DP_steps() {
-    return m_DP_steps;
+  unsigned long system::steps() {
+    return m_steps;
+  }
+
+  // The number of times we've rejected a step.
+  unsigned long system::rejected() {
+    return m_rejected;
   }
 
   void system::collision() {
