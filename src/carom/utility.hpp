@@ -56,6 +56,7 @@ namespace carom
 #include <carom/utility/simple_body.hpp>
 #include <carom/utility/rigid_body.hpp>
 
-#include <carom/utility/forces.hpp>
+#include <carom/utility/basic_forces.hpp>
+#include <carom/utility/electromagnetism.hpp>
 
 #endif // CAROM_UTILITY_HPP

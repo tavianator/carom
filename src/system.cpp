@@ -134,6 +134,7 @@ namespace carom
     std::vector<scalar> bstar_vec(bstar, bstar + 6);
 
     tableau tab(a_vec, b_vec, bstar_vec, *this);
+    std::vector<y_value> y_vec;
 
     bool rejected = true;
     scalar_time tprime = t, dt;
@@ -141,7 +142,7 @@ namespace carom
 
     while (rejected) {
       // Store the y_value's of the fourth- and fifth-order steps
-      std::vector<y_value> y_vec = tab.integrate(tprime);
+      y_vec = tab.integrate(tprime);
       std::vector<y_value> ystar_vec = tab.integrate_star(tprime);
 
       // Find the error: the maximum error of any body, where the error of a
@@ -170,15 +171,14 @@ namespace carom
           ++m_rejected;
           rejected = true;
         } else {
-          tab.apply(y_vec);
           rejected = false;
         }
       } else {
-        tab.apply(y_vec);
         rejected = false;
       }
     }
 
+    tab.apply(y_vec);
     elapsed += dt;
     m_err += err;
     ++m_steps;
@@ -220,13 +220,14 @@ namespace carom
     std::vector<scalar> bstar_vec(bstar, bstar + 7);
 
     tableau tab(a_vec, b_vec, bstar_vec, *this);
+    std::vector<y_value> y_vec;
 
     bool rejected = true;
     scalar_time tprime = t, dt;
     scalar err;
 
     while (rejected) {
-      std::vector<y_value> y_vec = tab.integrate(tprime);
+      y_vec = tab.integrate(tprime);
       std::vector<y_value> ystar_vec = tab.integrate_star(tprime);
 
       err = 0;
@@ -246,15 +247,14 @@ namespace carom
           ++m_rejected;
           rejected = true;
         } else {
-          tab.apply(y_vec);
           rejected = false;
         }
       } else {
-        tab.apply(y_vec);
         rejected = false;
       }
     }
 
+    tab.apply(y_vec);
     elapsed += dt;
     m_err += err;
     ++m_steps;
@@ -323,7 +323,9 @@ namespace carom
     std::vector<y_value>::const_iterator j;
     for (i = m_sys->begin(), j = y.begin(); i != m_sys->end(); ++i, ++j) {
       *i = *j;
+      clear_forces(*i);
     }
+    m_sys->collision();
   }
 
   void tableau::init() {
@@ -380,6 +382,7 @@ namespace carom
 
         *i = *y;
       }
+      m_sys->collision();
 
       for (i = m_sys->begin(), k_vec = k_vecs.begin();
            i != m_sys->end() && k_vec != k_vecs.end();
