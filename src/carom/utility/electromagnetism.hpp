@@ -17,56 +17,39 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. *
  *************************************************************************/
 
-#ifndef CAROM_PARTICLE_HPP
-#define CAROM_PARTICLE_HPP
+#ifndef CAROM_UTILITY_ELECTROMAGNETISM_HPP
+#define CAROM_UTILITY_ELECTROMAGNETISM_HPP
 
 #include <boost/utility.hpp> // For noncopyable
 
 namespace carom
 {
-  class particle;
+  // More useful typedefs
+  typedef scalar_units<0, 0, 0>  scalar_charge;
+  typedef vector_units<1, 1, -2> vector_electric_field;
+  typedef vector_units<1, 0, -1> vector_magnetic_field;
 
-  class applied_force : private boost::noncopyable
+  class charge : private boost::noncopyable
   {
   public:
-    // applied_force();
-    virtual ~applied_force() { }
+    scalar_charge q() const { return m_charge; }
 
-    virtual vector_force force(const particle& x) const = 0;
-  };
-
-  class particle : private boost::noncopyable
-  {
-  public:
-    // particle();
-    virtual ~particle() { }
-
-    scalar_mass         m() const { return m_mass; }
-    vector_displacement s() const { return m_position; }
-    vector_velocity     v() const { return m_momentum / m_mass; }
-    vector_momentum     p() const { return m_momentum; }
-    vector_acceleration a() const { return m_force / m_mass; }
-    vector_force        F() const { return m_force; }
-
-    void m(const scalar_mass& m)         { m_mass = m; }
-    void s(const vector_displacement& s) { m_position = s; }
-    void v(const vector_velocity& v)     { m_momentum = m()*v; }
-    void p(const vector_momentum& p)     { m_momentum = p; }
-    void a(const vector_acceleration& a) { m_force = m()*a; }
-    void F(const vector_force& F)        { m_force = F; }
-
-    void apply_force(applied_force* force) { m_forces.push_back(force); }
-    void apply_forces();
-    void clear_forces() { m_forces.clear(); }
+    void q(const scalar_charge& q) { m_charge = q; }
 
   private:
-    scalar_mass         m_mass;
-    vector_displacement m_position;
-    vector_momentum     m_momentum;
-    vector_force        m_force;
+    scalar_charge m_charge;
+  };
 
-    polymorphic_list<applied_force> m_forces;
+  template <typename T> // T should derrive from particle
+  class charged_particle : public T, public charge
+  {
+  };
+
+  class electric_force : public applied_force
+  {
+  public:
+    electric_force(const vector_electric_field& E) : m_E(E) { }
   };
 }
 
-#endif // CAROM_PARTICLE_HPP
+#endif // CAROM_UTILITY_ELECTROMAGNETISM_HPP
