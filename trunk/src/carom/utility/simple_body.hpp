@@ -20,7 +20,7 @@
 #ifndef CAROM_UTILITY_SIMPLE_BODY_HPP
 #define CAROM_UTILITY_SIMPLE_BODY_HPP
 
-#include <list>
+#include <vector>
 
 namespace carom
 {
@@ -35,7 +35,7 @@ namespace carom
 
     virtual k_base* multiply(const scalar_time& t) const;
 
-    std::list<vector_force> forces;
+    std::vector<vector_force> forces;
   };
 
   struct simple_k_base : public k_base
@@ -53,7 +53,7 @@ namespace carom
     virtual k_base* divide  (const scalar& n) const;
 
     scalar_time t;
-    std::list<vector_force> forces;
+    std::vector<vector_momentum> momenta;
   };
 
   struct simple_y_base : public y_base
@@ -68,7 +68,9 @@ namespace carom
     virtual y_base* add     (const k_base& k) const;
     virtual scalar  subtract(const y_base& y) const;
 
-    body b;
+    scalar_time t;
+    body backup;
+    std::vector<vector_momentum> momenta;
   };
 
   class simple_body : public body

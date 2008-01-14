@@ -19,8 +19,9 @@
 
 #include <carom.hpp>
 #include <algorithm> // For max()
-#include <list>
+#include <vector>
 
+#include <iostream>
 namespace carom
 {
   simple_f_base::~simple_f_base() {
@@ -30,7 +31,10 @@ namespace carom
     simple_k_base* r = new simple_k_base;
 
     r->t = t;
-    r->forces = forces;
+    r->momenta.resize(forces.size());
+    for (unsigned int i = 0; i < forces.size(); ++i) {
+      r->momenta[i] = t*forces[i];
+    }
 
     return r;
   }
@@ -43,7 +47,10 @@ namespace carom
     const simple_k_base& rhs = dynamic_cast<const simple_k_base&>(k);
 
     r->t = t + rhs.t;
-    r->forces = forces;
+    r->momenta.resize(momenta.size());
+    for (unsigned int i = 0; i < momenta.size(); ++i) {
+      r->momenta[i] = momenta[i] + rhs.momenta[i];
+    }
 
     return r;
   }
@@ -53,7 +60,10 @@ namespace carom
     const simple_k_base& rhs = dynamic_cast<const simple_k_base&>(k);
 
     r->t = t - rhs.t;
-    r->forces = forces;
+    r->momenta.resize(momenta.size());
+    for (unsigned int i = 0; i < momenta.size(); ++i) {
+      r->momenta[i] = momenta[i] - rhs.momenta[i];
+    }
 
     return r;
   }
@@ -62,7 +72,10 @@ namespace carom
     simple_k_base* r = new simple_k_base;
 
     r->t = n*t;
-    r->forces = forces;
+    r->momenta.resize(momenta.size());
+    for (unsigned int i = 0; i < momenta.size(); ++i) {
+      r->momenta[i] = n*momenta[i];
+    }
 
     return r;
   }
@@ -71,7 +84,10 @@ namespace carom
     simple_k_base* r = new simple_k_base;
 
     r->t = t/n;
-    r->forces = forces;
+    r->momenta.resize(momenta.size());
+    for (unsigned int i = 0; i < momenta.size(); ++i) {
+      r->momenta[i] = momenta[i]/n;
+    }
 
     return r;
   }
@@ -83,15 +99,15 @@ namespace carom
     simple_y_base* r = new simple_y_base;
     const simple_k_base& rhs = dynamic_cast<const simple_k_base&>(k);
 
-    body::const_iterator i;
-    std::list<vector_force>::const_iterator j;
-    for (i = b.begin(), j = rhs.forces.begin();
-         i != b.end() && j != rhs.forces.end();
-         ++i, ++j) {
-      body::iterator k = r->b.insert(new particle()); 
-      k->m(i->m());
-      k->s(i->s() + rhs.t*i->v());
-      k->v(i->v() + rhs.t*(*j)/i->m());
+    r->t = t + rhs.t;
+    r->momenta.resize(momenta.size());
+    body::const_iterator j = backup.begin();
+    for (unsigned int i = 0; i < momenta.size(); ++i, ++j) {
+      body::iterator k = r->backup.insert(new particle());
+      k->m(j->m());
+      k->s(j->s());
+      k->v(j->v());
+      r->momenta[i] = momenta[i] + rhs.momenta[i];
     }
 
     return r;
@@ -101,11 +117,8 @@ namespace carom
     scalar err = 0;
     const simple_y_base& rhs = dynamic_cast<const simple_y_base&>(y);
 
-    for (body::const_iterator i = b.begin(), j = rhs.b.begin();
-         i != b.end() && j != rhs.b.end();
-         ++i, ++j) {
-      err = std::max(err, std::max(convert<scalar>(norm(i->s() - j->s())),
-                                   convert<scalar>(norm(i->v() - j->v()))));
+    for (unsigned int i = 0; i < momenta.size(); ++i) {
+      err = std::max(err, convert<scalar>(norm(momenta[i] - rhs.momenta[i])));
     }
 
     return err;
@@ -115,8 +128,10 @@ namespace carom
     simple_f_base* r = new simple_f_base;
 
     apply_forces(*this);
-    for (iterator i = begin(); i != end(); ++i) {
-      r->forces.push_back(i->F());
+    r->forces.resize(size());
+    iterator j = begin();
+    for (unsigned int i = 0; i < size(); ++i, ++j) {
+      r->forces[i] = j->F();
     }
 
     return f_value(r);
@@ -125,11 +140,15 @@ namespace carom
   y_value simple_body::y() {
     simple_y_base* r = new simple_y_base;
 
-    for (iterator i = begin(); i != end(); ++i) {
-      iterator j = r->b.insert(new particle());
-      j->m(i->m());
-      j->s(i->s());
-      j->v(i->v());
+    r->t = 0;
+    r->momenta.resize(size());
+    iterator j = begin();
+    for (unsigned int i = 0; i < size(); ++i, ++j) {
+      iterator k = r->backup.insert(new particle());
+      k->m(j->m());
+      k->s(j->s());
+      k->v(j->v());
+      r->momenta[i] = 0;
     }
 
     return y_value(r);
@@ -138,11 +157,11 @@ namespace carom
   body& simple_body::operator=(const y_value& y) {
     const simple_y_base& rhs = dynamic_cast<const simple_y_base&>(*y.base());
 
-    iterator i;
-    const_iterator j;
-    for (i = begin(), j = rhs.b.begin(); i != end(); ++i, ++j) {
-      i->s(j->s());
-      i->v(j->v());
+    iterator j = begin();
+    const_iterator k = rhs.backup.begin();
+    for (unsigned int i = 0; i < rhs.momenta.size(); ++i, ++j, ++k) {
+      j->s(k->s() + rhs.t*(k->v() + rhs.momenta[i]/j->m()/2));
+      j->v(k->v() + rhs.momenta[i]/j->m());
     }
 
     return *this;
