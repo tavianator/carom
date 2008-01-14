@@ -17,8 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. *
  *************************************************************************/
 
-#ifndef CAROM_UTILITY_FORCES_HPP
-#define CAROM_UTILITY_FORCES_HPP
+#ifndef CAROM_UTILITY_BASIC_FORCES_HPP
+#define CAROM_UTILITY_BASIC_FORCES_HPP
 
 namespace carom
 {
@@ -63,4 +63,4 @@ namespace carom
   };
 }
 
-#endif // CAROM_UTILITY_FORCES_HPP
+#endif // CAROM_UTILITY_BASIC_FORCES_HPP
