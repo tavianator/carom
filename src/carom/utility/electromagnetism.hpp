@@ -45,10 +45,50 @@ namespace carom
   {
   };
 
+  class electromagnetic_force : public applied_force
+  {
+  public:
+    electromagnetic_force(const particle& x)
+      : m_x(&x), m_q(dynamic_cast<const charge*>(&x)) { }
+    virtual ~electromagnetic_force();
+
+    static scalar_units<-1, -3, 2> e() { return s_e; }
+    static scalar_units<1, 1, 0> u() { return s_u; }
+    static void e(const scalar_units<-1, -3, 2>& e) { s_e = e; }
+    static void u(const scalar_units<1, 1, 0>& u) { s_u = u; }
+
+    virtual vector_force force(const particle& x);
+
+  private:
+    const particle* m_x;
+    const charge* m_q;
+
+    static scalar_units<-1, -3, 2> s_e;
+    static scalar_units<1, 1, 0>  s_u;
+  };
+
   class electric_force : public applied_force
   {
   public:
     electric_force(const vector_electric_field& E) : m_E(E) { }
+    virtual ~electric_force();
+
+    virtual vector_force force(const particle& x);
+
+  private:
+    vector_electric_field m_E;
+  };
+
+  class magnetic_force : public applied_force
+  {
+  public:
+    magnetic_force(const vector_magnetic_field& B) : m_B(B) { }
+    virtual ~magnetic_force();
+
+    virtual vector_force force(const particle& x);
+
+  private:
+    vector_magnetic_field m_B;
   };
 }
 
