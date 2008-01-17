@@ -21,30 +21,63 @@
 
 namespace carom
 {
-  constant_force::~constant_force() {
+  // This order is important!
+  scalar_units<1, 1, 0>  electromagnetic_force::s_u(
+    convert<1, 1, 0>(4*pi()*scalar("1e-7"))
+                                                    );
+
+  scalar_units<-1, -3, 2> electromagnetic_force::s_e(
+    1/s_u/scalar_speed("299792458")/scalar_speed("299792458")
+                                                     );
+
+  electromagnetic_force::~electromagnetic_force() {
   }
 
-  vector_force constant_force::force(const particle& x) const {
-    return m_F;
+  vector_force electromagnetic_force::force(const particle& x) {
+    // F = q*(E + v X B)
+
+    const charge* q = dynamic_cast<const charge*>(&x);
+
+    if (q != 0) {
+      vector_displacement r = m_x->s() - x.s();
+      vector_electric_field E =
+        m_q->q()*normalized(r)/(4*pi()*e()*norm(r)*norm(r));
+      vector_magnetic_field B =
+        u()*m_q->q()*cross(m_x->v(), normalized(r))/(4*pi()*norm(r)*norm(r));
+      return q->q()*(E + cross(x.v(), B));
+    } else {
+      return 0;
+    }
   }
 
-  centripetal_force::~centripetal_force() {
+  electric_force::~electric_force() {
   }
 
-  vector_force centripetal_force::force(const particle& x) const {
-    // F = m*v^2/r;
-    vector_displacement r = x.s() - m_o;
-    return -x.m()*norm(x.v())*norm(x.v())*normalized(r)/norm(r);
+  vector_force electric_force::force(const particle& x) {
+    // F = q*E
+
+    const charge* q = dynamic_cast<const charge*>(&x);
+
+    if (q != 0) {
+      return q->q()*m_E;
+    } else {
+      return 0;
+    }
   }
 
-  scalar_units<-1, 3, -2> gravitational_force::s_G("6.693e-11");
-
-  gravitational_force::~gravitational_force() {
+  magnetic_force::~magnetic_force() {
   }
 
-  vector_force gravitational_force::force(const particle& x) const {
-    // F = G*m1*m2/r^2
-    vector_displacement r = m_i->s() - x.s();
-    return G()*x.m()*m_i->m()*normalized(r)/(norm(r)*norm(r));
+  vector_force magnetic_force::force(const particle& x) {
+    // F = q*(v X B)
+
+    const charge* q = dynamic_cast<const charge*>(&x);
+
+    if (q != 0) {
+      return q->q()*cross(x.v(), m_B);
+    } else {
+      return 0;
+    }
   }
+
 }

@@ -321,9 +321,9 @@ namespace carom
   }
 
   template <int m, int d, int t, typename T>
-  inline scalar_units<m, d, t>
+  inline scalar_units<-m, -d, -t>
   operator/(T lhs, const scalar_units<m, d, t>& rhs) {
-    scalar_units<m, d, t> r(lhs);
+    scalar_units<-m, -d, -t> r(lhs);
     mpfr_div(r.mpfr(), r.mpfr(), rhs.mpfr(), GMP_RNDN);
     return r;
   }

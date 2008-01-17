@@ -26,7 +26,7 @@ namespace carom
   {
   public:
     constant_force(const vector_force& F) : m_F(F) { }
-    // virtual ~constant_force();
+    virtual ~constant_force();
 
     virtual vector_force force(const particle& x) const;
 
@@ -38,7 +38,7 @@ namespace carom
   {
   public:
     centripetal_force(const vector_displacement& o) : m_o(o) { }
-    // virtual ~centripetal_force();
+    virtual ~centripetal_force();
 
     virtual vector_force force(const particle& x) const;
 
@@ -50,9 +50,10 @@ namespace carom
   {
   public:
     gravitational_force(body::iterator i) : m_i(i) { }
+    virtual ~gravitational_force();
 
-    static void G(const scalar_units<-1, 3, -2>& G) { s_G = G; }
     static scalar_units<-1, 3, -2> G() { return s_G; }
+    static void G(const scalar_units<-1, 3, -2>& G) { s_G = G; }
 
     virtual vector_force force(const particle& x) const;
 
