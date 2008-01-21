@@ -103,13 +103,13 @@ namespace carom
 
     scalar_units& operator*=(const scalar_units<0, 0, 0>& n) {
       update_precision();
-      mpfr_mul(m_fp, m_fp, n.m_fp, GMP_RNDN);
+      mpfr_mul(m_fp, m_fp, n.mpfr(), GMP_RNDN);
       return *this;
     }
 
     scalar_units& operator/=(const scalar_units<0, 0, 0>& n) {
       update_precision();
-      mpfr_div(m_fp, m_fp, n.m_fp, GMP_RNDN);
+      mpfr_div(m_fp, m_fp, n.mpfr(), GMP_RNDN);
       return *this;
     }
 

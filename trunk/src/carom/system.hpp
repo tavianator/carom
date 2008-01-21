@@ -31,7 +31,7 @@ namespace carom
     typedef polymorphic_list<body>::iterator       iterator;
     typedef polymorphic_list<body>::const_iterator const_iterator;
 
-    system() : m_err(0), m_steps(0), m_rejected(0) { }
+    system();
     // ~system();
 
     iterator insert(body* b) { return m_bodies.insert(m_bodies.end(), b); }
@@ -44,12 +44,12 @@ namespace carom
 
     std::size_t size() const { return m_bodies.size(); }
 
-    void        integrate_Euler   (const scalar_time& t);
-    void        integrate_midpoint(const scalar_time& t);
-    void        integrate_RK4     (const scalar_time& t);
-    scalar_time integrate_RKF45   (const scalar_time& t, scalar_time& elapsed,
+    void        integrate_Euler   (const scalar_time& dt);
+    void        integrate_midpoint(const scalar_time& dt);
+    void        integrate_RK4     (const scalar_time& dt);
+    scalar_time integrate_RKF45   (const scalar_time& dt, scalar_time& elapsed,
                                    const scalar& tol);
-    scalar_time integrate_DP45    (const scalar_time& t, scalar_time& elapsed,
+    scalar_time integrate_DP45    (const scalar_time& dt, scalar_time& elapsed,
                                    const scalar& tol);
 
     scalar average_error();
@@ -69,27 +69,22 @@ namespace carom
   class tableau
   {
   public:
-    tableau(const std::vector<std::vector<scalar> >& a,
-            const std::vector<scalar>& b, system& sys);
-    tableau(const std::vector<std::vector<scalar> >& a,
-            const std::vector<scalar>& b, const std::vector<scalar>& bstar,
-            system& sys);
+    tableau(system& sys);
+    // ~tableau();
 
-    std::vector<y_value> integrate     (const scalar_time& t);
-    std::vector<y_value> integrate_star(const scalar_time& t);
-    void apply(const std::vector<y_value>& y);
+    std::vector<std::vector<k_value> >
+    k(const std::vector<std::vector<scalar> >& a_vecs, const scalar_time& dt);
+
+    std::vector<y_value>
+    y(const std::vector<std::vector<k_value> >& k_vecs,
+      const std::vector<scalar>& b_vec);
+
+    void apply(const std::vector<y_value>& y_vec);
 
   private:
-    std::vector<std::vector<scalar> > m_a;
-    std::vector<scalar> m_b;
-    std::vector<scalar> m_bstar;
-    system* m_sys;
     std::vector<f_value> m_f1;
     std::vector<y_value> m_y;
-
-    void init();
-    void base_integrate(const std::vector<scalar>& b_vec,
-                        std::vector<y_value>& y_vec, const scalar_time& t);
+    system* m_sys;
   };
 }
 
