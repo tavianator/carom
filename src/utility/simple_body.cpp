@@ -21,7 +21,6 @@
 #include <algorithm> // For max()
 #include <vector>
 
-#include <iostream>
 namespace carom
 {
   simple_f_base::~simple_f_base() {
