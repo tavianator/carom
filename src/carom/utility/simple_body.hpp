@@ -21,6 +21,7 @@
 #define CAROM_UTILITY_SIMPLE_BODY_HPP
 
 #include <vector>
+#include <tr1/memory> // For tr1::shared_ptr
 
 namespace carom
 {
@@ -69,7 +70,7 @@ namespace carom
     virtual scalar  subtract(const y_base& y) const;
 
     scalar_time t;
-    body backup;
+    std::tr1::shared_ptr<body> backup;
     std::vector<vector_momentum> momenta;
   };
 
