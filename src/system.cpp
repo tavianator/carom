@@ -337,6 +337,7 @@ namespace carom
         }
         *k = y;
       }
+      m_sys->collision();
 
       k = m_sys->begin();
       for (unsigned int j = 0; j < k_vecs.size(); ++j, ++k) {
