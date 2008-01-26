@@ -136,7 +136,7 @@ namespace carom
     simple_y_base* r = new simple_y_base;
 
     r->t = 0;
-    r->backup = new body();
+    r->backup.reset(new body());
     r->momenta.resize(size());
     iterator j = begin();
     for (unsigned int i = 0; i < size(); ++i, ++j) {
