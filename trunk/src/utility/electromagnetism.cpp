@@ -33,7 +33,7 @@ namespace carom
   electromagnetic_force::~electromagnetic_force() {
   }
 
-  vector_force electromagnetic_force::force(const particle& x) {
+  vector_force electromagnetic_force::force(const particle& x) const {
     // F = q*(E + v X B)
 
     const charge* q = dynamic_cast<const charge*>(&x);
@@ -53,7 +53,7 @@ namespace carom
   electric_force::~electric_force() {
   }
 
-  vector_force electric_force::force(const particle& x) {
+  vector_force electric_force::force(const particle& x) const {
     // F = q*E
 
     const charge* q = dynamic_cast<const charge*>(&x);
@@ -68,7 +68,7 @@ namespace carom
   magnetic_force::~magnetic_force() {
   }
 
-  vector_force magnetic_force::force(const particle& x) {
+  vector_force magnetic_force::force(const particle& x) const {
     // F = q*(v X B)
 
     const charge* q = dynamic_cast<const charge*>(&x);
