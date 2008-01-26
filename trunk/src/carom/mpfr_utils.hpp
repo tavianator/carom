@@ -25,7 +25,6 @@
 #include <boost/thread.hpp> // For thread_specific_ptr
 #include <string>
 #include <list>
-#include <iostream>
 
 namespace carom
 {

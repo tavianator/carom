@@ -144,7 +144,7 @@ namespace carom
 
     while (rejected) {
       // Store the y_value's of the fourth- and fifth-order steps
-      std::vector<std::vector<k_value> > k_vecs = tab.k(a_vec, dt);
+      std::vector<std::vector<k_value> > k_vecs = tab.k(a_vec, dtprime);
       y_vec = tab.y(k_vecs, b_vec);
       std::vector<y_value> ystar_vec = tab.y(k_vecs, bstar_vec);
 
@@ -152,11 +152,8 @@ namespace carom
       // body is the difference between the y_value's of the fifth- and fourth-
       // order steps.
       err = 0;
-      for (std::vector<y_value>::iterator y = y_vec.begin(),
-             ystar = ystar_vec.begin();
-           y != y_vec.end() && ystar != ystar_vec.end();
-           ++y, ++ystar) {
-        err = std::max(err, *y - *ystar);
+      for (unsigned int i = 0; i < y_vec.size(); ++i) {
+        err = std::max(err, y_vec[i] - ystar_vec[i]);
       }
 
       // Store the stepsize used for the integration
@@ -168,7 +165,7 @@ namespace carom
         // the error calculated is that of the fourth-order step. If the step
         // is rejected, this is our new stepsize; otherwise, this is our
         // recommended stepsize for the next iteration.
-        dtprime *= pow(average_error()/((1 + tol)*err), scalar(1)/5);
+        dtprime *= pow(average_error()/err, scalar(1)/5)/(1 + tol);
 
         if (err > (1 + tol)*average_error()) {
           ++m_rejected;
@@ -231,7 +228,7 @@ namespace carom
 
     while (rejected) {
       // Store the y_value's of the fourth- and fifth-order steps
-      std::vector<std::vector<k_value> > k_vecs = tab.k(a_vec, dt);
+      std::vector<std::vector<k_value> > k_vecs = tab.k(a_vec, dtprime);
       y_vec = tab.y(k_vecs, b_vec);
       std::vector<y_value> ystar_vec = tab.y(k_vecs, bstar_vec);
 
@@ -239,11 +236,8 @@ namespace carom
       // body is the difference between the y_value's of the fifth- and fourth-
       // order steps.
       err = 0;
-      for (std::vector<y_value>::iterator y = y_vec.begin(),
-             ystar = ystar_vec.begin();
-           y != y_vec.end() && ystar != ystar_vec.end();
-           ++y, ++ystar) {
-        err = std::max(err, *y - *ystar);
+      for (unsigned int i = 0; i < y_vec.size(); ++i) {
+        err = std::max(err, y_vec[i] - ystar_vec[i]);
       }
 
       // Store the stepsize used for the integration
@@ -255,7 +249,7 @@ namespace carom
         // the error calculated is that of the fourth-order step. If the step
         // is rejected, this is our new stepsize; otherwise, this is our
         // recommended stepsize for the next iteration.
-        dtprime *= pow(average_error()/((1 + tol)*err), scalar(1)/5);
+        dtprime *= pow(average_error()/err, scalar(1)/5)/(1 + tol);
 
         if (err > (1 + tol)*average_error()) {
           ++m_rejected;
@@ -320,32 +314,33 @@ namespace carom
              const scalar_time& dt) {
     std::vector<std::vector<k_value> > k_vecs(m_sys->size());
 
+    unsigned int n = 1;
+    if (!a_vecs.empty()) {
+      // The number of k_values is equal to the number of entries in the last
+      // row of the a-value matrix plus one
+      n = a_vecs.back().size() + 1;
+    }
+
     // Find k1 using m_f1
     for (unsigned int i = 0; i < k_vecs.size(); ++i) {
       k_vecs[i].resize(n);
       k_vecs[i][0] = dt*m_f1[i];
     }
 
-    if (!a_vecs.empty()) {
-      // The number of k_values is equal to the number of entries in the last
-      // row of the a-value matrix plus one
-      unsigned int n = a_vecs.back().size() + 1;
-
-      // Find k2..n
-      std::vector<y_value> y_vec(m_sys->size());
-      for (unsigned int i = 1; i < n; ++i) {
-        for (unsigned int j = 0; j < y_vec.size(); ++j) {
-          y_vec[j] = m_y[j];
-          for (unsigned int k = 0; k < i; ++k) {
-            y_vec[j] += a_vecs[i-1][k]*k_vecs[i][k];
-          }
+    // Find k2..n
+    for (unsigned int i = 1; i < n; ++i) {
+      system::iterator k = m_sys->begin();
+      for (unsigned int j = 0; j < m_sys->size(); ++j, ++k) {
+        y_value y = m_y[j];
+        for (unsigned int l = 0; l < i; ++l) {
+          y += a_vecs[i-1][l]*k_vecs[j][l];
         }
-        apply(y_vec);
+        *k = y;
+      }
 
-        system::iterator k = m_sys->begin();
-        for (unsigned int j = 0; j < k_vecs.size(); ++j, ++k) {
-          k_vecs[j][i] = dt*k->f();
-        }
+      k = m_sys->begin();
+      for (unsigned int j = 0; j < k_vecs.size(); ++j, ++k) {
+        k_vecs[j][i] = dt*k->f();
       }
     }
 
