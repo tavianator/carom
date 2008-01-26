@@ -23,6 +23,26 @@
 
 namespace carom
 {
+  namespace
+  {
+    vector_displacement rotate(const vector_displacement& v,
+                               const vector_displacement& o,
+                               const vector_angle& theta) {
+      // Rotating a vector v around a normalized axis u by an angle theta gives
+      // v*cos(theta) + cross(u, v)*sin(theta) + dot(u, v)*u*(1 - cos(theta))
+      if (norm(theta) != 0) {
+        scalar_angle angle = norm(theta);
+        vector axis = normalized(theta);
+        vector_displacement r = v - o;
+
+        return r*cos(angle) + cross(axis, r)*sin(angle) +
+          dot(axis, r)*axis*(1 - cos(angle)) + o;
+      } else {
+        return v;
+      }
+    }
+  }
+
   rigid_f_base::~rigid_f_base() {
   }
 
@@ -107,7 +127,7 @@ namespace carom
 
     apply_forces(*this);
     r->F = force(*this);
-    r->T = torque(*this);
+    r->T = torque(*this, center_of_mass(*this));
 
     return f_value(r);
   }
@@ -118,7 +138,7 @@ namespace carom
     r->t = 0;
     r->p = 0;
     r->L = 0;
-    r->backup = new body();
+    r->backup.reset(new body());
     for (iterator i = begin(); i != end(); ++i) {
       iterator j = r->backup->insert(new particle());
       j->m(i->m());
@@ -132,11 +152,30 @@ namespace carom
   body& rigid_body::operator=(const y_value& y) {
     const rigid_y_base& rhs = dynamic_cast<const rigid_y_base&>(*y.base());
 
-    iterator j = begin();
-    const_iterator k = rhs.backup->begin();
-    for (unsigned int i = 0; i < rhs.momenta.size(); ++i, ++j, ++k) {
-      j->s(k->s() + rhs.t*(k->v() + rhs.momenta[i]/j->m()/2));
-      j->v(k->v() + rhs.momenta[i]/j->m());
+    scalar_mass m = mass(*rhs.backup);
+    vector_displacement o = center_of_mass(*rhs.backup);
+    vector_momentum p = momentum(*rhs.backup);
+    vector_angular_momentum L = angular_momentum(*rhs.backup, o);
+    vector_displacement s = rhs.t*(p + rhs.p/2)/m;
+
+    if (rhs.t*(L + rhs.L/2) == 0) {
+      iterator i = begin();
+      const_iterator j = rhs.backup->begin();
+      for (; i != end(); ++i, ++j) {
+        i->s(j->s() + s);
+        i->v((p + rhs.p)/m);
+      }
+    } else {
+      scalar_moment_of_inertia I =
+        moment_of_inertia(*this, o, normalized(rhs.t*(L + rhs.L/2)));
+      vector_angle theta = rhs.t*(L + rhs.L/2)/I;
+
+      iterator i = begin();
+      const_iterator j = rhs.backup->begin();
+      for (; i != end(); ++i, ++j) {
+        i->s(rotate(j->s(), o, theta) + s);
+        i->v((p + rhs.p)/m + cross((L + rhs.L)/I, i->s() - o));
+      }
     }
 
     return *this;
