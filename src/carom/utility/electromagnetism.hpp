@@ -26,6 +26,8 @@ namespace carom
 {
   // More useful typedefs
   typedef scalar_units<0, 0, 0>  scalar_charge;
+  typedef scalar_units<1, 1, -2> scalar_electric_field;
+  typedef scalar_units<1, 0, -1> scalar_magnetic_field;
   typedef vector_units<1, 1, -2> vector_electric_field;
   typedef vector_units<1, 0, -1> vector_magnetic_field;
 
@@ -57,7 +59,7 @@ namespace carom
     static void e(const scalar_units<-1, -3, 2>& e) { s_e = e; }
     static void u(const scalar_units<1, 1, 0>& u) { s_u = u; }
 
-    virtual vector_force force(const particle& x);
+    virtual vector_force force(const particle& x) const;
 
   private:
     const particle* m_x;
@@ -73,7 +75,7 @@ namespace carom
     electric_force(const vector_electric_field& E) : m_E(E) { }
     virtual ~electric_force();
 
-    virtual vector_force force(const particle& x);
+    virtual vector_force force(const particle& x) const;
 
   private:
     vector_electric_field m_E;
@@ -85,7 +87,7 @@ namespace carom
     magnetic_force(const vector_magnetic_field& B) : m_B(B) { }
     virtual ~magnetic_force();
 
-    virtual vector_force force(const particle& x);
+    virtual vector_force force(const particle& x) const;
 
   private:
     vector_magnetic_field m_B;
