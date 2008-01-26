@@ -20,34 +20,71 @@
 #ifndef CAROM_UTILITY_RIGID_BODY_HPP
 #define CAROM_UTILITY_RIGID_BODY_HPP
 
+#include <vector>
+
 namespace carom
 {
+  struct rigid_f_base : public f_base
+  {
+  public:
+    // rigid_f_base();
+    // rigid_f_base(const rigid_f_base& k);
+    virtual ~rigid_f_base();
+
+    // rigid_f_base& operator=(const rigid_f_base& k);
+
+    virtual k_base* multiply(const scalar_time& t) const;
+
+    vector_force  F;
+    vector_torque T;
+  };
+
+  struct rigid_k_base : public k_base
+  {
+  public:
+    // rigid_k_base();
+    // rigid_k_base(const rigid_k_base& k);
+    virtual ~rigid_k_base();
+
+    // rigid_k_base& operator=(const rigid_k_base& k);
+
+    virtual k_base* add     (const k_base& k) const;
+    virtual k_base* subtract(const k_base& k) const;
+    virtual k_base* multiply(const scalar& n) const;
+    virtual k_base* divide  (const scalar& n) const;
+
+    scalar_time t;
+    vector_momentum         p;
+    vector_angular_momentum L;
+  };
+
+  struct rigid_y_base : public y_base
+  {
+  public:
+    // rigid_y_base();
+    // rigid_y_base(const rigid_y_base& y);
+    virtual ~rigid_y_base();
+
+    // rigid_y_base& operator=(const rigid_y_base& y);
+
+    virtual y_base* add     (const k_base& k) const;
+    virtual scalar  subtract(const y_base& y) const;
+
+    scalar_time t;
+    vector_momentum         p;
+    vector_angular_momentum L;
+    std::tr1::shared_ptr<body> backup;
+  };
+
   class rigid_body : public body
   {
   public:
     // rigid_body();
     // virtual ~rigid_body();
 
-    virtual void calculate_k1();
-    virtual void calculate_k2();
-    virtual void calculate_k3();
-    virtual void calculate_k4();
-
-    virtual void apply_k1(const scalar_time& t);
-    virtual void apply_k2(const scalar_time& t);
-    virtual void apply_k3(const scalar_time& t);
-
-    virtual void apply(const scalar_time& t);
-
-  private:
-    body* m_backup;
-
-    vector_force  m_F1, m_F2, m_F3, m_F4;
-    vector_torque m_T1, m_T2, m_T3, m_T4;
-
-    void advance(const scalar_time& t, const vector_force& F,
-                 const vector_torque& T);
-    void retreat();
+    virtual f_value f();
+    virtual y_value y();
+    virtual body& operator=(const y_value& y);
   };
 }
 

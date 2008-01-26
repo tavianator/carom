@@ -99,13 +99,9 @@ namespace carom
     const simple_k_base& rhs = dynamic_cast<const simple_k_base&>(k);
 
     r->t = t + rhs.t;
+    r->backup = backup;
     r->momenta.resize(momenta.size());
-    body::const_iterator j = backup.begin();
-    for (unsigned int i = 0; i < momenta.size(); ++i, ++j) {
-      body::iterator k = r->backup.insert(new particle());
-      k->m(j->m());
-      k->s(j->s());
-      k->v(j->v());
+    for (unsigned int i = 0; i < momenta.size(); ++i) {
       r->momenta[i] = momenta[i] + rhs.momenta[i];
     }
 
@@ -140,10 +136,11 @@ namespace carom
     simple_y_base* r = new simple_y_base;
 
     r->t = 0;
+    r->backup = new body();
     r->momenta.resize(size());
     iterator j = begin();
     for (unsigned int i = 0; i < size(); ++i, ++j) {
-      iterator k = r->backup.insert(new particle());
+      iterator k = r->backup->insert(new particle());
       k->m(j->m());
       k->s(j->s());
       k->v(j->v());
@@ -157,7 +154,7 @@ namespace carom
     const simple_y_base& rhs = dynamic_cast<const simple_y_base&>(*y.base());
 
     iterator j = begin();
-    const_iterator k = rhs.backup.begin();
+    const_iterator k = rhs.backup->begin();
     for (unsigned int i = 0; i < rhs.momenta.size(); ++i, ++j, ++k) {
       j->s(k->s() + rhs.t*(k->v() + rhs.momenta[i]/j->m()/2));
       j->v(k->v() + rhs.momenta[i]/j->m());

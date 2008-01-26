@@ -18,116 +18,127 @@
  *************************************************************************/
 
 #include <carom.hpp>
+#include <algorithm> // For max()
+#include <vector>
 
 namespace carom
 {
-  namespace
-  {
-    vector_displacement rotate(const vector_displacement& v,
-                               const vector_displacement& o,
-                               const vector_angle& theta) {
-      // Rotating a vector v around a normalized axis u by an angle theta gives
-      // v*cos(theta) + cross(u, v)*sin(theta) + dot(u, v)*u*(1 - cos(theta))
-      if (norm(theta) != 0) {
-        scalar_angle angle = norm(theta);
-        vector axis = normalized(theta);
-        vector_displacement r = v - o;
-
-        return r*cos(angle) + cross(axis, r)*sin(angle) +
-          dot(axis, r)*axis*(1 - cos(angle)) + o;
-      } else {
-        return v;
-      }
-    }
+  rigid_f_base::~rigid_f_base() {
   }
 
-  void rigid_body::calculate_k1() {
-    m_backup = new body();
+  k_base* rigid_f_base::multiply(const scalar_time& t) const {
+    rigid_k_base* r = new rigid_k_base;
 
-    for (const_iterator i = begin(); i != end(); ++i) {
-      iterator j = m_backup->insert(new particle());
+    r->t = t;
+    r->p = t*F;
+    r->L = t*T;
+
+    return r;
+  }
+
+  rigid_k_base::~rigid_k_base() {
+  }
+
+  k_base* rigid_k_base::add(const k_base& k) const {
+    rigid_k_base* r = new rigid_k_base;
+    const rigid_k_base& rhs = dynamic_cast<const rigid_k_base&>(k);
+
+    r->t = t + rhs.t;
+    r->p = p + rhs.p;
+    r->L = L + rhs.L;
+
+    return r;
+  }
+
+  k_base* rigid_k_base::subtract(const k_base& k) const {
+    rigid_k_base* r = new rigid_k_base;
+    const rigid_k_base& rhs = dynamic_cast<const rigid_k_base&>(k);
+
+    r->t = t - rhs.t;
+    r->p = p - rhs.p;
+    r->L = L + rhs.L;
+
+    return r;
+  }
+
+  k_base* rigid_k_base::multiply(const scalar& n) const {
+    rigid_k_base* r = new rigid_k_base;
+
+    r->t = n*t;
+    r->p = n*p;
+    r->L = n*L;
+
+    return r;
+  }
+
+  k_base* rigid_k_base::divide(const scalar& n) const {
+    rigid_k_base* r = new rigid_k_base;
+
+    r->t = t/n;
+    r->p = p/n;
+    r->L = L/n;
+
+    return r;
+  }
+
+  rigid_y_base::~rigid_y_base() {
+  }
+
+  y_base* rigid_y_base::add(const k_base& k) const {
+    rigid_y_base* r = new rigid_y_base;
+    const rigid_k_base& rhs = dynamic_cast<const rigid_k_base&>(k);
+
+    r->t = t + rhs.t;
+    r->p = p + rhs.p;
+    r->L = L + rhs.L;
+    r->backup = backup;
+
+    return r;
+  }
+
+  scalar rigid_y_base::subtract(const y_base& y) const {
+    const rigid_y_base& rhs = dynamic_cast<const rigid_y_base&>(y);
+    return std::max(convert<scalar>(norm(p - rhs.p)),
+                    convert<scalar>(norm(L - rhs.L)));
+  }
+
+  f_value rigid_body::f() {
+    rigid_f_base* r = new rigid_f_base;
+
+    apply_forces(*this);
+    r->F = force(*this);
+    r->T = torque(*this);
+
+    return f_value(r);
+  }
+
+  y_value rigid_body::y() {
+    rigid_y_base* r = new rigid_y_base;
+
+    r->t = 0;
+    r->p = 0;
+    r->L = 0;
+    r->backup = new body();
+    for (iterator i = begin(); i != end(); ++i) {
+      iterator j = r->backup->insert(new particle());
       j->m(i->m());
       j->s(i->s());
-      j->p(i->p());
+      j->v(i->v());
     }
 
-    apply_forces(*this);
-    m_F1 = force(*this);
-    m_T1 = torque(*this, center_of_mass(*this));
+    return y_value(r);
   }
 
-  void rigid_body::calculate_k2() {
-    apply_forces(*this);
-    m_F2 = force(*this);
-    m_T2 = torque(*this, center_of_mass(*this));
-  }
+  body& rigid_body::operator=(const y_value& y) {
+    const rigid_y_base& rhs = dynamic_cast<const rigid_y_base&>(*y.base());
 
-  void rigid_body::calculate_k3() {
-    apply_forces(*this);
-    m_F3 = force(*this);
-    m_T3 = torque(*this, center_of_mass(*this));
-  }
-
-  void rigid_body::calculate_k4() {
-    apply_forces(*this);
-    m_F4 = force(*this);
-    m_T4 = torque(*this, center_of_mass(*this));
-  }
-
-  void rigid_body::apply_k1(const scalar_time& t) {
-    advance(t, m_F1, m_T1);
-  }
-
-  void rigid_body::apply_k2(const scalar_time& t) {
-    retreat();
-    advance(t, m_F2, m_T2);
-  }
-
-  void rigid_body::apply_k3(const scalar_time& t) {
-    retreat();
-    advance(t, m_F3, m_T3);
-  }
-
-  void rigid_body::apply(const scalar_time& t) {
-    retreat();
-    advance(t, (m_F1 + 2*m_F2 + 2*m_F3 + m_F4)/6,
-            (m_T1 + 2*m_T2 + 2*m_T3 + m_T4)/6);
-    clear_forces(*this);
-    delete m_backup;
-  }
-
-  void rigid_body::advance(const scalar_time& t, const vector_force& F,
-                           const vector_torque& T) {
-    scalar_mass m = mass(*this);
-    vector_displacement o = center_of_mass(*this);
-    vector_momentum p = momentum(*this);
-    vector_angular_momentum L = angular_momentum(*this, o);
-    vector_displacement s = (p*t + F*t*t/2)/m;
-
-    if (L*t + T*t*t/2 == 0) {
-      for (iterator i = begin(); i != end(); ++i) {
-        i->s(i->s() + s);
-        i->v((p + F*t)/m);
-      }
-    } else {
-      scalar_moment_of_inertia I =
-        moment_of_inertia(*this, o, normalized(L*t + T*t*t/2));
-      vector_angle theta = (L*t + T*t*t/2)/I;
-
-      for (iterator i = begin(); i != end(); ++i) {
-        i->s(rotate(i->s(), o, theta) + s);
-        i->v((p + F*t)/m + cross((L + T*t)/I, i->s() - o));
-        i->a(F/m - norm(L/I)*norm(L/I)*(i->s() - o));
-      }
+    iterator j = begin();
+    const_iterator k = rhs.backup->begin();
+    for (unsigned int i = 0; i < rhs.momenta.size(); ++i, ++j, ++k) {
+      j->s(k->s() + rhs.t*(k->v() + rhs.momenta[i]/j->m()/2));
+      j->v(k->v() + rhs.momenta[i]/j->m());
     }
-  }
 
-  void rigid_body::retreat() {
-    for (iterator i = begin(), j = m_backup->begin();
-         i != end() && j != m_backup->end();
-         ++i, ++j) {
-      i->s(j->s());
-      i->p(j->p());
-    }
+    return *this;
   }
 }
