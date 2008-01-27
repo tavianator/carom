@@ -38,11 +38,11 @@ namespace carom
           vector_momentum p1 = (j->a->p() + j->b->p() + j->c->p())/3;
           vector_momentum p2 = i->p();
 
-          vector_momentum I1 = 2*(m1*p2 - m2*p1)/(m1 + m2);
-          vector_momentum I2 = 2*(m2*p2 - m1*p2)/(m1 + m2);
+          vector_momentum dp1 = 2*(m1*p2 - m2*p1)/(m1 + m2);
+          vector_momentum dp2 = 2*(m2*p2 - m1*p2)/(m1 + m2);
 
-          ib1->collision(j, 3*I1);
-          i->p(i->p() + I2);
+          ib1->collision(j, 3*dp1);
+          i->p(i->p() + dp2);
         }
       }
     }
@@ -59,11 +59,11 @@ namespace carom
           vector_momentum p1 = i->p();
           vector_momentum p2 = (j->a->p() + j->b->p() + j->c->p())/3;
 
-          vector_momentum I1 = 2*(m1*p2 - m2*p1)/(m1 + m2);
-          vector_momentum I2 = 2*(m2*p2 - m1*p2)/(m1 + m2);
+          vector_momentum dp1 = 2*(m1*p2 - m2*p1)/(m1 + m2);
+          vector_momentum dp2 = 2*(m2*p2 - m1*p2)/(m1 + m2);
 
-          i->p(i->p() + I1);
-          ib2->collision(j, 3*I2);
+          i->p(i->p() + dp1);
+          ib2->collision(j, 3*dp2);
         }
       }
     }

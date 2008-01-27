@@ -53,7 +53,7 @@ namespace carom
     virtual k_base* multiply(const scalar& n) const;
     virtual k_base* divide  (const scalar& n) const;
 
-    scalar_time t;
+    scalar_time dt;
     std::vector<vector_momentum> momenta;
   };
 
@@ -69,7 +69,7 @@ namespace carom
     virtual y_base* add     (const k_base& k) const;
     virtual scalar  subtract(const y_base& y) const;
 
-    scalar_time t;
+    scalar_time dt;
     std::tr1::shared_ptr<body> backup;
     std::vector<vector_momentum> momenta;
   };

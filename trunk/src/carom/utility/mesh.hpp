@@ -84,6 +84,8 @@ namespace carom
   private:
     std::list<triangle> m_triangles;
   };
+
+  mesh convex_hull(body& b);
 }
 
 #endif // CAROM_UTILITY_MESH_HPP

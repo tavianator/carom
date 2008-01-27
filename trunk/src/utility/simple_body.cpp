@@ -29,7 +29,7 @@ namespace carom
   k_base* simple_f_base::multiply(const scalar_time& t) const {
     simple_k_base* r = new simple_k_base;
 
-    r->t = t;
+    r->dt = t;
     r->momenta.resize(forces.size());
     for (unsigned int i = 0; i < forces.size(); ++i) {
       r->momenta[i] = t*forces[i];
@@ -45,7 +45,7 @@ namespace carom
     simple_k_base* r = new simple_k_base;
     const simple_k_base& rhs = dynamic_cast<const simple_k_base&>(k);
 
-    r->t = t + rhs.t;
+    r->dt = dt + rhs.dt;
     r->momenta.resize(momenta.size());
     for (unsigned int i = 0; i < momenta.size(); ++i) {
       r->momenta[i] = momenta[i] + rhs.momenta[i];
@@ -58,7 +58,7 @@ namespace carom
     simple_k_base* r = new simple_k_base;
     const simple_k_base& rhs = dynamic_cast<const simple_k_base&>(k);
 
-    r->t = t - rhs.t;
+    r->dt = dt - rhs.dt;
     r->momenta.resize(momenta.size());
     for (unsigned int i = 0; i < momenta.size(); ++i) {
       r->momenta[i] = momenta[i] - rhs.momenta[i];
@@ -70,7 +70,7 @@ namespace carom
   k_base* simple_k_base::multiply(const scalar& n) const {
     simple_k_base* r = new simple_k_base;
 
-    r->t = n*t;
+    r->dt = n*dt;
     r->momenta.resize(momenta.size());
     for (unsigned int i = 0; i < momenta.size(); ++i) {
       r->momenta[i] = n*momenta[i];
@@ -82,7 +82,7 @@ namespace carom
   k_base* simple_k_base::divide(const scalar& n) const {
     simple_k_base* r = new simple_k_base;
 
-    r->t = t/n;
+    r->dt = dt/n;
     r->momenta.resize(momenta.size());
     for (unsigned int i = 0; i < momenta.size(); ++i) {
       r->momenta[i] = momenta[i]/n;
@@ -98,7 +98,7 @@ namespace carom
     simple_y_base* r = new simple_y_base;
     const simple_k_base& rhs = dynamic_cast<const simple_k_base&>(k);
 
-    r->t = t + rhs.t;
+    r->dt = dt + rhs.dt;
     r->backup = backup;
     r->momenta.resize(momenta.size());
     for (unsigned int i = 0; i < momenta.size(); ++i) {
@@ -135,7 +135,7 @@ namespace carom
   y_value simple_body::y() {
     simple_y_base* r = new simple_y_base;
 
-    r->t = 0;
+    r->dt = 0;
     r->backup.reset(new body());
     r->momenta.resize(size());
     iterator j = begin();
@@ -156,7 +156,7 @@ namespace carom
     iterator j = begin();
     const_iterator k = rhs.backup->begin();
     for (unsigned int i = 0; i < rhs.momenta.size(); ++i, ++j, ++k) {
-      j->s(k->s() + rhs.t*(k->v() + rhs.momenta[i]/j->m()/2));
+      j->s(k->s() + rhs.dt*(k->v() + rhs.momenta[i]/j->m()/2));
       j->v(k->v() + rhs.momenta[i]/j->m());
     }
 
