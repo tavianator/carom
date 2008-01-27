@@ -46,12 +46,12 @@ namespace carom
   rigid_f_base::~rigid_f_base() {
   }
 
-  k_base* rigid_f_base::multiply(const scalar_time& t) const {
+  k_base* rigid_f_base::multiply(const scalar_time& dt) const {
     rigid_k_base* r = new rigid_k_base;
 
-    r->t = t;
-    r->p = t*F;
-    r->L = t*T;
+    r->dt = dt;
+    r->dp = dt*F;
+    r->dL = dt*T;
 
     return r;
   }
@@ -63,9 +63,9 @@ namespace carom
     rigid_k_base* r = new rigid_k_base;
     const rigid_k_base& rhs = dynamic_cast<const rigid_k_base&>(k);
 
-    r->t = t + rhs.t;
-    r->p = p + rhs.p;
-    r->L = L + rhs.L;
+    r->dt = dt + rhs.dt;
+    r->dp = dp + rhs.dp;
+    r->dL = dL + rhs.dL;
 
     return r;
   }
@@ -74,9 +74,9 @@ namespace carom
     rigid_k_base* r = new rigid_k_base;
     const rigid_k_base& rhs = dynamic_cast<const rigid_k_base&>(k);
 
-    r->t = t - rhs.t;
-    r->p = p - rhs.p;
-    r->L = L + rhs.L;
+    r->dt = dt - rhs.dt;
+    r->dp = dp - rhs.dp;
+    r->dL = dL - rhs.dL;
 
     return r;
   }
@@ -84,9 +84,9 @@ namespace carom
   k_base* rigid_k_base::multiply(const scalar& n) const {
     rigid_k_base* r = new rigid_k_base;
 
-    r->t = n*t;
-    r->p = n*p;
-    r->L = n*L;
+    r->dt = n*dt;
+    r->dp = n*dp;
+    r->dL = n*dL;
 
     return r;
   }
@@ -94,9 +94,9 @@ namespace carom
   k_base* rigid_k_base::divide(const scalar& n) const {
     rigid_k_base* r = new rigid_k_base;
 
-    r->t = t/n;
-    r->p = p/n;
-    r->L = L/n;
+    r->dt = dt/n;
+    r->dp = dp/n;
+    r->dL = dL/n;
 
     return r;
   }
@@ -108,9 +108,9 @@ namespace carom
     rigid_y_base* r = new rigid_y_base;
     const rigid_k_base& rhs = dynamic_cast<const rigid_k_base&>(k);
 
-    r->t = t + rhs.t;
-    r->p = p + rhs.p;
-    r->L = L + rhs.L;
+    r->dt = dt + rhs.dt;
+    r->dp = dp + rhs.dp;
+    r->dL = dL + rhs.dL;
     r->backup = backup;
 
     return r;
@@ -118,8 +118,8 @@ namespace carom
 
   scalar rigid_y_base::subtract(const y_base& y) const {
     const rigid_y_base& rhs = dynamic_cast<const rigid_y_base&>(y);
-    return std::max(convert<scalar>(norm(p - rhs.p)),
-                    convert<scalar>(norm(L - rhs.L)));
+    return std::max(convert<scalar>(norm(dp - rhs.dp)),
+                    convert<scalar>(norm(dL - rhs.dL)));
   }
 
   f_value rigid_body::f() {
@@ -135,9 +135,9 @@ namespace carom
   y_value rigid_body::y() {
     rigid_y_base* r = new rigid_y_base;
 
-    r->t = 0;
-    r->p = 0;
-    r->L = 0;
+    r->dt = 0;
+    r->dp = 0;
+    r->dL = 0;
     r->backup.reset(new body());
     for (iterator i = begin(); i != end(); ++i) {
       iterator j = r->backup->insert(new particle());
@@ -156,28 +156,52 @@ namespace carom
     vector_displacement o = center_of_mass(*rhs.backup);
     vector_momentum p = momentum(*rhs.backup);
     vector_angular_momentum L = angular_momentum(*rhs.backup, o);
-    vector_displacement s = rhs.t*(p + rhs.p/2)/m;
+    vector_displacement ds = rhs.dt*(p + rhs.dp/2)/m;
 
-    if (rhs.t*(L + rhs.L/2) == 0) {
+    if (rhs.dt*(L + rhs.dL/2) == 0) {
       iterator i = begin();
       const_iterator j = rhs.backup->begin();
       for (; i != end(); ++i, ++j) {
-        i->s(j->s() + s);
-        i->v((p + rhs.p)/m);
+        i->s(j->s() + ds);
+        i->v((p + rhs.dp)/m);
       }
     } else {
       scalar_moment_of_inertia I =
-        moment_of_inertia(*this, o, normalized(rhs.t*(L + rhs.L/2)));
-      vector_angle theta = rhs.t*(L + rhs.L/2)/I;
+        moment_of_inertia(*this, o, normalized(rhs.dt*(L + rhs.dL/2)));
+      vector_angle theta = rhs.dt*(L + rhs.dL/2)/I;
 
       iterator i = begin();
       const_iterator j = rhs.backup->begin();
       for (; i != end(); ++i, ++j) {
-        i->s(rotate(j->s(), o, theta) + s);
-        i->v((p + rhs.p)/m + cross((L + rhs.L)/I, i->s() - o));
+        i->s(rotate(j->s(), o, theta) + ds);
+        i->v((p + rhs.dp)/m + cross((L + rhs.dL)/I, i->s() - o));
       }
     }
 
     return *this;
+  }
+
+  template <>
+  void impenetrable_body<rigid_body>::collision(mesh::iterator i,
+                                                const vector_momentum& dp) {
+    scalar_mass m = mass(*this);
+    vector_displacement o = center_of_mass(*this);
+    vector_displacement x = (i->a->s() + i->b->s() + i->c->s())/3;
+    vector_momentum p = momentum(*this);
+    vector_angular_momentum L = angular_momentum(*this, o);
+    vector_angular_momentum dL = cross(x - o, dp);
+
+    if (L + dL == 0) {
+      for (iterator i = begin(); i != end(); ++i) {
+        i->v((p + dp)/m);
+      }
+    } else {
+      scalar_moment_of_inertia I =
+        moment_of_inertia(*this, o, normalized(L + dL));
+
+      for (iterator i = begin(); i != end(); ++i) {
+        i->v((p + dp)/m + cross((L + dL)/I, i->s() - o));
+      }
+    }
   }
 }

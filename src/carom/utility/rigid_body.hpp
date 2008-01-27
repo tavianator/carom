@@ -53,9 +53,9 @@ namespace carom
     virtual k_base* multiply(const scalar& n) const;
     virtual k_base* divide  (const scalar& n) const;
 
-    scalar_time t;
-    vector_momentum         p;
-    vector_angular_momentum L;
+    scalar_time dt;
+    vector_momentum         dp;
+    vector_angular_momentum dL;
   };
 
   struct rigid_y_base : public y_base
@@ -70,9 +70,9 @@ namespace carom
     virtual y_base* add     (const k_base& k) const;
     virtual scalar  subtract(const y_base& y) const;
 
-    scalar_time t;
-    vector_momentum         p;
-    vector_angular_momentum L;
+    scalar_time dt;
+    vector_momentum         dp;
+    vector_angular_momentum dL;
     std::tr1::shared_ptr<body> backup;
   };
 
@@ -86,6 +86,10 @@ namespace carom
     virtual y_value y();
     virtual body& operator=(const y_value& y);
   };
+
+  template <>
+  void impenetrable_body<rigid_body>::collision(mesh::iterator i,
+                                                const vector_momentum& dp);
 }
 
 #endif // CAROM_UTILITY_RIGID_BODY_HPP
