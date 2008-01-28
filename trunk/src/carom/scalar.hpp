@@ -71,7 +71,7 @@ namespace carom
   public:
     scalar_units() { init(); }
     template <typename T>
-    scalar_units(const T& n) { init(); mpfr_from(m_fp, n); }
+    scalar_units(T n) { init(); mpfr_from(m_fp, n); }
     scalar_units(const scalar_units<m, d, t>& n)
     { init(); mpfr_set(m_fp, n.m_fp, GMP_RNDN); }
     ~scalar_units() { pool().release(m_fp); }
