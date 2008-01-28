@@ -49,6 +49,14 @@ namespace carom
     return p;
   }
 
+  vector_momentum momentum(const system& sys) {
+    vector_momentum p = 0;
+    for (system::const_iterator i = sys.begin(); i != sys.end(); ++i) {
+      p += momentum(*i);
+    }
+    return p;
+  }
+
   vector_acceleration acceleration(const body& b) {
     return force(b)/mass(b);
   }
@@ -59,6 +67,16 @@ namespace carom
       F += i->F();
     }
     return F;
+  }
+
+  scalar_energy kinetic_energy(const system& sys) {
+    scalar_energy Ek = 0;
+    for (system::const_iterator i = sys.begin(); i != sys.end(); ++i) {
+      for (body::const_iterator j = i->begin(); j != i->end(); ++j) {
+        Ek += j->m()*norm(j->v())*norm(j->v())/2;
+      }
+    }
+    return Ek;
   }
 
   scalar_moment_of_inertia

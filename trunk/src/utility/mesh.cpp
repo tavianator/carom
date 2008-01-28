@@ -90,4 +90,10 @@ namespace carom
 
     return end();
   }
+
+  mesh convex_hull(body& b) {
+    mesh r;
+
+    return r;
+  }
 }
