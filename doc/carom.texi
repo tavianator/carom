@@ -1,0 +1,372 @@
+\input texinfo       @c                    -*- Texinfo -*-
+@c %**start of header
+@setfilename carom.info
+@settitle The Carom Library
+@c %**end of header
+
+@copying
+Copyright @copyright{} 2008 Tavian Barnes
+@end copying
+
+@titlepage
+@title The Carom Library
+@page
+@vskip 0pt plus 1filll
+@insertcopying
+@end titlepage
+
+@contents
+
+@ifnottex
+@node Top
+@top The Carom Library
+
+@insertcopying
+@end ifnottex
+
+@menu
+* Introduction:: An introduction to the Carom library.
+* Scalars and Vectors:: Unit-enforced scalars and vectors.
+* Particles:: Point particles that make up bodies
+* Type Index::
+* Function Index::
+* Concept Index::
+@end menu
+
+
+@node Introduction
+@chapter Introduction
+
+@cindex introduction
+@cindex overview
+
+The Carom library is a C++ library for high-accuracy numerical physics. It provides high-accuracy integration methods, rigid body dynamics, mesh-based collision detection and response, compile-time unit correctness checking, and arbitrary-precision, machine-independant results. Carom implements original algorithms for numerical integration and collision detection, and relies on the MPFR library for raw, numerical operations.
+
+The high-level class @code{system} represents a (possibly isolated) physical system, and contains one or more bodies. The @code{body} class represents a single body, and is made up of one or more particles. A body has a strict definition in terms of numerical integration. The @code{body} is virtual, and is not particularly useful on its own, as it performs no integration for the motion of its partilcles; derrived classes like @code{simple_body} should be used instead. The @code{particle} class represents a single, point particle, with position, velocity, acceleration, and mass. It too is virtual, to allow particles to have additional properties like charge. For a full explanation of these classes and the related utility classes, it is helpful to work from the ground up, starting with the basic classes for scalars and vectors.
+
+One important thing to note is that everything exposed by the Carom library is in the carom namespace.
+
+
+@node Scalars and Vectors
+@chapter Scalars and Vectors
+
+@cindex units
+@cindex scalar
+@cindex vector
+
+The Carom library uses TMP (template metaprogramming) to ensure that arithmetic operations are unit-correct at compile-time. The effect on the user is mainly that quantities of different units have different types. The type @code{scalar}, for example, does not represent any possible scalar quantity, like time or distance; rather, it represents a quantity with no units at all, like an angle, or a ratio of two distances.
+
+@menu
+* scalar_units and vector_units:: The template classes for general scalars and vectors.
+* Useful typedefs:: Hiding awkward template syntax from the user.
+* Vector products:: The cross and dot products
+* Mathematical functions:: Trig functions, norms, projections, etc.
+* Floating-point precision:: Changing the floating-point precision.
+* Subverting the unit system:: Bypassing the requirements of the unit-correctness system.
+@end menu
+
+@node scalar_units and vector_units
+@section scalar_units and vector_units
+
+@tindex scalar_units
+@tindex vector_units
+
+The template classes for scalars and vectors of arbitrary units are @code{scalar_units<>} and @code{vector_units<>}, respectively. They are declared as follows:
+
+@verbatim
+namespace carom
+{
+  template <int m, int d, int t>
+  class scalar_units;
+
+  template <int m, int d, int t>
+  class vector_units;
+}
+@end verbatim
+
+The template parameters m, d, and t are the exponents on the mass, distance, and time units, respectively. For example, in SI units, the units of a scalar or vector are
+@tex
+${\it kg}^{m}\,m^{d}\,s^{t}$
+@end tex
+@ifhtml
+<i>kg<sup>m</sup>m<sup>d</sup>s<sup>t</sup></i>
+@end ifhtml
+@ifnottex
+@ifnothtml
+@code{kg^m*m^d*s^t}
+@end ifnothtml
+@end ifnottex
+.
+
+The operations supported on scalars and vectors are: comparison, addition, and subtraction of scalars and vectors with the same units, multiplication and division of any two scalars, or of a vector by a scalar, and assignment to a scalar or vector with identical units. When two quantities are multiplied or divided, their parameters m, d, and t are added or subtracted, respectively.
+
+Additionally, there is an implicit conversion from any integer type to a scalar, and a vector constructor taking three arguments which can be either integer types or @code{scalar_unit}s with the same units.
+
+The full definition of the scalar_units class is:
+
+@verbatim
+namespace carom
+{
+  template <int m, int d, int t>
+  class scalar_units
+  {
+  public:
+    scalar_units();
+    template <typename T>
+    scalar_units(T n);
+    scalar_units(const scalar_units<m, d, t>& n);
+    ~scalar_units();
+
+    template <typename T>
+    scalar_units& operator=(T n);
+
+    scalar_units& operator=(const scalar_units<m, d, t>& n);
+    scalar_units& operator+=(const scalar_units<m, d, t>& n);
+    scalar_units& operator-=(const scalar_units<m, d, t>& n);
+    scalar_units& operator*=(const scalar_units<0, 0, 0>& n);
+    scalar_units& operator/=(const scalar_units<0, 0, 0>& n);
+
+    template <typename T> T to() const;
+  };
+}
+@end verbatim
+
+The template member function @code{to<>()} returns the scalar converted to any integer or floating-point type.
+
+The full definition of the vector_units class is:
+
+@verbatim
+namespace carom
+{
+  template <int m, int d, int t>
+  class vector_units
+  {
+  public:
+    vector_units();
+    vector_units(void*); // For constructs like vector v = 0; if (v == 0) { }
+    vector_units(const scalar_units<m, d, t>& x,
+                 const scalar_units<m, d, t>& y,
+                 const scalar_units<m, d, t>& z);
+    vector_units(const vector_units<m, d, t>& n);
+    ~vector_units();
+
+    vector_units& operator=(const vector_units<m, d, t>& n);
+    vector_units& operator+=(const vector_units<m, d, t>& n);
+    vector_units& operator-=(const vector_units<m, d, t>& n);
+    vector_units& operator*=(const scalar_units<0, 0, 0>& n);
+    vector_units& operator/=(const scalar_units<0, 0, 0>& n);
+
+    scalar_units<m, d, t> x();
+    scalar_units<m, d, t> y();
+    scalar_units<m, d, t> z();
+  };
+}
+@end verbatim
+
+The @code{x()}, @code{y()}, and @code{z()} member functions return the x, y, and
+z components of the vector.
+
+The @code{scalar_units<>} and @code{vector_units<>} classes use the MPFR library internally for arbitrary-precision, machine-independant arithmetic. To get or set the precision used by the library call one of the @code{precision()} functions (@pxref{Floating-point precision}).
+
+@node Useful typedefs
+@section Useful typedefs
+
+@tindex scalar
+@tindex scalar_angle
+@tindex scalar_mass
+@tindex scalar_distance
+@tindex scalar_time
+@tindex scalar_speed
+@tindex scalar_momentum
+@tindex scalar_acceleration
+@tindex scalar_force
+@tindex scalar_moment_of_inertia
+@tindex scalar_angular_speed
+@tindex scalar_angular_momentum
+@tindex scalar_angular_acceleration
+@tindex scalar_torque
+@tindex scalar_energy
+@tindex scalar_power
+
+@tindex vector
+@tindex vector_angle
+@tindex vector_displacement
+@tindex vector_velocity
+@tindex vector_momentum
+@tindex vector_acceleration
+@tindex vector_force
+@tindex vector_angular_velocity
+@tindex vector_angular_momentum
+@tindex vector_angular_acceleration
+@tindex vector_torque
+
+Since declaring @code{vector_units<0, 1, -1> v;} for a velocity variable @code{v} is rather confusing and awkward, Carom provides many useful typedefs for commonly used types. They are: 
+
+@verbatim
+namespace carom
+{
+  typedef scalar_units<0, 0, 0>  scalar;
+  typedef scalar_units<0, 0, 0>  scalar_angle;
+  typedef scalar_units<1, 0, 0>  scalar_mass;
+  typedef scalar_units<0, 1, 0>  scalar_distance;
+  typedef scalar_units<0, 0, 1>  scalar_time;
+  typedef scalar_units<0, 1, -1> scalar_speed;
+  typedef scalar_units<1, 1, -1> scalar_momentum;
+  typedef scalar_units<0, 1, -2> scalar_acceleration;
+  typedef scalar_units<1, 1, -2> scalar_force;
+  typedef scalar_units<1, 2, 0>  scalar_moment_of_inertia;
+  typedef scalar_units<0, 0, -1> scalar_angular_speed;
+  typedef scalar_units<1, 2, -1> scalar_angular_momentum;
+  typedef scalar_units<0, 0, -2> scalar_angular_acceleration;
+  typedef scalar_units<1, 2, -2> scalar_torque;
+  typedef scalar_units<1, 2, -2> scalar_energy;
+  typedef scalar_units<1, 2, -3> scalar_power;
+
+  typedef vector_units<0, 0, 0>  vector;
+  typedef vector_units<0, 0, 0>  vector_angle;
+  typedef vector_units<0, 1, 0>  vector_displacement;
+  typedef vector_units<0, 1, -1> vector_velocity;
+  typedef vector_units<1, 1, -1> vector_momentum;
+  typedef vector_units<0, 1, -2> vector_acceleration;
+  typedef vector_units<1, 1, -2> vector_force;
+  typedef vector_units<0, 0, -1> vector_angular_velocity;
+  typedef vector_units<1, 2, -1> vector_angular_momentum;
+  typedef vector_units<0, 0, -2> vector_angular_acceleration;
+  typedef vector_units<1, 2, -2> vector_torque;
+}
+@end verbatim
+
+@node Vector products
+@section Vector products
+
+@findex dot
+@findex cross
+
+The dot and cross products of two vectors are implemented as functions, whose declarations look like this:
+
+@verbatim
+namespace carom
+{
+  template <int m1, int d1, int t1, int m2, int d2, int t2>
+  scalar_units<m1 + m2, d1 + d2, t1 + t2>
+  dot(const vector_units<m1, d1, t1>& lhs,
+      const vector_units<m2, d2, t2>& rhs);
+
+  template <int m1, int d1, int t1, int m2, int d2, int t2>
+  vector_units<m1 + m2, d1 + d2, t1 + t2>
+  cross(const vector_units<m1, d1, t1>& lhs,
+        const vector_units<m2, d2, t2>& rhs);
+}
+@end verbatim
+
+@node Mathematical functions
+@section Mathematical functions
+
+@findex pi
+@findex abs
+@findex sqrt
+@findex sin
+@findex cos
+@findex tan
+@findex atan2
+@findex pow
+
+Carom provides many needed mathematical functions for dealing with scalars. So far, they are:
+
+@verbatim
+namespace carom
+{
+  scalar_angle pi   ();
+  scalar1      abs  (const scalar1& n);
+  (scalar1)/2  sqrt (const scalar1& n);
+  scalar       sin  (const scalar_angle& n);
+  scalar       cos  (const scalar_angle& n);
+  scalar       tan  (const scalar_angle& n);
+  scalar_angle atan2(const scalar1& x, const scalar1& y);
+  scalar       pow  (const scalar& base, const scalar& exp);
+}
+@end verbatim
+
+These functions are actually template functions, but for brevity and clarity, we have eliminated the @code{template <...>} declarations. @code{scalar1} and @code{scalar2} represent scalars of arbitrary units, and operations on these identifiers, such as @code{scalar1+scalar2} or @code{(scalar1)/2} signify doing that operation to the parameters m, d, and t. @code{scalar1+scalar2} thus means @code{scalar_units<m1+m2, d1+d2, t1+t2>}, and @code{(scalar1)/2} thus @code{scalar_units<m1/2, d1/2, t1/2>}. @code{scalar} istelf simply means the aforementioned typedef for @code{scalar_units<0, 0, 0>}.
+
+@findex norm
+@findex normalized
+@findex proj
+
+Additionally, Carom provides utility functions for vectors. As yet, these are:
+
+@verbatim
+namespace carom
+{
+  scalar1 norm      (const vector1& n);
+  vector  normalized(const vector1& n);
+  vector2 proj      (const vector1& u, const vector2& d);
+}
+@end verbatim
+
+@code{proj} returns the projection on @code{u} of @code{d}.
+
+@node Floating-point precision
+@section Floating-point precision
+
+@findex precision
+
+The default floating-point precision for scalars and vectors is 53 bits. To get or set the floating-point precision, in bits, used by Carom for scalars and vectors, use the @code{precision()} functions. Setting the precision changes the precision of all scalars and vectors that are constructed, or assigned to, after the call. These functions are declared like so:
+
+@verbatim
+namespace carom
+{
+  unsigned long precision();
+  void          precision(unsigned long prec);
+}
+@end verbatim
+
+@node Subverting the unit system
+@section Subverting the unit system
+
+@findex convert
+
+Though the unit-safety system is generally a convienence, we sometimes need to subvert it. For instance, we may want an angular velocity of 2*pi. @code{scalar_angular_speed w = 2*pi();} produces an error, even though this is really our desired effect. To subvert the unit-correctness system, a utility function, @code{convert<>}, is supplied. Its declaration looks like this:
+
+@verbatim
+namespace carom
+{
+  template <int m1, int d1, int t1, int m2, int d2, int t2>
+  scalar_units<m1, d1, t1> convert(const scalar_units<m2, d2, t2>& n);
+
+  template <int m1, int d1, int t1, int m2, int d2, int t2>
+  vector_units<m1, d1, t1> convert(const vector_units<m2, d2, t2>& n);
+
+  template <typename T, int m, int d, int t>
+  T convert(const scalar_units<m, d, t>& n);
+
+  template <typename T, int m, int d, int t>
+  T convert(const vector_units<m, d, t>& n);
+}
+@end verbatim
+
+Not all template parameters need to be supplied when @code{convert<>()} is called. To solve the previous problem, we could write @code{scalar_angular_speed w = convert<scalar_angular_speed>(2*pi());} or @code{scalar_angular_speed w = convert<0, 0, -1>(2*pi());}.
+
+
+@node Particles
+@chapter Particles
+
+
+@node Type Index
+@unnumbered Type Index
+
+@printindex tp
+
+
+@node Function Index
+@unnumbered Function Index
+
+@printindex fn
+
+
+@node Concept Index
+@unnumbered Concept Index
+
+@printindex cp
+
+@bye
