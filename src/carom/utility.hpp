@@ -26,8 +26,10 @@ namespace carom
   vector_displacement center_of_mass(const body& b);
   vector_velocity     velocity      (const body& b);
   vector_momentum     momentum      (const body& b);
+  vector_momentum     momentum      (const system& sys);
   vector_acceleration acceleration  (const body& b);
   vector_force        force         (const body& b);
+  scalar_energy       kinetic_energy(const system& sys);
 
   scalar_moment_of_inertia
   moment_of_inertia(const body& b, const vector_displacement& o,

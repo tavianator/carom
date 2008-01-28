@@ -27,7 +27,11 @@ Copyright @copyright{} 2008 Tavian Barnes
 @menu
 * Introduction:: An introduction to the Carom library.
 * Scalars and Vectors:: Unit-enforced scalars and vectors.
-* Particles:: Point particles that make up bodies
+* Particles:: Point particles that make up bodies.
+* Forces:: Forces applied to particles.
+* Bodies:: Collections of particles.
+* Systems:: Physical systems.
+* Collisions:: Collision detection and response.
 * Type Index::
 * Function Index::
 * Concept Index::
@@ -58,11 +62,11 @@ The Carom library uses TMP (template metaprogramming) to ensure that arithmetic 
 
 @menu
 * scalar_units and vector_units:: The template classes for general scalars and vectors.
-* Useful typedefs:: Hiding awkward template syntax from the user.
-* Vector products:: The cross and dot products
-* Mathematical functions:: Trig functions, norms, projections, etc.
-* Floating-point precision:: Changing the floating-point precision.
-* Subverting the unit system:: Bypassing the requirements of the unit-correctness system.
+* Useful Typedefs:: Hiding awkward template syntax from the user.
+* Vector Products:: The cross and dot products
+* Mathematical Functions:: Trig functions, norms, projections, etc.
+* Floating-Point Precision:: Changing the floating-point precision.
+* Subverting the Unit System:: Bypassing the requirements of the unit-correctness system.
 @end menu
 
 @node scalar_units and vector_units
@@ -166,10 +170,10 @@ namespace carom
 The @code{x()}, @code{y()}, and @code{z()} member functions return the x, y, and
 z components of the vector.
 
-The @code{scalar_units<>} and @code{vector_units<>} classes use the MPFR library internally for arbitrary-precision, machine-independant arithmetic. To get or set the precision used by the library call one of the @code{precision()} functions (@pxref{Floating-point precision}).
+The @code{scalar_units<>} and @code{vector_units<>} classes use the MPFR library internally for arbitrary-precision, machine-independant arithmetic. To get or set the precision used by the library call one of the @code{precision()} functions (@pxref{Floating-Point Precision}).
 
-@node Useful typedefs
-@section Useful typedefs
+@node Useful Typedefs
+@section Useful Typedefs
 
 @tindex scalar
 @tindex scalar_angle
@@ -199,6 +203,9 @@ The @code{scalar_units<>} and @code{vector_units<>} classes use the MPFR library
 @tindex vector_angular_momentum
 @tindex vector_angular_acceleration
 @tindex vector_torque
+
+@cindex typedefs
+@cindex unit typedefs
 
 Since declaring @code{vector_units<0, 1, -1> v;} for a velocity variable @code{v} is rather confusing and awkward, Carom provides many useful typedefs for commonly used types. They are: 
 
@@ -236,8 +243,13 @@ namespace carom
 }
 @end verbatim
 
-@node Vector products
-@section Vector products
+@node Vector Products
+@section Vector Products
+
+@cindex product, vector
+@cindex vector product
+@cindex dot product
+@cindex cross product
 
 @findex dot
 @findex cross
@@ -259,8 +271,8 @@ namespace carom
 }
 @end verbatim
 
-@node Mathematical functions
-@section Mathematical functions
+@node Mathematical Functions
+@section Mathematical Functions
 
 @findex pi
 @findex abs
@@ -270,6 +282,11 @@ namespace carom
 @findex tan
 @findex atan2
 @findex pow
+
+@cindex absolute value
+@cindex square root
+@cindex trigonometric functions
+@cindex exponential
 
 Carom provides many needed mathematical functions for dealing with scalars. So far, they are:
 
@@ -293,6 +310,11 @@ These functions are actually template functions, but for brevity and clarity, we
 @findex normalized
 @findex proj
 
+@cindex norm
+@cindex magnitude
+@cindex length, of vector
+@cindex projection
+
 Additionally, Carom provides utility functions for vectors. As yet, these are:
 
 @verbatim
@@ -306,10 +328,13 @@ namespace carom
 
 @code{proj} returns the projection on @code{u} of @code{d}.
 
-@node Floating-point precision
-@section Floating-point precision
+@node Floating-Point Precision
+@section Floating-Point Precision
 
 @findex precision
+
+@cindex precision, floating-point
+@cindex floating-point precision
 
 The default floating-point precision for scalars and vectors is 53 bits. To get or set the floating-point precision, in bits, used by Carom for scalars and vectors, use the @code{precision()} functions. Setting the precision changes the precision of all scalars and vectors that are constructed, or assigned to, after the call. These functions are declared like so:
 
@@ -321,10 +346,14 @@ namespace carom
 }
 @end verbatim
 
-@node Subverting the unit system
+@node Subverting the Unit System
 @section Subverting the unit system
 
 @findex convert
+
+@cindex unit-correctness, subverting
+@cindex subverting unit-correctness
+@cindex bybassing unit-correctness
 
 Though the unit-safety system is generally a convienence, we sometimes need to subvert it. For instance, we may want an angular velocity of 2*pi. @code{scalar_angular_speed w = 2*pi();} produces an error, even though this is really our desired effect. To subvert the unit-correctness system, a utility function, @code{convert<>}, is supplied. Its declaration looks like this:
 
@@ -350,6 +379,25 @@ Not all template parameters need to be supplied when @code{convert<>()} is calle
 
 @node Particles
 @chapter Particles
+
+@cindex particle
+@cindex point mass
+
+
+@node Forces
+@chapter Forces
+
+
+@node Bodies
+@chapter Bodies
+
+
+@node Systems
+@chapter Systems
+
+
+@node Collisions
+@chapter Collisions
 
 
 @node Type Index
