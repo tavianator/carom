@@ -88,7 +88,13 @@ namespace carom
   };
 
   template <>
-  void impenetrable_body<rigid_body>::collision(mesh::iterator i,
+  scalar_mass impenetrable_body<rigid_body>::mass(const triangle& t);
+
+  template <>
+  vector_momentum impenetrable_body<rigid_body>::momentum(const triangle& t);
+
+  template <>
+  void impenetrable_body<rigid_body>::collision(const triangle& t,
                                                 const vector_momentum& dp);
 }
 

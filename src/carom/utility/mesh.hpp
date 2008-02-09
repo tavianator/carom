@@ -25,12 +25,70 @@
 
 namespace carom
 {
-  struct triangle
+  class triangle;
+  class intersection_info;
+
+  class mesh
   {
   public:
-    body::iterator a;
-    body::iterator b;
-    body::iterator c;
+    typedef std::list<triangle>::iterator       iterator;
+    typedef std::list<triangle>::const_iterator const_iterator;
+
+    // mesh();
+    // mesh(const mesh& m);
+    // ~mesh();
+
+    // mesh& operator=(const mesh& m);
+
+    iterator insert(const triangle& t)
+    { return m_triangles.insert(m_triangles.end(), t); }
+    void erase(iterator i) { m_triangles.erase(i); }
+
+    iterator       begin()       { return m_triangles.begin(); }
+    const_iterator begin() const { return m_triangles.begin(); }
+    iterator       end()         { return m_triangles.end(); }
+    const_iterator end()   const { return m_triangles.end(); }
+
+    std::size_t size() const { return m_triangles.size(); }
+
+    vector_displacement center() const;
+
+    // If l1 is inside the mesh, return the triangle it is inside of. Otherwise,
+    // return end().
+    iterator inside(const vector_displacement& l0,
+                    const vector_displacement& l1);
+
+    // If l1 is outside the mesh, return the triangle it is outside of.
+    // Otherwise, return end().
+    iterator outside(const vector_displacement& l0,
+                     const vector_displacement& l1);
+
+  private:
+    std::list<triangle> m_triangles;
+  };
+
+  class triangle
+  {
+  public:
+    triangle(body::iterator a, body::iterator b, body::iterator c)
+      : m_a(a), m_b(b), m_c(c) { }
+
+    // triangle(const triangle& t);
+    // ~triangle();
+
+    // triangle& operator=(const triangle& t);
+
+    body::iterator a() const { return m_a; }
+    body::iterator b() const { return m_b; }
+    body::iterator c() const { return m_c; }
+
+    vector_displacement s() const { return (a()->s() + b()->s() + c()->s())/3; }
+    vector_momentum     p() const { return a()->p() + b()->p() + c()->p(); }
+    scalar_mass         m() const { return a()->m() + b()->m() + c()->m(); }
+    vector_velocity     v() const { return p()/m(); }
+
+  private:
+    body::iterator m_a, m_b, m_c;
   };
 
   class intersection_info
@@ -51,38 +109,6 @@ namespace carom
     scalar m_t;
     scalar m_u;
     scalar m_v;
-  };
-
-  class mesh
-  {
-  public:
-    typedef std::list<triangle>::iterator iterator;
-    typedef std::list<triangle>::const_iterator const_iterator;
-
-    // mesh();
-    // ~mesh();
-
-    iterator       begin()       { return m_triangles.begin(); }
-    const_iterator begin() const { return m_triangles.begin(); }
-    iterator       end()         { return m_triangles.end(); }
-    const_iterator end() const   { return m_triangles.end(); }
-
-    std::size_t size() const { return m_triangles.size(); }
-
-    vector_displacement center() const;
-
-    // If l1 is inside the mesh, return the triangle it is inside of. Otherwise,
-    // return end().
-    iterator inside(const vector_displacement& l0,
-                    const vector_displacement& l1);
-
-    // If l1 is outside the mesh, return the triangle it is outside of.
-    // Otherwise, return end().
-    iterator outside(const vector_displacement& l0,
-                     const vector_displacement& l1);
-
-  private:
-    std::list<triangle> m_triangles;
   };
 
   mesh convex_hull(body& b);

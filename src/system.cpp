@@ -24,7 +24,10 @@
 
 namespace carom
 {
-  system::system() : m_err(0), m_steps(0), m_rejected(0) { }
+  system::system()
+    : m_RKF45_err(0), m_DP45_err(0),
+      m_RKF45_steps(0), m_DP45_steps(0),
+      m_rejected(0) { }
 
   // All of these functions will look nicer when initialization lists are added
   // to C++
@@ -159,15 +162,15 @@ namespace carom
       // Store the stepsize used for the integration
       t = dtprime;
 
-      if (steps() > 0) {
+      if (m_RKF45_steps >= 4) {
         // Find t', the t value that we estimate would have given an error of
         // average_error()/(1 + tol). The formula has a power of 1/5, because
         // the error calculated is that of the fourth-order step. If the step
         // is rejected, this is our new stepsize; otherwise, this is our
         // recommended stepsize for the next iteration.
-        dtprime *= pow(average_error()/err, scalar(1)/5)/(1 + tol);
+        dtprime *= pow((m_RKF45_err/m_RKF45_steps)/err, scalar(1)/5)/(1 + tol);
 
-        if (err > (1 + tol)*average_error()) {
+        if (err > (1 + tol)*m_RKF45_err/m_RKF45_steps) {
           ++m_rejected;
           rejected = true;
         } else {
@@ -180,8 +183,8 @@ namespace carom
 
     tab.apply(y_vec);
     elapsed += t;
-    m_err += err;
-    ++m_steps;
+    m_RKF45_err += err;
+    ++m_RKF45_steps;
 
     return dtprime;
   }
@@ -243,15 +246,15 @@ namespace carom
       // Store the stepsize used for the integration
       t = dtprime;
 
-      if (steps() > 0) {
+      if (m_DP45_steps >= 4) {
         // Find t', the t value that we estimate would have given an error of
         // average_error()/(1 + tol). The formula has a power of 1/5, because
         // the error calculated is that of the fourth-order step. If the step
         // is rejected, this is our new stepsize; otherwise, this is our
         // recommended stepsize for the next iteration.
-        dtprime *= pow(average_error()/err, scalar(1)/5)/(1 + tol);
+        dtprime *= pow((m_DP45_err/m_DP45_steps)/err, scalar(1)/5)/(1 + tol);
 
-        if (err > (1 + tol)*average_error()) {
+        if (err > (1 + tol)*m_DP45_err/m_DP45_steps) {
           ++m_rejected;
           rejected = true;
         } else {
@@ -264,8 +267,8 @@ namespace carom
 
     tab.apply(y_vec);
     elapsed += t;
-    m_err += err;
-    ++m_steps;
+    m_DP45_err += err;
+    ++m_DP45_steps;
 
     return dtprime;
   }
@@ -278,12 +281,12 @@ namespace carom
   // Returns the accumulated error in the worst-case scenario, where all the
   // errors are assumed to add together with the same sign
   scalar system::accumulated_error() {
-    return m_err;
+    return m_RKF45_err + m_DP45_err;
   }
 
-  // The number of steps that have been integrated by DP.
+  // The number of steps that have been integrated by RKF45 and DP45.
   unsigned long system::steps() {
-    return m_steps;
+    return m_RKF45_steps + m_DP45_steps;
   }
 
   // The number of times we've rejected a step.
@@ -316,7 +319,7 @@ namespace carom
 
     unsigned int n = 1;
     if (!a_vecs.empty()) {
-      // The number of k_values is equal to the number of entries in the last
+      // The number of k-values is equal to the number of entries in the last
       // row of the a-value matrix plus one
       n = a_vecs.back().size() + 1;
     }

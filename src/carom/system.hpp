@@ -61,8 +61,8 @@ namespace carom
 
   private:
     polymorphic_list<body> m_bodies;
-    scalar m_err;
-    unsigned long m_steps;
+    scalar m_RKF45_err, m_DP45_err;
+    unsigned long m_RKF45_steps, m_DP45_steps;
     unsigned long m_rejected;
   };
 
