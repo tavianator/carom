@@ -62,6 +62,24 @@ namespace carom
 
     static scalar_units<-1, 3, -2> s_G;
   };
+
+  typedef scalar_units<1, 0, -2> scalar_spring_constant;
+
+  class spring_force : public applied_force
+  {
+  public:
+    spring_force(const vector_displacement& o, const scalar_distance& l,
+                 const scalar_spring_constant& k)
+      : m_o(o), m_l(l), m_k(k) { }
+    virtual ~spring_force();
+
+    virtual vector_force force(const particle& x) const;
+
+  private:
+    vector_displacement m_o;
+    scalar_distance m_l;
+    scalar_spring_constant m_k;
+  };
 }
 
 #endif // CAROM_UTILITY_BASIC_FORCES_HPP

@@ -180,14 +180,24 @@ namespace carom
 
     return *this;
   }
+ 
+  template <>
+  scalar_mass impenetrable_body<rigid_body>::mass(const triangle& t) {
+    return carom::mass(*this);
+  }
+ 
+  template <>
+  vector_momentum impenetrable_body<rigid_body>::momentum(const triangle& t) {
+    return carom::mass(*this)*t.v();
+  }
 
   template <>
-  void impenetrable_body<rigid_body>::collision(mesh::iterator i,
+  void impenetrable_body<rigid_body>::collision(const triangle& t,
                                                 const vector_momentum& dp) {
-    scalar_mass m = mass(*this);
+    scalar_mass m = carom::mass(*this);
     vector_displacement o = center_of_mass(*this);
-    vector_displacement x = (i->a->s() + i->b->s() + i->c->s())/3;
-    vector_momentum p = momentum(*this);
+    vector_displacement x = (t.a()->s() + t.b()->s() + t.c()->s())/3;
+    vector_momentum p = carom::momentum(*this);
     vector_angular_momentum L = angular_momentum(*this, o);
     vector_angular_momentum dL = cross(x - o, dp);
 

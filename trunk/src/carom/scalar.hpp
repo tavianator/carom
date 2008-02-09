@@ -163,6 +163,12 @@ namespace carom
   }
 
   template <int m, int d, int t>
+  inline int
+  sgn(const scalar_units<m, d, t>& n) {
+    return mpfr_sgn(n.mpfr());
+  }
+
+  template <int m, int d, int t>
   inline scalar_units<m, d, t>
   abs(const scalar_units<m, d, t>& n) {
     scalar_units<m, d, t> r;

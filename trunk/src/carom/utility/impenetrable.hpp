@@ -35,7 +35,9 @@ namespace carom
     mesh&       surface()       { return m_surface; }
     const mesh& surface() const { return m_surface; }
 
-    virtual void collision(mesh::iterator i, const vector_momentum& dp) = 0;
+    virtual scalar_mass mass(const triangle& t) = 0;
+    virtual vector_momentum momentum(const triangle& t) = 0;
+    virtual void collision(const triangle& t, const vector_momentum& dp) = 0;
 
   private:
     mesh m_surface;
@@ -49,18 +51,29 @@ namespace carom
     // impenetrable_body();
     // virtual ~impenetrable_body();
 
-    virtual void collision(mesh::iterator i, const vector_momentum& dp);
+    virtual scalar_mass mass(const triangle& t);
+    virtual vector_momentum momentum(const triangle& t);
+    virtual void collision(const triangle& t, const vector_momentum& dp);
   };
 
   void collision(body& b1, body& b2);
 
   template <typename T>
-  void impenetrable_body<T>::collision(mesh::iterator i,
+  scalar_mass impenetrable_body<T>::mass(const triangle& t) {
+    return t.m();
+  }
+
+  template <typename T>
+  vector_momentum impenetrable_body<T>::momentum(const triangle& t) {
+    return t.p();
+  }
+
+  template <typename T>
+  void impenetrable_body<T>::collision(const triangle& t,
                                        const vector_momentum& dp) {
-    scalar_mass m = i->a->m() + i->b->m() + i->c->m();
-    i->a->v(i->a->v() + dp/m);
-    i->b->v(i->b->v() + dp/m);
-    i->c->v(i->c->v() + dp/m);
+    t.a()->v(t.a()->v() + dp/t.m());
+    t.b()->v(t.b()->v() + dp/t.m());
+    t.c()->v(t.c()->v() + dp/t.m());
   }
 }
 

@@ -47,4 +47,17 @@ namespace carom
     vector_displacement r = m_i->s() - x.s();
     return G()*x.m()*m_i->m()*normalized(r)/(norm(r)*norm(r));
   }
+
+  spring_force::~spring_force() {
+  }
+
+  vector_force spring_force::force(const particle& x) const {
+    // F = -k*s
+    vector_displacement r = x.s() - m_o;
+    if (r != 0) {
+      return -m_k*normalized(r)*(norm(r) - m_l);
+    } else {
+      return 0;
+    }
+  }
 }
