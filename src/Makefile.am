@@ -2,7 +2,7 @@ INCLUDES = -I$(top_srcdir)/src
 
 LIBCAROM_VERSION = 0:0:0
 
-CPP_SOURCES = mpfr_utils.cpp particle.cpp body.cpp system.cpp utility.cpp utility/mesh.cpp utility/impenetrable.cpp utility/simple_body.cpp utility/rigid_body.cpp utility/basic_forces.cpp utility/electromagnetism.cpp
+CPP_SOURCES = mpfr_utils.cpp particle.cpp body.cpp system.cpp integrator.cpp utility.cpp utility/mesh.cpp utility/impenetrable.cpp utility/simple_body.cpp utility/rigid_body.cpp utility/basic_forces.cpp utility/electromagnetism.cpp
 HPP_SOURCES = carom.hpp carom/mpfr_utils.hpp carom/scalar.hpp carom/vector.hpp carom/polymorphic_list.hpp carom/polymorphic_list/iterator.hpp carom/polymorphic_list/list.hpp carom/particle.hpp carom/body.hpp carom/system.hpp carom/utility.hpp carom/utility/mesh.hpp carom/utility/impenetrable.hpp carom/utility/simple_body.hpp carom/utility/rigid_body.hpp carom/utility/basic_forces.hpp carom/utility/electromagnetism.hpp
 
 nobase_include_HEADERS = $(HPP_SOURCES)

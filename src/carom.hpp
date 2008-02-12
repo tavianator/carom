@@ -27,6 +27,7 @@
 #include <carom/particle.hpp>
 #include <carom/body.hpp>
 #include <carom/system.hpp>
+#include <carom/integrator.hpp>
 #include <carom/utility.hpp>
 
 #endif // CAROM_HPP

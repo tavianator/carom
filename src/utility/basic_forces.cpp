@@ -21,15 +21,13 @@
 
 namespace carom
 {
-  constant_force::~constant_force() {
-  }
+  constant_force::constant_force(const vector_force& F) : m_F(F) { }
+  constant_force::~constant_force() { }
+  vector_force constant_force::force(const particle& x) const { return m_F; }
 
-  vector_force constant_force::force(const particle& x) const {
-    return m_F;
-  }
-
-  centripetal_force::~centripetal_force() {
-  }
+  centripetal_force::centripetal_force(const vector_displacement& o)
+    : m_o(o) { }
+  centripetal_force::~centripetal_force() { }
 
   vector_force centripetal_force::force(const particle& x) const {
     // F = m*v^2/r;
@@ -39,17 +37,26 @@ namespace carom
 
   scalar_units<-1, 3, -2> gravitational_force::s_G("6.693e-11");
 
-  gravitational_force::~gravitational_force() {
+  gravitational_force::gravitational_force(const particle& x) : m_x(&x) { }
+  gravitational_force::~gravitational_force() { }
+
+  scalar_gravitational_constant gravitational_force::G() { return s_G; }
+
+  void gravitational_force::G(const scalar_gravitational_constant& G) {
+    s_G = G;
   }
 
   vector_force gravitational_force::force(const particle& x) const {
     // F = G*m1*m2/r^2
-    vector_displacement r = m_i->s() - x.s();
-    return G()*x.m()*m_i->m()*normalized(r)/(norm(r)*norm(r));
+    vector_displacement r = x.s() - m_x->s();
+    return -G()*x.m()*m_x->m()*normalized(r)/(norm(r)*norm(r));
   }
 
-  spring_force::~spring_force() {
-  }
+  spring_force::spring_force(const vector_displacement& o,
+                             const scalar_distance& l,
+                             const scalar_spring_constant& k)
+    : m_o(o), m_l(l), m_k(k) { }
+  spring_force::~spring_force() { }
 
   vector_force spring_force::force(const particle& x) const {
     // F = -k*s

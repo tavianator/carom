@@ -22,55 +22,114 @@
 
 namespace carom
 {
-  f_base::~f_base() {
+  f_base::~f_base() { }
+  k_base* f_base::multiply(const scalar_time& t) const { return new k_base(); }
+
+  k_base::~k_base() { }
+  k_base* k_base::add     (const k_base& k) const { return new k_base(); }
+  k_base* k_base::subtract(const k_base& k) const { return new k_base(); }
+  k_base* k_base::multiply(const scalar& n) const { return new k_base(); }
+  k_base* k_base::divide  (const scalar& n) const { return new k_base(); }
+
+  y_base::~y_base() { }
+  y_base* y_base::add     (const k_base& k) const { return new y_base(); }
+  scalar  y_base::subtract(const y_base& y) const { return 0; }
+
+  f_value::f_value() { }
+  f_value::f_value(f_base* f) : m_base(f) { }
+  f_base*       f_value::base()       { return m_base.get(); }
+  const f_base* f_value::base() const { return m_base.get(); }
+
+  k_value::k_value() { }
+  k_value::k_value(k_base* k) : m_base(k) { }
+  k_base*       k_value::base()       { return m_base.get(); }
+  const k_base* k_value::base() const { return m_base.get(); }
+
+  k_value& k_value::operator+=(const k_value& k) {
+    m_base.reset(m_base->add(*k.base()));
+    return *this;
   }
 
-  k_base* f_base::multiply(const scalar_time& t) const {
-    return new k_base();
+  k_value& k_value::operator-=(const k_value& k) {
+    m_base.reset(m_base->subtract(*k.base()));
+    return *this;
   }
 
-  k_base::~k_base() {
+  k_value& k_value::operator*=(const scalar& n) {
+    m_base.reset(m_base->multiply(n));
+    return *this;
   }
 
-  k_base* k_base::add(const k_base& k) const {
-    return new k_base();
+  k_value& k_value::operator/=(const scalar& n) {
+    m_base.reset(m_base->divide(n));
+    return *this;
   }
 
-  k_base* k_base::subtract(const k_base& k) const {
-    return new k_base();
+  y_value::y_value() { }
+  y_value::y_value(y_base* y) : m_base(y) { }
+  y_base*       y_value::base()       { return m_base.get(); }
+  const y_base* y_value::base() const { return m_base.get(); }
+
+  y_value& y_value::operator+=(const k_value& k) {
+    m_base.reset(m_base->add(*k.base()));
+    return *this;
   }
 
-  k_base* k_base::multiply(const scalar& n) const {
-    return new k_base();
+  body::~body() { }
+
+  body::iterator body::insert(particle* x) {
+    return m_particles.insert(m_particles.end(), x);
   }
 
-  k_base* k_base::divide(const scalar& n) const {
-    return new k_base();
-  }
+  void body::erase(body::iterator i) { m_particles.erase(i); }
 
-  y_base::~y_base() {
-  }
+  body::iterator       body::begin()       { return m_particles.begin(); }
+  body::const_iterator body::begin() const { return m_particles.begin(); }
+  body::iterator       body::end()         { return m_particles.end(); }
+  body::const_iterator body::end()   const { return m_particles.end(); }
 
-  y_base* y_base::add(const k_base& k) const {
-    return new y_base;
-  }
+  std::size_t body::size() const { return m_particles.size(); }
 
-  scalar y_base::subtract(const y_base& y) const {
-    return 0;
-  }
-
-  body::~body() {
-  }
-
-  f_value body::f() {
-    return f_value();
-  }
-
-  y_value body::y() {
-    return y_value();
-  }
+  f_value body::f() { return f_value(); }
+  y_value body::y() { return y_value(); }
 
   body& body::operator=(const y_value& y) {
     return *this;
+  }
+
+  k_value operator*(const scalar_time& lhs, const f_value& rhs) {
+    return k_value(rhs.base()->multiply(lhs));
+  }
+
+  k_value operator*(const f_value& lhs, const scalar_time& rhs) {
+    return k_value(lhs.base()->multiply(rhs));
+  }
+
+  k_value operator+(const k_value& lhs, const k_value& rhs) {
+    return k_value(lhs.base()->add(*rhs.base()));
+  }
+
+  k_value operator-(const k_value& lhs, const k_value& rhs) {
+    return k_value(lhs.base()->subtract(*rhs.base()));
+  }
+
+  k_value operator*(const scalar& lhs, const k_value& rhs) {
+    return k_value(rhs.base()->multiply(lhs));
+  }
+
+  k_value operator*(const k_value& lhs, const scalar& rhs) {
+    return k_value(lhs.base()->multiply(rhs));
+  }
+
+  k_value operator/(const k_value& lhs, const scalar& rhs) {
+    return k_value(lhs.base()->divide(rhs));
+  }
+
+  y_value operator+(const y_value& lhs, const k_value& rhs) {
+    return y_value(lhs.base()->add(*rhs.base()));
+  }
+
+  scalar operator-(const y_value& lhs, const y_value& rhs) {
+    return lhs.base()->subtract(*rhs.base());
   }
 }
