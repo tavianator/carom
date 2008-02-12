@@ -38,26 +38,37 @@ namespace carom
   class particle : private boost::noncopyable
   {
   public:
+    typedef polymorphic_list<applied_force>::iterator       iterator;
+    typedef polymorphic_list<applied_force>::const_iterator const_iterator;
+
     // particle();
-    virtual ~particle() { }
+    virtual ~particle();
 
-    scalar_mass         m() const { return m_mass; }
-    vector_displacement s() const { return m_position; }
-    vector_velocity     v() const { return m_momentum / m_mass; }
-    vector_momentum     p() const { return m_momentum; }
-    vector_acceleration a() const { return m_force / m_mass; }
-    vector_force        F() const { return m_force; }
+    scalar_mass         m() const;
+    vector_displacement s() const;
+    vector_velocity     v() const;
+    vector_momentum     p() const;
+    vector_acceleration a() const;
+    vector_force        F() const;
 
-    void m(const scalar_mass& m)         { m_mass = m; }
-    void s(const vector_displacement& s) { m_position = s; }
-    void v(const vector_velocity& v)     { m_momentum = m()*v; }
-    void p(const vector_momentum& p)     { m_momentum = p; }
-    void a(const vector_acceleration& a) { m_force = m()*a; }
-    void F(const vector_force& F)        { m_force = F; }
+    void m(const scalar_mass& m);
+    void s(const vector_displacement& s);
+    void v(const vector_velocity& v);
+    void p(const vector_momentum& p);
+    void a(const vector_acceleration& a);
+    void F(const vector_force& F);
 
-    void apply_force(applied_force* force) { m_forces.push_back(force); }
+    iterator apply_force(applied_force* force);
+    void remove_force(iterator i);
+
+    iterator       begin();
+    const_iterator begin() const;
+    iterator       end();
+    const_iterator end()   const;
+
+    std::size_t size() const;
+
     void apply_forces();
-    void clear_forces() { m_forces.clear(); }
 
   private:
     scalar_mass         m_mass;

@@ -21,16 +21,31 @@
 
 namespace carom
 {
+  scalar_charge charge::q() const { return m_charge; }
+  void charge::q(const scalar_charge& q) { m_charge = q; }
+
   // This order is important!
-  scalar_units<1, 1, 0>  electromagnetic_force::s_u(
-    convert<1, 1, 0>(4*pi()*scalar("1e-7"))
-                                                    );
+  scalar_permiability_constant
+  electromagnetic_force::s_u(convert<1, 1, 0>(4*pi()*scalar("1e-7")));
 
-  scalar_units<-1, -3, 2> electromagnetic_force::s_e(
+  scalar_permitivity_constant
+  electromagnetic_force::s_e(
     1/s_u/scalar_speed("299792458")/scalar_speed("299792458")
-                                                     );
+                             );
 
-  electromagnetic_force::~electromagnetic_force() {
+  electromagnetic_force::electromagnetic_force(const particle& x)
+    : m_x(&x), m_q(dynamic_cast<const charge*>(&x)) { }
+  electromagnetic_force::~electromagnetic_force() { }
+
+  electromagnetic_force::scalar_permitivity_constant e() { return s_e; }
+  electromagnetic_force::scalar_permiability_constant u() { return s_u; }
+
+  void electromagnetic_force::e(const scalar_permitivity_constant& e) {
+    s_e = e;
+  }
+
+  void electromagnetic_force::u(const scalar_permiability_constant& u) {
+    s_u = u;
   }
 
   vector_force electromagnetic_force::force(const particle& x) const {
@@ -50,14 +65,12 @@ namespace carom
     }
   }
 
-  electric_force::~electric_force() {
-  }
+  electric_force::electric_force(const vector_electric_field& E) : m_E(E) { }
+  electric_force::~electric_force() { }
 
   vector_force electric_force::force(const particle& x) const {
     // F = q*E
-
     const charge* q = dynamic_cast<const charge*>(&x);
-
     if (q != 0) {
       return q->q()*m_E;
     } else {
@@ -65,14 +78,12 @@ namespace carom
     }
   }
 
-  magnetic_force::~magnetic_force() {
-  }
+  magnetic_force::magnetic_force(const vector_magnetic_field& B) : m_B(B) { }
+  magnetic_force::~magnetic_force() { }
 
   vector_force magnetic_force::force(const particle& x) const {
     // F = q*(v X B)
-
     const charge* q = dynamic_cast<const charge*>(&x);
-
     if (q != 0) {
       return q->q()*cross(x.v(), m_B);
     } else {

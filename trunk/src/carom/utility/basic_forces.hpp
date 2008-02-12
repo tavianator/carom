@@ -22,10 +22,14 @@
 
 namespace carom
 {
+  // More useful typedefs
+  typedef scalar_units<-1, 3, -1> scalar_gravitational_constant;
+  typedef scalar_units<1, 0, -2> scalar_spring_constant;
+
   class constant_force : public applied_force
   {
   public:
-    constant_force(const vector_force& F) : m_F(F) { }
+    constant_force(const vector_force& F);
     virtual ~constant_force();
 
     virtual vector_force force(const particle& x) const;
@@ -37,7 +41,7 @@ namespace carom
   class centripetal_force : public applied_force
   {
   public:
-    centripetal_force(const vector_displacement& o) : m_o(o) { }
+    centripetal_force(const vector_displacement& o);
     virtual ~centripetal_force();
 
     virtual vector_force force(const particle& x) const;
@@ -49,28 +53,25 @@ namespace carom
   class gravitational_force : public applied_force
   {
   public:
-    gravitational_force(body::iterator i) : m_i(i) { }
+    gravitational_force(const particle& x);
     virtual ~gravitational_force();
 
-    static scalar_units<-1, 3, -2> G() { return s_G; }
-    static void G(const scalar_units<-1, 3, -2>& G) { s_G = G; }
+    static scalar_gravitational_constant G();
+    static void G(const scalar_gravitational_constant& G);
 
     virtual vector_force force(const particle& x) const;
 
   private:
-    body::iterator m_i;
+    const particle* m_x;
 
-    static scalar_units<-1, 3, -2> s_G;
+    static scalar_gravitational_constant s_G;
   };
-
-  typedef scalar_units<1, 0, -2> scalar_spring_constant;
 
   class spring_force : public applied_force
   {
   public:
     spring_force(const vector_displacement& o, const scalar_distance& l,
-                 const scalar_spring_constant& k)
-      : m_o(o), m_l(l), m_k(k) { }
+                 const scalar_spring_constant& k);
     virtual ~spring_force();
 
     virtual vector_force force(const particle& x) const;

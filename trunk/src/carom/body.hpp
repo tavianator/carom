@@ -70,13 +70,13 @@ namespace carom
   class f_value
   {
   public:
-    f_value() { }
-    explicit f_value(f_base* k) : m_base(k) { }
+    f_value();
+    explicit f_value(f_base* f);
     // f_value(const f_value& k);
     // ~f_value();
 
-    f_base*       base()       { return m_base.get(); }
-    const f_base* base() const { return m_base.get(); }
+    f_base*       base();
+    const f_base* base() const;
 
   private:
     std::tr1::shared_ptr<f_base> m_base;
@@ -85,23 +85,19 @@ namespace carom
   class k_value
   {
   public:
-    k_value() { }
-    explicit k_value(k_base* k) : m_base(k) { }
+    k_value();
+    explicit k_value(k_base* k);
     // k_value(const k_value& k);
     // ~k_value();
 
-    k_base*       base()       { return m_base.get(); }
-    const k_base* base() const { return m_base.get(); }
+    k_base*       base();
+    const k_base* base() const;
 
     // k_value& operator=(const k_value& k);
-    k_value& operator+=(const k_value& k)
-    { m_base.reset(m_base->add(*k.base())); return *this; }
-    k_value& operator-=(const k_value& k)
-    { m_base.reset(m_base->subtract(*k.base())); return *this; }
-    k_value& operator*=(const scalar& n)
-    { m_base.reset(m_base->multiply(n)); return *this; }
-    k_value& operator/=(const scalar& n)
-    { m_base.reset(m_base->divide(n)); return *this; }
+    k_value& operator+=(const k_value& k);
+    k_value& operator-=(const k_value& k);
+    k_value& operator*=(const scalar& n);
+    k_value& operator/=(const scalar& n);
 
   private:
     std::tr1::shared_ptr<k_base> m_base;
@@ -110,17 +106,16 @@ namespace carom
   class y_value
   {
   public:
-    y_value() { }
-    explicit y_value(y_base* y) : m_base(y) { }
+    y_value();
+    explicit y_value(y_base* y);
     // y_value(const y_value& y);
     // ~y_value();
 
-    y_base*       base()       { return m_base.get(); }
-    const y_base* base() const { return m_base.get(); }
+    y_base*       base();
+    const y_base* base() const;
 
     // y_value& operator=(const y_value& y);
-    y_value& operator+=(const k_value& k)
-    { m_base.reset(m_base->add(*k.base())); return *this; }
+    y_value& operator+=(const k_value& k);
 
   private:
     std::tr1::shared_ptr<y_base> m_base;
@@ -135,16 +130,15 @@ namespace carom
     // body();
     virtual ~body();
 
-    iterator insert(particle* x)
-    { return m_particles.insert(m_particles.end(), x); }
-    void erase(iterator i) { m_particles.erase(i); }
+    iterator insert(particle* x);
+    void erase(iterator i);
 
-    iterator       begin()       { return m_particles.begin(); }
-    const_iterator begin() const { return m_particles.begin(); }
-    iterator       end()         { return m_particles.end(); }
-    const_iterator end() const   { return m_particles.end(); }
+    iterator       begin();
+    const_iterator begin() const;
+    iterator       end();
+    const_iterator end()   const;
 
-    std::size_t size() const { return m_particles.size(); }
+    std::size_t size() const;
 
     virtual f_value f();
     virtual y_value y();
@@ -154,33 +148,15 @@ namespace carom
     polymorphic_list<particle> m_particles;
   };
 
-  inline k_value operator*(const scalar_time& lhs, const f_value& rhs) {
-    return k_value(rhs.base()->multiply(lhs));
-  }
-
-  inline k_value operator+(const k_value& lhs, const k_value& rhs) {
-    return k_value(lhs.base()->add(*rhs.base()));
-  }
-
-  inline k_value operator-(const k_value& lhs, const k_value& rhs) {
-    return k_value(lhs.base()->subtract(*rhs.base()));
-  }
-
-  inline k_value operator*(const scalar& lhs, const k_value& rhs) {
-    return k_value(rhs.base()->multiply(lhs));
-  }
-
-  inline k_value operator/(const k_value& lhs, const scalar& rhs) {
-    return k_value(lhs.base()->divide(rhs));
-  }
-
-  inline y_value operator+(const y_value& lhs, const k_value& rhs) {
-    return y_value(lhs.base()->add(*rhs.base()));
-  }
-
-  inline scalar operator-(const y_value& lhs, const y_value& rhs) {
-    return lhs.base()->subtract(*rhs.base());
-  }
+  k_value operator*(const scalar_time& lhs, const f_value&     rhs);
+  k_value operator*(const f_value&     lhs, const scalar_time& rhs);
+  k_value operator+(const k_value&     lhs, const k_value&     rhs);
+  k_value operator-(const k_value&     lhs, const k_value&     rhs);
+  k_value operator*(const scalar&      lhs, const k_value&     rhs);
+  k_value operator*(const k_value&     lhs, const scalar&      rhs);
+  k_value operator/(const k_value&     lhs, const scalar&      rhs);
+  y_value operator+(const y_value&     lhs, const k_value&     rhs);
+  scalar  operator-(const y_value&     lhs, const y_value&     rhs);
 }
 
 #endif // CAROM_BODY_HPP

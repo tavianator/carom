@@ -25,18 +25,19 @@
 namespace carom
 {
   // More useful typedefs
-  typedef scalar_units<0, 0, 0>  scalar_charge;
-  typedef scalar_units<1, 1, -2> scalar_electric_field;
-  typedef scalar_units<1, 0, -1> scalar_magnetic_field;
-  typedef vector_units<1, 1, -2> vector_electric_field;
-  typedef vector_units<1, 0, -1> vector_magnetic_field;
+  typedef scalar_units<0, 0, 0>   scalar_charge;
+  typedef scalar_units<1, 1, -2>  scalar_electric_field;
+  typedef scalar_units<1, 0, -1>  scalar_magnetic_field;
+  typedef vector_units<1, 1, -2>  vector_electric_field;
+  typedef vector_units<1, 0, -1>  vector_magnetic_field;
+  typedef scalar_units<-1, -3, 2> scalar_permitivity_constant;
+  typedef scalar_units<1, 1, 0>   scalar_permiability_constant;
 
   class charge : private boost::noncopyable
   {
   public:
-    scalar_charge q() const { return m_charge; }
-
-    void q(const scalar_charge& q) { m_charge = q; }
+    scalar_charge q() const;
+    void q(const scalar_charge& q);
 
   private:
     scalar_charge m_charge;
@@ -50,14 +51,13 @@ namespace carom
   class electromagnetic_force : public applied_force
   {
   public:
-    electromagnetic_force(const particle& x)
-      : m_x(&x), m_q(dynamic_cast<const charge*>(&x)) { }
+    electromagnetic_force(const particle& x);
     virtual ~electromagnetic_force();
 
-    static scalar_units<-1, -3, 2> e() { return s_e; }
-    static scalar_units<1, 1, 0> u() { return s_u; }
-    static void e(const scalar_units<-1, -3, 2>& e) { s_e = e; }
-    static void u(const scalar_units<1, 1, 0>& u) { s_u = u; }
+    static scalar_permitivity_constant e();
+    static scalar_permiability_constant u();
+    static void e(const scalar_permitivity_constant& e);
+    static void u(const scalar_permiability_constant& u);
 
     virtual vector_force force(const particle& x) const;
 
@@ -65,14 +65,14 @@ namespace carom
     const particle* m_x;
     const charge* m_q;
 
-    static scalar_units<-1, -3, 2> s_e;
-    static scalar_units<1, 1, 0>  s_u;
+    static scalar_permitivity_constant s_e;
+    static scalar_permiability_constant  s_u;
   };
 
   class electric_force : public applied_force
   {
   public:
-    electric_force(const vector_electric_field& E) : m_E(E) { }
+    electric_force(const vector_electric_field& E);
     virtual ~electric_force();
 
     virtual vector_force force(const particle& x) const;
@@ -84,7 +84,7 @@ namespace carom
   class magnetic_force : public applied_force
   {
   public:
-    magnetic_force(const vector_magnetic_field& B) : m_B(B) { }
+    magnetic_force(const vector_magnetic_field& B);
     virtual ~magnetic_force();
 
     virtual vector_force force(const particle& x) const;
