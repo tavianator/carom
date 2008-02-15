@@ -37,8 +37,8 @@ namespace carom
     : m_x(&x), m_q(dynamic_cast<const charge*>(&x)) { }
   electromagnetic_force::~electromagnetic_force() { }
 
-  electromagnetic_force::scalar_permitivity_constant e() { return s_e; }
-  electromagnetic_force::scalar_permiability_constant u() { return s_u; }
+  scalar_permitivity_constant electromagnetic_force::e() { return s_e; }
+  scalar_permiability_constant electromagnetic_force::u() { return s_u; }
 
   void electromagnetic_force::e(const scalar_permitivity_constant& e) {
     s_e = e;

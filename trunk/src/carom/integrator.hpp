@@ -34,16 +34,19 @@ namespace carom
     void integrate(const scalar_time& t, const scalar_time& dt);
 
   protected:
-    std::vector<std::vector<k_value> >
-    k(const std::vector<std::vector<scalar> >& a_vecs);
-    std::vector<y_value> y(const std::vector<scalar>& b_vec,
-                           const std::vector<std::vector<y_value> >& k_vecs);
-    void apply(const std::vector<y_value>& y_vec);
+    typedef std::vector<std::vector<scalar> > a_vector;
+    typedef std::vector<scalar> b_vector;
+    typedef std::vector<std::vector<k_value> > k_vector;
+    typedef std::vector<y_value> y_vector;
+
+    k_vector k(const a_vector& a_vecs, const scalar_time& dt);
+    y_vector y(const b_vector& b_vec, const k_vector& k_vecs);
+    void apply(const y_vector& y_vec);
 
   private:
     system* m_sys;
     std::vector<f_value> m_f1;
-    std::vector<y_value> m_yn;
+    y_vector m_y;
 
     virtual scalar_time step(const scalar_time& dt, scalar_time& elapsed) = 0;
   };
@@ -55,22 +58,26 @@ namespace carom
     virtual ~simple_integrator();
 
   protected:
-    void simple_step(const scalar_time& dt, scalar_time& elapsed,
-                     const std::vector<std::vector<scalar> >& a_vec,
-                     const std::vector<scalar>& b_vec);
+    scalar_time simple_step(const scalar_time& dt, scalar_time& elapsed,
+                            const a_vector& a_vecs, const b_vector& b_vec);
   };
 
   class adaptive_integrator : public integrator
   {
   public:
-    adaptive_integrator(system& sys);
+    adaptive_integrator(system& sys, const scalar& tol, unsigned int order);
     virtual ~adaptive_integrator();
 
   protected:
-    void adaptive_step(const scalar_time& dt, scalar_time& elapsed,
-                       const std::vector<std::vector<scalar> >& a_vec,
-                       const std::vector<scalar>& b_vec,
-                       const std::vector<scalar>& bstar_vec);
+    scalar_time adaptive_step(const scalar_time& dt, scalar_time& elapsed,
+                              const a_vector& a_vecs, const b_vector& b_vec,
+                              const b_vector& bstar_vec);
+
+  private:
+    scalar m_tol;
+    unsigned int m_order;
+    scalar m_err;
+    int m_steps;
   };
 
   class Euler_integrator : public simple_integrator
@@ -80,7 +87,7 @@ namespace carom
     ~Euler_integrator();
 
   private:
-    scalar_time step(const scalar_time& dt, scalar_time& elapsed);
+    virtual scalar_time step(const scalar_time& dt, scalar_time& elapsed);
   };
 
   class midpoint_integrator : public simple_integrator
@@ -90,7 +97,7 @@ namespace carom
     ~midpoint_integrator();
 
   private:
-    scalar_time step(const scalar_time& dt, scalar_time& elapsed);
+    virtual scalar_time step(const scalar_time& dt, scalar_time& elapsed);
   };
 
   class RK4_integrator : public simple_integrator
@@ -100,27 +107,27 @@ namespace carom
     ~RK4_integrator();
 
   private:
-    scalar_time step(const scalar_time& dt, scalar_time& elapsed);
+    virtual scalar_time step(const scalar_time& dt, scalar_time& elapsed);
   };
 
   class RKF45_integrator : public adaptive_integrator
   {
   public:
-    RKF45_integrator(system& sys);
+    RKF45_integrator(system& sys, const scalar& tol);
     ~RKF45_integrator();
 
   private:
-    scalar_time step(const scalar_time& dt, scalar_time& elapsed);
+    virtual scalar_time step(const scalar_time& dt, scalar_time& elapsed);
   };
 
   class DP45_integrator : public adaptive_integrator
   {
   public:
-    DP45_integrator(system& sys);
+    DP45_integrator(system& sys, const scalar& tol);
     ~DP45_integrator();
 
   private:
-    scalar_time step(const scalar_time& dt, scalar_time& elapsed);
+    virtual scalar_time step(const scalar_time& dt, scalar_time& elapsed);
   };
 }
 

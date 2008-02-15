@@ -23,7 +23,7 @@
 namespace carom
 {
   // More useful typedefs
-  typedef scalar_units<-1, 3, -1> scalar_gravitational_constant;
+  typedef scalar_units<-1, 3, -2> scalar_gravitational_constant;
   typedef scalar_units<1, 0, -2> scalar_spring_constant;
 
   class constant_force : public applied_force
