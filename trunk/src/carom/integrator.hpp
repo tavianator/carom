@@ -43,12 +43,12 @@ namespace carom
     y_vector y(const b_vector& b_vec, const k_vector& k_vecs);
     void apply(const y_vector& y_vec);
 
+    virtual scalar_time step(const scalar_time& dt, scalar_time& elapsed) = 0;
+
   private:
     system* m_sys;
     std::vector<f_value> m_f1;
     y_vector m_y;
-
-    virtual scalar_time step(const scalar_time& dt, scalar_time& elapsed) = 0;
   };
 
   class simple_integrator : public integrator
@@ -86,7 +86,7 @@ namespace carom
     Euler_integrator(system& sys);
     ~Euler_integrator();
 
-  private:
+  protected:
     virtual scalar_time step(const scalar_time& dt, scalar_time& elapsed);
   };
 
@@ -96,7 +96,7 @@ namespace carom
     midpoint_integrator(system& sys);
     ~midpoint_integrator();
 
-  private:
+  protected:
     virtual scalar_time step(const scalar_time& dt, scalar_time& elapsed);
   };
 
@@ -106,7 +106,7 @@ namespace carom
     RK4_integrator(system& sys);
     ~RK4_integrator();
 
-  private:
+  protected:
     virtual scalar_time step(const scalar_time& dt, scalar_time& elapsed);
   };
 
@@ -116,7 +116,7 @@ namespace carom
     RKF45_integrator(system& sys, const scalar& tol);
     ~RKF45_integrator();
 
-  private:
+  protected:
     virtual scalar_time step(const scalar_time& dt, scalar_time& elapsed);
   };
 
@@ -126,7 +126,7 @@ namespace carom
     DP45_integrator(system& sys, const scalar& tol);
     ~DP45_integrator();
 
-  private:
+  protected:
     virtual scalar_time step(const scalar_time& dt, scalar_time& elapsed);
   };
 }

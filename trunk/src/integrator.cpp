@@ -125,7 +125,7 @@ namespace carom
 
   adaptive_integrator::adaptive_integrator(system& sys, const scalar& tol,
                                            unsigned int order)
-    : integrator(sys), m_tol(tol), m_order(order), m_steps(0) { }
+    : integrator(sys), m_tol(tol), m_order(order), m_err(0), m_steps(0) { }
   adaptive_integrator::~adaptive_integrator() { }
 
   scalar_time
@@ -160,7 +160,7 @@ namespace carom
         // Find t', the t value that we estimate would have given an error of
         // err/(1 + tol). If the step is rejected, this is our new stepsize;
         // otherwise, this is our recommended stepsize for the next iteration.
-        deltaprime *= pow(m_err/(m_steps*err*(1 + m_tol)),
+        deltaprime *= pow((m_err/m_steps)/(err*(1 + m_tol)),
                           scalar(1)/(m_order + 1));
 
         if (err > (1 + m_tol)*m_err/m_steps) {
