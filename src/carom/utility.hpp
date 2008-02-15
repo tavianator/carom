@@ -49,7 +49,7 @@ namespace carom
   vector_torque torque(const body& b, const vector_displacement& o);
 
   void apply_forces(body& b);
-  void clear_forces(body& b);
+  void collision(system& sys);
 }
 
 #include <carom/utility/mesh.hpp>

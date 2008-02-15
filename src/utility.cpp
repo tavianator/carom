@@ -125,9 +125,11 @@ namespace carom
     }
   }
 
-  void clear_forces(body& b) {
-    for (body::iterator i = b.begin(); i != b.end(); ++i) {
-      i->clear_forces();
+  void collision(system& sys) {
+    for (system::iterator i = sys.begin(); i != sys.end(); ++i) {
+      for (system::iterator j = boost::next(i); j != sys.end(); ++j) {
+        collision(*i, *j);
+      }
     }
   }
 }

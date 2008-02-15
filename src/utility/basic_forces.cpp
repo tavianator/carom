@@ -35,7 +35,7 @@ namespace carom
     return -x.m()*norm(x.v())*norm(x.v())*normalized(r)/norm(r);
   }
 
-  scalar_units<-1, 3, -2> gravitational_force::s_G("6.693e-11");
+  scalar_gravitational_constant gravitational_force::s_G("6.693e-11");
 
   gravitational_force::gravitational_force(const particle& x) : m_x(&x) { }
   gravitational_force::~gravitational_force() { }
