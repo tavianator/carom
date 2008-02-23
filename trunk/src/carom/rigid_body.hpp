@@ -17,13 +17,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. *
  *************************************************************************/
 
-#ifndef CAROM_UTILITY_RIGID_BODY_HPP
-#define CAROM_UTILITY_RIGID_BODY_HPP
+#ifndef CAROM_RIGID_BODY_HPP
+#define CAROM_RIGID_BODY_HPP
 
 #include <vector>
 
 namespace carom
 {
+  // Forward declaration
+  class rigid_body;
+
   struct rigid_f_base : public f_base
   {
   public:
@@ -73,7 +76,7 @@ namespace carom
     scalar_time dt;
     vector_momentum         dp;
     vector_angular_momentum dL;
-    std::tr1::shared_ptr<body> backup;
+    std::tr1::shared_ptr<rigid_body> backup;
   };
 
   class rigid_body : public body
@@ -81,6 +84,21 @@ namespace carom
   public:
     // rigid_body();
     // virtual ~rigid_body();
+
+    scalar_moment_of_inertia
+    moment_of_inertia(const vector_displacement& o, const vector& axis) const;
+
+    vector_angular_velocity
+    angular_velocity(const vector_displacement& o, const vector& axis) const;
+
+    vector_angular_momentum
+    angular_momentum(const vector_displacement& o) const;
+
+    vector_angular_acceleration
+    angular_acceleration(const vector_displacement& o,
+                         const vector& axis) const;
+
+    vector_torque torque(const vector_displacement& o) const;
 
     virtual f_value f();
     virtual y_value y();
@@ -91,11 +109,8 @@ namespace carom
   scalar_mass impenetrable_body<rigid_body>::mass(const triangle& t);
 
   template <>
-  vector_momentum impenetrable_body<rigid_body>::momentum(const triangle& t);
-
-  template <>
   void impenetrable_body<rigid_body>::collision(const triangle& t,
                                                 const vector_momentum& dp);
 }
 
-#endif // CAROM_UTILITY_RIGID_BODY_HPP
+#endif // CAROM_RIGID_BODY_HPP

@@ -21,7 +21,6 @@
 #define CAROM_SYSTEM_HPP
 
 #include <boost/utility.hpp> // For noncopyable
-#include <vector>
 
 namespace carom
 {
@@ -43,6 +42,11 @@ namespace carom
     const_iterator end()   const;
 
     std::size_t size() const;
+
+    vector_momentum momentum() const;
+    scalar_energy kinetic_energy() const;
+
+    void collision();
 
   private:
     polymorphic_list<body> m_bodies;

@@ -310,7 +310,4 @@ namespace carom
   }
 }
 
-#include <carom/polymorphic_list/iterator.hpp>
-#include <carom/polymorphic_list/list.hpp>
-
 #endif // CAROM_POLYMORPHIC_LIST_HPP

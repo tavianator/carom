@@ -76,7 +76,7 @@ namespace carom
         }
         *k = y;
       }
-      collision(*m_sys);
+      m_sys->collision();
 
       k = m_sys->begin();
       for (unsigned int j = 0; j < k_vecs.size(); ++j, ++k) {
@@ -111,7 +111,7 @@ namespace carom
       m_f1[i] = j->f();
       m_y[i] = j->y();
     }
-    collision(*m_sys);
+    m_sys->collision();
   }
 
   simple_integrator::simple_integrator(system& sys) : integrator(sys) { }

@@ -122,7 +122,7 @@ namespace carom
   f_value simple_body::f() {
     simple_f_base* r = new simple_f_base;
 
-    apply_forces(*this);
+    apply_forces();
     r->forces.resize(size());
     iterator j = begin();
     for (unsigned int i = 0; i < size(); ++i, ++j) {
