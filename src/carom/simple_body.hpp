@@ -17,8 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. *
  *************************************************************************/
 
-#ifndef CAROM_UTILITY_SIMPLE_BODY_HPP
-#define CAROM_UTILITY_SIMPLE_BODY_HPP
+#ifndef CAROM_SIMPLE_BODY_HPP
+#define CAROM_SIMPLE_BODY_HPP
 
 #include <vector>
 #include <tr1/memory> // For tr1::shared_ptr
@@ -86,4 +86,4 @@ namespace carom
   };
 }
 
-#endif // CAROM_UTILITY_SIMPLE_BODY_HPP
+#endif // CAROM_SIMPLE_BODY_HPP

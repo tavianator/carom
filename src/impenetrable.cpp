@@ -35,7 +35,7 @@ namespace carom
         if (j != ib1->surface().end() && dot(i->s() - o1, i->v()) > 0) {
           scalar_mass     m1 = ib1->mass(*j);
           scalar_mass     m2 = i->m();
-          vector_momentum p1 = ib1->momentum(*j);
+          vector_momentum p1 = m1*j->v();
           vector_momentum p2 = i->p();
 
           vector_momentum dp1 = 2*(m1*p2 - m2*p1)/(m1 + m2);
@@ -57,7 +57,7 @@ namespace carom
           scalar_mass     m1 = i->m();
           scalar_mass     m2 = ib2->mass(*j);
           vector_momentum p1 = i->p();
-          vector_momentum p2 = ib2->momentum(*j);
+          vector_momentum p2 = m2*j->v();
 
           vector_momentum dp1 = 2*(m1*p2 - m2*p1)/(m1 + m2);
           vector_momentum dp2 = 2*(m2*p2 - m1*p2)/(m1 + m2);

@@ -28,6 +28,11 @@
 #include <carom/body.hpp>
 #include <carom/system.hpp>
 #include <carom/integrator.hpp>
-#include <carom/utility.hpp>
+#include <carom/mesh.hpp>
+#include <carom/impenetrable.hpp>
+#include <carom/simple_body.hpp>
+#include <carom/rigid_body.hpp>
+#include <carom/basic_forces.hpp>
+#include <carom/electromagnetism.hpp>
 
 #endif // CAROM_HPP

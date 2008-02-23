@@ -17,8 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. *
  *************************************************************************/
 
-#ifndef CAROM_UTILITY_ELECTROMAGNETISM_HPP
-#define CAROM_UTILITY_ELECTROMAGNETISM_HPP
+#ifndef CAROM_ELECTROMAGNETISM_HPP
+#define CAROM_ELECTROMAGNETISM_HPP
 
 #include <boost/utility.hpp> // For noncopyable
 
@@ -94,4 +94,4 @@ namespace carom
   };
 }
 
-#endif // CAROM_UTILITY_ELECTROMAGNETISM_HPP
+#endif // CAROM_ELECTROMAGNETISM_HPP

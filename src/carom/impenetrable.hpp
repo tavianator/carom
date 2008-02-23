@@ -17,8 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. *
  *************************************************************************/
 
-#ifndef CAROM_UTILITY_IMPENETRABLE_HPP
-#define CAROM_UTILITY_IMPENETRABLE_HPP
+#ifndef CAROM_IMPENETRABLE_HPP
+#define CAROM_IMPENETRABLE_HPP
 
 #include <boost/utility.hpp>
 
@@ -36,7 +36,6 @@ namespace carom
     const mesh& surface() const { return m_surface; }
 
     virtual scalar_mass mass(const triangle& t) = 0;
-    virtual vector_momentum momentum(const triangle& t) = 0;
     virtual void collision(const triangle& t, const vector_momentum& dp) = 0;
 
   private:
@@ -51,8 +50,8 @@ namespace carom
     // impenetrable_body();
     // virtual ~impenetrable_body();
 
+    using T::mass;
     virtual scalar_mass mass(const triangle& t);
-    virtual vector_momentum momentum(const triangle& t);
     virtual void collision(const triangle& t, const vector_momentum& dp);
   };
 
@@ -64,11 +63,6 @@ namespace carom
   }
 
   template <typename T>
-  vector_momentum impenetrable_body<T>::momentum(const triangle& t) {
-    return t.p();
-  }
-
-  template <typename T>
   void impenetrable_body<T>::collision(const triangle& t,
                                        const vector_momentum& dp) {
     t.a()->v(t.a()->v() + dp/t.m());
@@ -77,4 +71,4 @@ namespace carom
   }
 }
 
-#endif // CAROM_UTILITY_IMPENETRABLE_HPP
+#endif // CAROM_IMPENETRABLE_HPP

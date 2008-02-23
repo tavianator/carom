@@ -23,24 +23,44 @@
 
 namespace carom
 {
-  namespace
-  {
-    vector_displacement rotate(const vector_displacement& v,
-                               const vector_displacement& o,
-                               const vector_angle& theta) {
-      // Rotating a vector v around a normalized axis u by an angle theta gives
-      // v*cos(theta) + cross(u, v)*sin(theta) + dot(u, v)*u*(1 - cos(theta))
-      if (norm(theta) != 0) {
-        scalar_angle angle = norm(theta);
-        vector axis = normalized(theta);
-        vector_displacement r = v - o;
-
-        return r*cos(angle) + cross(axis, r)*sin(angle) +
-          dot(axis, r)*axis*(1 - cos(angle)) + o;
-      } else {
-        return v;
-      }
+  scalar_moment_of_inertia
+  rigid_body::moment_of_inertia(const vector_displacement& o,
+                          const vector& axis) const {
+    scalar_moment_of_inertia I = 0;
+    for (const_iterator i = begin(); i != end(); ++i) {
+      scalar_distance r = norm(i->s() - proj(axis, i->s() - o));
+      I += i->m()*r*r;
     }
+    return I;
+  }
+
+  vector_angular_velocity
+  rigid_body::angular_velocity(const vector_displacement& o,
+                         const vector& axis) const {
+    return angular_momentum(o)/moment_of_inertia(o, axis);
+  }
+
+  vector_angular_momentum
+  rigid_body::angular_momentum(const vector_displacement& o) const {
+    vector_angular_momentum L = 0;
+    for (const_iterator i = begin(); i != end(); ++i) {
+      L += cross(i->s() - o, i->p());
+    }
+    return L;
+  }
+
+  vector_angular_acceleration
+  rigid_body::angular_acceleration(const vector_displacement& o,
+                             const vector& axis) const {
+    return torque(o)/moment_of_inertia(o, axis);
+  }
+
+  vector_torque rigid_body::torque(const vector_displacement& o) const {
+    vector_torque T = 0;
+    for (const_iterator i = begin(); i != end(); ++i) {
+      T += cross(i->s() - o, i->F());
+    }
+    return T;
   }
 
   rigid_f_base::~rigid_f_base() {
@@ -125,9 +145,9 @@ namespace carom
   f_value rigid_body::f() {
     rigid_f_base* r = new rigid_f_base;
 
-    apply_forces(*this);
-    r->F = force(*this);
-    r->T = torque(*this, center_of_mass(*this));
+    apply_forces();
+    r->F = force();
+    r->T = torque(center_of_mass());
 
     return f_value(r);
   }
@@ -138,7 +158,7 @@ namespace carom
     r->dt = 0;
     r->dp = 0;
     r->dL = 0;
-    r->backup.reset(new body());
+    r->backup.reset(new rigid_body());
     for (iterator i = begin(); i != end(); ++i) {
       iterator j = r->backup->insert(new particle());
       j->m(i->m());
@@ -149,13 +169,33 @@ namespace carom
     return y_value(r);
   }
 
+  namespace
+  {
+    vector_displacement rotate(const vector_displacement& v,
+                               const vector_displacement& o,
+                               const vector_angle& theta) {
+      // Rotating a vector v around a normalized axis u by an angle theta gives
+      // v*cos(theta) + cross(u, v)*sin(theta) + dot(u, v)*u*(1 - cos(theta))
+      if (norm(theta) != 0) {
+        scalar_angle angle = norm(theta);
+        vector axis = normalized(theta);
+        vector_displacement r = v - o;
+
+        return r*cos(angle) + cross(axis, r)*sin(angle) +
+          dot(axis, r)*axis*(1 - cos(angle)) + o;
+      } else {
+        return v;
+      }
+    }
+  }
+
   body& rigid_body::operator=(const y_value& y) {
     const rigid_y_base& rhs = dynamic_cast<const rigid_y_base&>(*y.base());
 
-    scalar_mass m = mass(*rhs.backup);
-    vector_displacement o = center_of_mass(*rhs.backup);
-    vector_momentum p = momentum(*rhs.backup);
-    vector_angular_momentum L = angular_momentum(*rhs.backup, o);
+    scalar_mass m = rhs.backup->mass();
+    vector_displacement o = rhs.backup->center_of_mass();
+    vector_momentum p = rhs.backup->momentum();
+    vector_angular_momentum L = rhs.backup->angular_momentum(o);
     vector_displacement ds = rhs.dt*(p + rhs.dp/2)/m;
 
     if (rhs.dt*(L + rhs.dL/2) == 0) {
@@ -167,7 +207,7 @@ namespace carom
       }
     } else {
       scalar_moment_of_inertia I =
-        moment_of_inertia(*this, o, normalized(rhs.dt*(L + rhs.dL/2)));
+        rhs.backup->moment_of_inertia(o, normalized(rhs.dt*(L + rhs.dL/2)));
       vector_angle theta = rhs.dt*(L + rhs.dL/2)/I;
 
       iterator i = begin();
@@ -183,22 +223,17 @@ namespace carom
  
   template <>
   scalar_mass impenetrable_body<rigid_body>::mass(const triangle& t) {
-    return carom::mass(*this);
+    return mass();
   }
  
   template <>
-  vector_momentum impenetrable_body<rigid_body>::momentum(const triangle& t) {
-    return carom::mass(*this)*t.v();
-  }
-
-  template <>
   void impenetrable_body<rigid_body>::collision(const triangle& t,
                                                 const vector_momentum& dp) {
-    scalar_mass m = carom::mass(*this);
-    vector_displacement o = center_of_mass(*this);
+    scalar_mass m = mass();
+    vector_displacement o = center_of_mass();
     vector_displacement x = (t.a()->s() + t.b()->s() + t.c()->s())/3;
-    vector_momentum p = carom::momentum(*this);
-    vector_angular_momentum L = angular_momentum(*this, o);
+    vector_momentum p = momentum();
+    vector_angular_momentum L = angular_momentum(o);
     vector_angular_momentum dL = cross(x - o, dp);
 
     if (L + dL == 0) {
@@ -207,7 +242,7 @@ namespace carom
       }
     } else {
       scalar_moment_of_inertia I =
-        moment_of_inertia(*this, o, normalized(L + dL));
+        moment_of_inertia(o, normalized(L + dL));
 
       for (iterator i = begin(); i != end(); ++i) {
         i->v((p + dp)/m + cross((L + dL)/I, i->s() - o));

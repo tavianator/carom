@@ -34,4 +34,30 @@ namespace carom
   system::const_iterator system::end()   const { return m_bodies.end(); }
 
   std::size_t system::size() const { return m_bodies.size(); }
+
+  vector_momentum system::momentum() const {
+    vector_momentum p = 0;
+    for (const_iterator i = begin(); i != end(); ++i) {
+      p += i->momentum();
+    }
+    return p;
+  }
+
+  scalar_energy system::kinetic_energy() const {
+    scalar_energy E_k = 0;
+    for (system::const_iterator i = begin(); i != end(); ++i) {
+      for (body::const_iterator j = i->begin(); j != i->end(); ++j) {
+        E_k += j->m()*norm(j->v())*norm(j->v())/2;
+      }
+    }
+    return E_k;
+  }
+
+  void system::collision() {
+    for (iterator i = begin(); i != end(); ++i) {
+      for (iterator j = boost::next(i); j != end(); ++j) {
+        carom::collision(*i, *j);
+      }
+    }
+  }
 }

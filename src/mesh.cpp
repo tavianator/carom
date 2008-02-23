@@ -136,7 +136,7 @@ namespace carom
         remain.push_back(i);
       }
 
-      vector_displacement o = center_of_mass(b);
+      vector_displacement o = b.center_of_mass();
 
       body::iterator p = furthest_point(remain, o);
       body::iterator q = furthest_point(remain, o);
