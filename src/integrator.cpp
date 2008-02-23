@@ -35,7 +35,8 @@ namespace carom
 
   integrator::~integrator() { }
 
-  void integrator::integrate(const scalar_time& t, const scalar_time& dt) {
+  scalar_time integrator::integrate(const scalar_time& t,
+                                    const scalar_time& dt) {
     scalar_time elapsed = 0, delta = dt;
 
     while (delta <= t - elapsed) {
@@ -44,6 +45,8 @@ namespace carom
     while (elapsed < t) {
       step(t - elapsed, elapsed);
     }
+
+    return delta;
   }
 
   integrator::k_vector integrator::k(const integrator::a_vector& a_vecs,
