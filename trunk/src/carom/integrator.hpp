@@ -31,7 +31,7 @@ namespace carom
     integrator(system& sys);
     virtual ~integrator();
 
-    void integrate(const scalar_time& t, const scalar_time& dt);
+    scalar_time integrate(const scalar_time& t, const scalar_time& dt);
 
   protected:
     typedef std::vector<std::vector<scalar> > a_vector;

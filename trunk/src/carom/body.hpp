@@ -140,6 +140,15 @@ namespace carom
 
     std::size_t size() const;
 
+    scalar_mass         mass          () const;
+    vector_displacement center_of_mass() const;
+    vector_velocity     velocity      () const;
+    vector_momentum     momentum      () const;
+    vector_acceleration acceleration  () const;
+    vector_force        force         () const;
+
+    void apply_forces();
+
     virtual f_value f();
     virtual y_value y();
     virtual body& operator=(const y_value& y);

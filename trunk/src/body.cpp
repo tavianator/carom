@@ -90,6 +90,52 @@ namespace carom
 
   std::size_t body::size() const { return m_particles.size(); }
 
+  scalar_mass body::mass() const {
+    scalar_mass m = 0;
+    for (const_iterator i = begin(); i != end(); ++i) {
+      m += i->m();
+    }
+    return m;
+  }
+
+  vector_displacement body::center_of_mass() const {
+    vector_units<1, 1, 0> r = 0;
+    for (const_iterator i = begin(); i != end(); ++i) {
+      r += i->m()*i->s();
+    }
+    return r/mass();
+  }
+
+  vector_velocity body::velocity() const {
+    return momentum()/mass();
+  }
+
+  vector_momentum body::momentum() const {
+    vector_momentum p = 0;
+    for (const_iterator i = begin(); i != end(); ++i) {
+      p += i->p();
+    }
+    return p;
+  }
+
+  vector_acceleration body::acceleration() const {
+    return force()/mass();
+  }
+
+  vector_force body::force() const {
+    vector_force F = 0;
+    for (const_iterator i = begin(); i != end(); ++i) {
+      F += i->F();
+    }
+    return F;
+  }
+
+  void body::apply_forces() {
+    for (iterator i = begin(); i != end(); ++i) {
+      i->apply_forces();
+    }
+  }
+
   f_value body::f() { return f_value(); }
   y_value body::y() { return y_value(); }
 

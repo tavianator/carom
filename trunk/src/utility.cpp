@@ -21,52 +21,12 @@
 
 namespace carom
 {
-  scalar_mass mass(const body& b) {
-    scalar_mass m = 0;
-    for (body::const_iterator i = b.begin(); i != b.end(); ++i) {
-      m += i->m();
-    }
-    return m;
-  }
-
-  vector_displacement center_of_mass(const body& b) {
-    vector_units<1, 1, 0> r = 0;
-    for (body::const_iterator i = b.begin(); i != b.end(); ++i) {
-      r += i->m()*i->s();
-    }
-    return r/mass(b);
-  }
-
-  vector_velocity velocity(const body& b) {
-    return momentum(b)/mass(b);
-  }
-
-  vector_momentum momentum(const body& b) {
-    vector_momentum p = 0;
-    for (body::const_iterator i = b.begin(); i != b.end(); ++i) {
-      p += i->p();
-    }
-    return p;
-  }
-
   vector_momentum momentum(const system& sys) {
     vector_momentum p = 0;
     for (system::const_iterator i = sys.begin(); i != sys.end(); ++i) {
       p += momentum(*i);
     }
     return p;
-  }
-
-  vector_acceleration acceleration(const body& b) {
-    return force(b)/mass(b);
-  }
-
-  vector_force force(const body& b) {
-    vector_force F = 0;
-    for (body::const_iterator i = b.begin(); i != b.end(); ++i) {
-      F += i->F();
-    }
-    return F;
   }
 
   scalar_energy kinetic_energy(const system& sys) {
