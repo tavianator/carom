@@ -25,6 +25,35 @@
 
 namespace carom
 {
+  bool triangle::clockwise(const vector_displacement& r) const {
+    return dot(a()->s() - r, cross(b()->s() - r, c()->s() - r)) > 0;
+  }
+
+  intersection_info::intersection_info(const vector_displacement& l0,
+                                       const vector_displacement& l1,
+                                       const triangle& p) {
+    vector_displacement p0 = p.a()->s();
+    vector_displacement p1 = p.b()->s();
+    vector_displacement p2 = p.c()->s();
+
+    m_t = dot(l0 - p0, cross(p1 - p0, p2 - p0))/
+          dot(l0 - l1, cross(p1 - p0, p2 - p0));
+
+    m_u = dot(l0 - l1, cross(l0 - p0, p2 - p0))/
+          dot(l0 - l1, cross(p1 - p0, p2 - p0));
+
+    m_v = dot(l0 - l1, cross(p1 - p0, l0 - p0))/
+          dot(l0 - l1, cross(p1 - p0, p2 - p0));
+  }
+
+  bool intersection_info::inside() const {
+    return (m_u >= 0 && m_v >= 0 && m_u + m_v <= 1 && m_t >= 1);
+  }
+
+  bool intersection_info::outside() const {
+    return (m_u >= 0 && m_v >= 0 && m_u + m_v <= 1 && m_t >= 0 && m_t < 1);
+  }
+
   vector_displacement mesh::center() const {
     // Find the geometric center of the mesh. This algorithm is O(n).
     vector_displacement r = 0;
@@ -32,6 +61,17 @@ namespace carom
       r += i->s();
     }
     return r / size();
+  }
+
+  std::list<mesh::iterator>
+  mesh::visible(const vector_displacement& o, const vector_displacement& r) {
+    std::list<mesh::iterator> v;
+    for (iterator i = begin(); i != end(); ++i) {
+      if (i->clockwise(o) != i->clockwise(r)) {
+        v.push_back(i);
+      }
+    }
+    return v;
   }
 
   mesh::iterator mesh::inside(const vector_displacement& l0,
@@ -68,63 +108,35 @@ namespace carom
     return end();
   }
 
-  intersection_info::intersection_info(const vector_displacement& l0,
-                                       const vector_displacement& l1,
-                                       const triangle& p) {
-    vector_displacement p0 = p.a()->s();
-    vector_displacement p1 = p.b()->s();
-    vector_displacement p2 = p.c()->s();
-
-    m_t = dot(l0 - p0, cross(p1 - p0, p2 - p0))/
-          dot(l0 - l1, cross(p1 - p0, p2 - p0));
-
-    m_u = dot(l0 - l1, cross(l0 - p0, p2 - p0))/
-          dot(l0 - l1, cross(p1 - p0, p2 - p0));
-
-    m_v = dot(l0 - l1, cross(p1 - p0, l0 - p0))/
-          dot(l0 - l1, cross(p1 - p0, p2 - p0));
-  }
-
-  bool intersection_info::inside() const {
-    return (m_u >= 0 && m_v >= 0 && m_u + m_v <= 1 && m_t >= 1);
-  }
-
-  bool intersection_info::outside() const {
-    return (m_u >= 0 && m_v >= 0 && m_u + m_v <= 1 && m_t >= 0 && m_t < 1);
-  }
-
   namespace
   {
-    body::iterator furthest_point(std::list<body::iterator>& remain,
-                                  const vector_displacement& o) {
-      std::list<body::iterator>::iterator i = remain.begin();
-      scalar_distance r = norm((*i)->s() - o);
-      for (std::list<body::iterator>::iterator j = boost::next(i);
-           j != remain.end();
-           ++j) {
-        if (norm((*j)->s() - o) > r) {
-          r = norm((*j)->s() - o);
-          i = j;
-        }
-      }
-      body::iterator ret = *i;
-      remain.erase(i);
-      return ret;
-    }
+    // Strict weak ordering on clockwiseness.
+    class clockwise_pred
+    {
+    public:
+      clockwise_pred(const vector_displacement& o,
+                     body::iterator i, body::iterator ref)
+        : m_o(o), m_i(i), m_ref(ref) { }
 
-    triangle clockwise_triangle(body::iterator a, body::iterator b,
-                                body::iterator c,
-                                const vector_displacement& o) {
-      if (dot(a->s() - o, cross(b->s() - o, c->s() - o)) > 0) {
-        return triangle(a, b, c);
-      } else {
-        return triangle(a, c, b);
-      }
-    }
+      // clockwise_pred(const clockwise_pred& pred);
+      // ~clockwise_pred();
 
-    bool clockwise(const triangle& t, const vector_displacement& o) {
-      return dot(t.a()->s() - o, cross(t.b()->s() - o, t.c()->s() - o)) > 0;
-    }
+      // clockwise_pred& operator=(const clockwise_pred& pred);
+
+      bool operator()(body::iterator a, body::iterator b) const {
+        //    ref
+        //  o     i
+        // n       j
+        //  m     k
+        //     l
+        //
+        // ref < i < j < k < l < m < n < o
+      }
+
+    private:
+      vector_displacement m_o;
+      body::iterator m_i, m_ref;
+    };
   }
 
   mesh convex_hull(body& b) {
@@ -136,29 +148,51 @@ namespace carom
         remain.push_back(i);
       }
 
-      vector_displacement o = b.center_of_mass();
+      body::iterator p = remain.front(); remain.pop_front();
+      body::iterator q = remain.front(); remain.pop_front();
+      body::iterator r = remain.front(); remain.pop_front();
+      body::iterator s = remain.front(); remain.pop_front();
+      hull.insert(triangle(p, q, r));
+      hull.insert(triangle(p, q, s));
+      hull.insert(triangle(p, r, s));
+      hull.insert(triangle(q, r, s));
 
-      body::iterator p = furthest_point(remain, o);
-      body::iterator q = furthest_point(remain, o);
-      body::iterator r = furthest_point(remain, o);
-      body::iterator s = furthest_point(remain, o);
-      o = (p->s() + q->s() + r->s() + s->s())/4;
-      hull.insert(clockwise_triangle(p, q, r, o));
-      hull.insert(clockwise_triangle(p, q, s, o));
-      hull.insert(clockwise_triangle(p, r, s, o));
-      hull.insert(clockwise_triangle(q, r, s, o));
+      vector_displacement o = hull.center();
 
       while (!remain.empty()) {
-        body::iterator i = furthest_point(remain, o);
-        if (hull.outside(o, i->s()) != hull.end()) {
-          std::list<mesh::iterator> visible;
-          for (mesh::iterator j = hull.begin(); j != hull.end(); ++j) {
-            if (!clockwise(*j, i->s())) {
-              visible.push_back(j);
+        body::iterator i = remain.front();
+
+        std::list<body::iterator> base, removed;
+        std::list<mesh::iterator> visible = hull.visible(o, i->s());
+        for (std::list<mesh::iterator>::iterator j = visible.begin();
+             j != visible.end();
+             ++j) {
+          removed.push_back((*j)->a());
+          removed.push_back((*j)->b());
+          removed.push_back((*j)->c());
+          hull.erase(*j);
+        }
+        for (std::list<body::iterator>::iterator j = removed.begin();
+             j != removed.end();
+             ++j) {
+          for (mesh::iterator k = hull.begin(); k != hull.end(); ++k) {
+            if (*j == k->a() || *j == k->b() || *j == k->c()) {
+              base.push_back(*j);
+              break;
             }
           }
-          
         }
+        base.sort(clockwise_pred(o, i));
+        base.unique();
+        if (!base.empty()) {
+          for (std::list<body::iterator>::iterator j = base.begin();
+               j != boost::prior(base.end());
+               ++j) {
+            hull.insert(triangle(*j, *boost::next(j), i));
+          }
+        }
+
+        remain.pop_front();
       }
     }
 

@@ -17,16 +17,59 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. *
  *************************************************************************/
 
-#ifndef CAROM_UTILITY_MESH_HPP
-#define CAROM_UTILITY_MESH_HPP
+#ifndef CAROM_MESH_HPP
+#define CAROM_MESH_HPP
 
 #include <boost/utility.hpp>
 #include <list>
 
 namespace carom
 {
-  class triangle;
-  class intersection_info;
+  class triangle
+  {
+  public:
+    triangle(body::iterator a, body::iterator b, body::iterator c)
+      : m_a(a), m_b(b), m_c(c) { }
+
+    // triangle(const triangle& t);
+    // ~triangle();
+
+    // triangle& operator=(const triangle& t);
+
+    body::iterator a() const { return m_a; }
+    body::iterator b() const { return m_b; }
+    body::iterator c() const { return m_c; }
+
+    vector_displacement s() const { return (a()->s() + b()->s() + c()->s())/3; }
+    vector_momentum     p() const { return a()->p() + b()->p() + c()->p(); }
+    scalar_mass         m() const { return a()->m() + b()->m() + c()->m(); }
+    vector_velocity     v() const { return p()/m(); }
+
+    bool clockwise(const vector_displacement& r) const;
+
+  private:
+    body::iterator m_a, m_b, m_c;
+  };
+
+  class intersection_info
+  {
+  public:
+    intersection_info(const vector_displacement& l0,
+                      const vector_displacement& l1,
+                      const triangle& p);
+
+    bool inside() const;
+    bool outside() const;
+
+    scalar t() const { return m_t; }
+    scalar u() const { return m_u; }
+    scalar v() const { return m_v; }
+
+  private:
+    scalar m_t;
+    scalar m_u;
+    scalar m_v;
+  };
 
   class mesh
   {
@@ -53,13 +96,11 @@ namespace carom
 
     vector_displacement center() const;
 
-    // If l1 is inside the mesh, return the triangle it is inside of. Otherwise,
-    // return end().
-    iterator inside(const vector_displacement& l0,
-                    const vector_displacement& l1);
+    std::list<mesh::iterator>
+    visible(const vector_displacement& o, const vector_displacement& r);
 
-    // If l1 is outside the mesh, return the triangle it is outside of.
-    // Otherwise, return end().
+    iterator inside (const vector_displacement& l0,
+                     const vector_displacement& l1);
     iterator outside(const vector_displacement& l0,
                      const vector_displacement& l1);
 
@@ -67,51 +108,7 @@ namespace carom
     std::list<triangle> m_triangles;
   };
 
-  class triangle
-  {
-  public:
-    triangle(body::iterator a, body::iterator b, body::iterator c)
-      : m_a(a), m_b(b), m_c(c) { }
-
-    // triangle(const triangle& t);
-    // ~triangle();
-
-    // triangle& operator=(const triangle& t);
-
-    body::iterator a() const { return m_a; }
-    body::iterator b() const { return m_b; }
-    body::iterator c() const { return m_c; }
-
-    vector_displacement s() const { return (a()->s() + b()->s() + c()->s())/3; }
-    vector_momentum     p() const { return a()->p() + b()->p() + c()->p(); }
-    scalar_mass         m() const { return a()->m() + b()->m() + c()->m(); }
-    vector_velocity     v() const { return p()/m(); }
-
-  private:
-    body::iterator m_a, m_b, m_c;
-  };
-
-  class intersection_info
-  {
-  public:
-    intersection_info(const vector_displacement& l0,
-                      const vector_displacement& l1,
-                      const triangle& p);
-
-    bool inside() const;
-    bool outside() const;
-
-    scalar t() const { return m_t; }
-    scalar u() const { return m_u; }
-    scalar v() const { return m_v; }
-
-  private:
-    scalar m_t;
-    scalar m_u;
-    scalar m_v;
-  };
-
   mesh convex_hull(body& b);
 }
 
-#endif // CAROM_UTILITY_MESH_HPP
+#endif // CAROM_MESH_HPP
