@@ -125,12 +125,26 @@ namespace carom
 
       bool operator()(body::iterator a, body::iterator b) const {
         //    ref
-        //  o     i
-        // n       j
-        //  m     k
-        //     l
+        //  O     I
+        // N       J
+        //  M     K
+        //     L
         //
-        // ref < i < j < k < l < m < n < o
+        // ref < I < J < K < L < M < M < O
+
+        if (a == b) {
+          return false;
+        } else if (a == m_ref) {
+          return true;
+        } else if (b == m_ref) {
+          return false;
+        } else if (triangle(m_ref, a, m_i).clockwise(m_o)) {
+          return triangle(a, b, m_i).clockwise(m_o) ||
+            (!triangle(m_ref, b, m_i).clockwise(m_o));
+        } else {
+          return triangle(a, b, m_i).clockwise(m_o) &&
+            triangle(b, m_ref, m_i).clockwise(m_o);
+        }
       }
 
     private:
@@ -182,7 +196,7 @@ namespace carom
             }
           }
         }
-        base.sort(clockwise_pred(o, i));
+        base.sort(clockwise_pred(o, i, base.front()));
         base.unique();
         if (!base.empty()) {
           for (std::list<body::iterator>::iterator j = base.begin();
