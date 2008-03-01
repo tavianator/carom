@@ -198,12 +198,13 @@ namespace carom
         }
         base.sort(clockwise_pred(o, i, base.front()));
         base.unique();
-        if (!base.empty()) {
+        if (base.size() > 1) {
           for (std::list<body::iterator>::iterator j = base.begin();
                j != boost::prior(base.end());
                ++j) {
             hull.insert(triangle(*j, *boost::next(j), i));
           }
+          hull.insert(triangle(base.back(), base.front(), i));
         }
 
         remain.pop_front();
