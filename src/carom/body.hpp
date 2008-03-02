@@ -147,6 +147,10 @@ namespace carom
     vector_acceleration acceleration  () const;
     vector_force        force         () const;
 
+    // Needed for collision response
+    virtual scalar_mass mass(const particle& x) const;
+    virtual void collision(const particle& x, const vector_momentum& dp) const;
+
     void apply_forces();
 
     virtual f_value f();

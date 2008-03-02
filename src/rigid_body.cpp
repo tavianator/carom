@@ -23,46 +23,6 @@
 
 namespace carom
 {
-  scalar_moment_of_inertia
-  rigid_body::moment_of_inertia(const vector_displacement& o,
-                          const vector& axis) const {
-    scalar_moment_of_inertia I = 0;
-    for (const_iterator i = begin(); i != end(); ++i) {
-      scalar_distance r = norm(i->s() - proj(axis, i->s() - o));
-      I += i->m()*r*r;
-    }
-    return I;
-  }
-
-  vector_angular_velocity
-  rigid_body::angular_velocity(const vector_displacement& o,
-                         const vector& axis) const {
-    return angular_momentum(o)/moment_of_inertia(o, axis);
-  }
-
-  vector_angular_momentum
-  rigid_body::angular_momentum(const vector_displacement& o) const {
-    vector_angular_momentum L = 0;
-    for (const_iterator i = begin(); i != end(); ++i) {
-      L += cross(i->s() - o, i->p());
-    }
-    return L;
-  }
-
-  vector_angular_acceleration
-  rigid_body::angular_acceleration(const vector_displacement& o,
-                             const vector& axis) const {
-    return torque(o)/moment_of_inertia(o, axis);
-  }
-
-  vector_torque rigid_body::torque(const vector_displacement& o) const {
-    vector_torque T = 0;
-    for (const_iterator i = begin(); i != end(); ++i) {
-      T += cross(i->s() - o, i->F());
-    }
-    return T;
-  }
-
   rigid_f_base::~rigid_f_base() {
   }
 
@@ -142,6 +102,50 @@ namespace carom
                     convert<scalar>(norm(dL - rhs.dL)));
   }
 
+  scalar_moment_of_inertia
+  rigid_body::moment_of_inertia(const vector_displacement& o,
+                                const vector& axis) const {
+    scalar_moment_of_inertia I = 0;
+    for (const_iterator i = begin(); i != end(); ++i) {
+      scalar_distance r = norm(i->s() - o - proj(axis, i->s() - o));
+      I += i->m()*r*r;
+    }
+    return I;
+  }
+
+  vector_angular_velocity
+  rigid_body::angular_velocity(const vector_displacement& o,
+                               const vector& axis) const {
+    return angular_momentum(o)/moment_of_inertia(o, axis);
+  }
+
+  vector_angular_momentum
+  rigid_body::angular_momentum(const vector_displacement& o) const {
+    vector_angular_momentum L = 0;
+    for (const_iterator i = begin(); i != end(); ++i) {
+      L += cross(i->s() - o, i->p());
+    }
+    return L;
+  }
+
+  vector_angular_acceleration
+  rigid_body::angular_acceleration(const vector_displacement& o,
+                                   const vector& axis) const {
+    return torque(o)/moment_of_inertia(o, axis);
+  }
+
+  vector_torque rigid_body::torque(const vector_displacement& o) const {
+    vector_torque T = 0;
+    for (const_iterator i = begin(); i != end(); ++i) {
+      T += cross(i->s() - o, i->F());
+    }
+    return T;
+  }
+
+  scalar_mass rigid_body::mass(const particle& x) const {
+    return mass();
+  }
+
   f_value rigid_body::f() {
     rigid_f_base* r = new rigid_f_base;
 
@@ -214,7 +218,7 @@ namespace carom
       const_iterator j = rhs.backup->begin();
       for (; i != end(); ++i, ++j) {
         i->s(rotate(j->s(), o, theta) + ds);
-        i->v((p + rhs.dp)/m + cross((L + rhs.dL)/I, i->s() - o));
+        i->v((p + rhs.dp)/m + cross((L + rhs.dL)/I, i->s() - o - ds));
       }
     }
 

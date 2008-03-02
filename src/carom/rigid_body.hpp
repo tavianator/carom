@@ -100,6 +100,9 @@ namespace carom
 
     vector_torque torque(const vector_displacement& o) const;
 
+    virtual scalar_mass mass(const particle& x) const;
+    using body::mass;
+
     virtual f_value f();
     virtual y_value y();
     virtual body& operator=(const y_value& y);

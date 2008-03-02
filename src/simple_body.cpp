@@ -119,6 +119,10 @@ namespace carom
     return err;
   }
 
+  scalar_mass simple_body::mass(const particle& x) const {
+    return x.m();
+  }
+
   f_value simple_body::f() {
     simple_f_base* r = new simple_f_base;
 

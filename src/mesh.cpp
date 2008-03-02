@@ -85,7 +85,7 @@ namespace carom
     for (iterator i = begin(); i != end(); ++i) {
       intersection_info info(l0, l1, *i);
 
-      if (info.inside() && r != end()) {
+      if (info.inside()) {
         r = i;
       } else if (info.outside()) {
         return end();
