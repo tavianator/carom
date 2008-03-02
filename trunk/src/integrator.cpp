@@ -26,6 +26,7 @@ namespace carom
 {
   integrator::integrator(system& sys)
     : m_sys(&sys), m_f1(sys.size()), m_y(sys.size()) {
+    m_sys->collision();
     system::iterator j = m_sys->begin();
     for (unsigned int i = 0; i < m_sys->size(); ++i, ++j) {
       m_f1[i] = j->f();
@@ -106,12 +107,12 @@ namespace carom
     for (unsigned int i = 0; i < m_sys->size(); ++i, ++j) {
       *j = y_vec[i];
     }
+    m_sys->collision();
     j = m_sys->begin();
     for (unsigned int i = 0; i < m_sys->size(); ++i, ++j) {
       m_f1[i] = j->f();
       m_y[i] = j->y();
     }
-    m_sys->collision();
   }
 
   simple_integrator::simple_integrator(system& sys) : integrator(sys) { }
@@ -145,8 +146,9 @@ namespace carom
     y_vector y_vec;
 
     while (rejected) {
-      y_vec = y(b_vec, k(a_vecs, deltaprime));
-      y_vector ystar_vec = y(bstar_vec, k(a_vecs, deltaprime));
+      k_vector k_vecs = k(a_vecs, deltaprime);
+      y_vec = y(b_vec, k_vecs);
+      y_vector ystar_vec = y(bstar_vec, k_vecs);
 
       // Find the error: the maximum error of any body, where the error of a
       // body is the difference between the y_value's of the real and embeded

@@ -130,6 +130,13 @@ namespace carom
     return F;
   }
 
+  scalar_mass body::mass(const particle& x) const {
+    return 0;
+  }
+
+  void body::collision(const particle& x, const vector_momentum& dp) const {
+  }
+
   void body::apply_forces() {
     for (iterator i = begin(); i != end(); ++i) {
       i->apply_forces();

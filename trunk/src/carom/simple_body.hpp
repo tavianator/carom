@@ -80,6 +80,8 @@ namespace carom
     // simple_body();
     // virtual ~simple_body();
 
+    virtual scalar_mass mass(const particle& x) const;
+
     virtual f_value f();
     virtual y_value y();
     virtual body& operator=(const y_value& y);
