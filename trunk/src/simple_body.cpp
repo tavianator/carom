@@ -23,147 +23,135 @@
 
 namespace carom
 {
+  simple_f_base::simple_f_base(std::size_t n) : m_forces(n) { }
+
   simple_f_base::~simple_f_base() {
   }
 
-  k_base* simple_f_base::multiply(const scalar_time& t) const {
-    simple_k_base* r = new simple_k_base;
+  vector_force& simple_f_base::operator[](unsigned int i) {
+    return m_forces.at(i);
+  }
 
-    r->dt = t;
-    r->momenta.resize(forces.size());
-    for (unsigned int i = 0; i < forces.size(); ++i) {
-      r->momenta[i] = t*forces[i];
+  const vector_force& simple_f_base::operator[](unsigned int i) const {
+    return m_forces.at(i);
+  }
+
+  void simple_f_base::resize(std::size_t n) { m_forces.resize(n); }
+  std::size_t simple_f_base::size() const { return m_forces.size(); }
+
+  k_base* simple_f_base::multiply(const scalar_time& t) const {
+    simple_k_base* r = new simple_k_base(t, size());
+
+    for (unsigned int i = 0; i < size(); ++i) {
+      (*r)[i] = t*(*this)[i];
     }
 
     return r;
   }
 
+  simple_k_base::simple_k_base(const scalar_time& dt, std::size_t n)
+    : m_dt(dt), m_momenta(n) { }
   simple_k_base::~simple_k_base() {
   }
 
-  k_base* simple_k_base::add(const k_base& k) const {
-    simple_k_base* r = new simple_k_base;
-    const simple_k_base& rhs = dynamic_cast<const simple_k_base&>(k);
+  scalar_time simple_k_base::dt() const { return m_dt; }
+  void simple_k_base::dt(const scalar_time& dt) { m_dt = dt; }
 
-    r->dt = dt + rhs.dt;
-    r->momenta.resize(momenta.size());
-    for (unsigned int i = 0; i < momenta.size(); ++i) {
-      r->momenta[i] = momenta[i] + rhs.momenta[i];
+  vector_momentum& simple_k_base::operator[](unsigned int i) {
+    return m_momenta.at(i);
+  }
+
+  const vector_momentum& simple_k_base::operator[](unsigned int i) const {
+    return m_momenta.at(i);
+  }
+
+  void simple_k_base::resize(std::size_t n) { m_momenta.resize(n); }
+  std::size_t simple_k_base::size() const { return m_momenta.size(); }
+
+  k_base* simple_k_base::add(const k_base& k) const {
+    const simple_k_base& rhs = dynamic_cast<const simple_k_base&>(k);
+    simple_k_base* r = new simple_k_base(dt() + rhs.dt(), size());
+
+    for (unsigned int i = 0; i < size(); ++i) {
+      (*r)[i] = (*this)[i] + rhs[i];
     }
 
     return r;
   }
 
   k_base* simple_k_base::subtract(const k_base& k) const {
-    simple_k_base* r = new simple_k_base;
     const simple_k_base& rhs = dynamic_cast<const simple_k_base&>(k);
+    simple_k_base* r = new simple_k_base(dt() + rhs.dt(), size());
 
-    r->dt = dt - rhs.dt;
-    r->momenta.resize(momenta.size());
-    for (unsigned int i = 0; i < momenta.size(); ++i) {
-      r->momenta[i] = momenta[i] - rhs.momenta[i];
+    for (unsigned int i = 0; i < size(); ++i) {
+      (*r)[i] = (*this)[i] - rhs[i];
     }
 
     return r;
   }
 
   k_base* simple_k_base::multiply(const scalar& n) const {
-    simple_k_base* r = new simple_k_base;
+    simple_k_base* r = new simple_k_base(n*dt(), size());
 
-    r->dt = n*dt;
-    r->momenta.resize(momenta.size());
-    for (unsigned int i = 0; i < momenta.size(); ++i) {
-      r->momenta[i] = n*momenta[i];
+    for (unsigned int i = 0; i < size(); ++i) {
+      (*r)[i] = n*(*this)[i];
     }
 
     return r;
   }
 
   k_base* simple_k_base::divide(const scalar& n) const {
-    simple_k_base* r = new simple_k_base;
+    simple_k_base* r = new simple_k_base(dt()/n, size());
 
-    r->dt = dt/n;
-    r->momenta.resize(momenta.size());
-    for (unsigned int i = 0; i < momenta.size(); ++i) {
-      r->momenta[i] = momenta[i]/n;
+    for (unsigned int i = 0; i < size(); ++i) {
+      (*r)[i] = (*this)[i]/n;
     }
 
     return r;
-  }
-
-  simple_y_base::~simple_y_base() {
-  }
-
-  y_base* simple_y_base::add(const k_base& k) const {
-    simple_y_base* r = new simple_y_base;
-    const simple_k_base& rhs = dynamic_cast<const simple_k_base&>(k);
-
-    r->dt = dt + rhs.dt;
-    r->backup = backup;
-    r->momenta.resize(momenta.size());
-    for (unsigned int i = 0; i < momenta.size(); ++i) {
-      r->momenta[i] = momenta[i] + rhs.momenta[i];
-    }
-
-    return r;
-  }
-
-  scalar simple_y_base::subtract(const y_base& y) const {
-    scalar err = 0;
-    const simple_y_base& rhs = dynamic_cast<const simple_y_base&>(y);
-
-    for (unsigned int i = 0; i < momenta.size(); ++i) {
-      err = std::max(err, convert<scalar>(norm(momenta[i] - rhs.momenta[i])));
-    }
-
-    return err;
   }
 
   scalar_mass simple_body::mass(const particle& x) const {
     return x.m();
   }
 
+  void simple_body::collision(particle& x, const vector_momentum& dp) {
+    x.p(x.p() + dp);
+  }
+
   f_value simple_body::f() {
-    simple_f_base* r = new simple_f_base;
+    simple_f_base* r = new simple_f_base(size());
 
     apply_forces();
-    r->forces.resize(size());
     iterator j = begin();
     for (unsigned int i = 0; i < size(); ++i, ++j) {
-      r->forces[i] = j->F();
+      (*r)[i] = j->F();
     }
 
     return f_value(r);
   }
 
   y_value simple_body::y() {
-    simple_y_base* r = new simple_y_base;
+    y_base* r = new y_base();
 
-    r->dt = 0;
-    r->backup.reset(new body());
-    r->momenta.resize(size());
-    iterator j = begin();
-    for (unsigned int i = 0; i < size(); ++i, ++j) {
-      iterator k = r->backup->insert(new particle());
-      k->m(j->m());
-      k->s(j->s());
-      k->v(j->v());
-      r->momenta[i] = 0;
+    r->backup(new simple_body());
+    for (iterator i = begin(); i != end(); ++i) {
+      iterator j = r->backup()->insert(new particle());
+      j->m(i->m());
+      j->s(i->s());
+      j->p(i->p());
     }
 
     return y_value(r);
   }
 
-  body& simple_body::operator=(const y_value& y) {
-    const simple_y_base& rhs = dynamic_cast<const simple_y_base&>(*y.base());
+  void simple_body::step(const y_value& y0, const k_value& kv) {
+    const simple_k_base& kval = dynamic_cast<const simple_k_base&>(*kv.base());
 
-    iterator j = begin();
-    const_iterator k = rhs.backup->begin();
-    for (unsigned int i = 0; i < rhs.momenta.size(); ++i, ++j, ++k) {
-      j->s(k->s() + rhs.dt*(k->v() + rhs.momenta[i]/j->m()/2));
-      j->v(k->v() + rhs.momenta[i]/j->m());
+    iterator i = begin();
+    const_iterator j = y0.base()->backup()->begin();
+    for (unsigned int k = 0; k < kval.size(); ++i, ++j, ++k) {
+      i->s(j->s() + kval.dt()*(j->p() + kval[k]/2)/j->m());
+      i->p(j->p() + kval[k]);
     }
-
-    return *this;
   }
 }

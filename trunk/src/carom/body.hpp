@@ -25,9 +25,11 @@
 
 namespace carom
 {
-  struct k_base;
+  // Forward declarations
+  class body;
+  class k_base;
 
-  struct f_base
+  class f_base
   {
   public:
     // f_base();
@@ -36,10 +38,10 @@ namespace carom
 
     // f_base& operator=(const f_base& k);
 
-    virtual k_base* multiply(const scalar_time& t) const;
+    virtual k_base* multiply(const scalar_time& t) const = 0;
   };
 
-  struct k_base
+  class k_base
   {
   public:
     // k_base();
@@ -48,23 +50,32 @@ namespace carom
 
     // k_base& operator=(const k_base& k);
 
-    virtual k_base* add     (const k_base& k) const;
-    virtual k_base* subtract(const k_base& k) const;
-    virtual k_base* multiply(const scalar& n) const;
-    virtual k_base* divide  (const scalar& n) const;
+    virtual k_base* add     (const k_base& k) const = 0;
+    virtual k_base* subtract(const k_base& k) const = 0;
+    virtual k_base* multiply(const scalar& n) const = 0;
+    virtual k_base* divide  (const scalar& n) const = 0;
   };
 
-  struct y_base
+  class y_base
   {
   public:
+    typedef polymorphic_list<particle>::iterator       iterator;
+    typedef polymorphic_list<particle>::const_iterator const_iterator;
+
     // y_base();
     // y_base(const y_base& y);
     virtual ~y_base();
 
     // y_base& operator=(const y_base& y);
 
-    virtual y_base* add     (const k_base& k) const;
-    virtual scalar  subtract(const y_base& y) const;
+    body*       backup();
+    const body* backup() const;
+    void backup(body* backup);
+
+    virtual scalar subtract(const y_base& y) const;
+
+  private:
+    std::tr1::shared_ptr<body> m_backup;
   };
 
   class f_value
@@ -115,7 +126,6 @@ namespace carom
     const y_base* base() const;
 
     // y_value& operator=(const y_value& y);
-    y_value& operator+=(const k_value& k);
 
   private:
     std::tr1::shared_ptr<y_base> m_base;
@@ -148,14 +158,15 @@ namespace carom
     vector_force        force         () const;
 
     // Needed for collision response
-    virtual scalar_mass mass(const particle& x) const;
-    virtual void collision(const particle& x, const vector_momentum& dp) const;
+    virtual scalar_mass mass(const particle& x) const = 0;
+    virtual void collision(particle& x, const vector_momentum& dp) = 0;
 
     void apply_forces();
 
-    virtual f_value f();
-    virtual y_value y();
-    virtual body& operator=(const y_value& y);
+    virtual f_value f() = 0;
+    virtual y_value y() = 0;
+    virtual void step(const y_value& y0, const k_value& k) = 0;
+    virtual void apply(const y_value& y);
 
   private:
     polymorphic_list<particle> m_particles;
@@ -168,7 +179,6 @@ namespace carom
   k_value operator*(const scalar&      lhs, const k_value&     rhs);
   k_value operator*(const k_value&     lhs, const scalar&      rhs);
   k_value operator/(const k_value&     lhs, const scalar&      rhs);
-  y_value operator+(const y_value&     lhs, const k_value&     rhs);
   scalar  operator-(const y_value&     lhs, const y_value&     rhs);
 }
 

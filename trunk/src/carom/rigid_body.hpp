@@ -30,53 +30,50 @@ namespace carom
   struct rigid_f_base : public f_base
   {
   public:
-    // rigid_f_base();
+    rigid_f_base(const vector_force& F, const vector_torque& T);
     // rigid_f_base(const rigid_f_base& k);
     virtual ~rigid_f_base();
 
     // rigid_f_base& operator=(const rigid_f_base& k);
 
+    vector_force  F() const;
+    vector_torque T() const;
+    void F(const vector_force& F);
+    void T(const vector_torque& T);
+
     virtual k_base* multiply(const scalar_time& t) const;
 
-    vector_force  F;
-    vector_torque T;
+  private:
+    vector_force  m_F;
+    vector_torque m_T;
   };
 
   struct rigid_k_base : public k_base
   {
   public:
-    // rigid_k_base();
+    rigid_k_base(const scalar_time& dt,
+                 const vector_momentum& p, const vector_angular_momentum& L);
     // rigid_k_base(const rigid_k_base& k);
     virtual ~rigid_k_base();
 
     // rigid_k_base& operator=(const rigid_k_base& k);
+
+    scalar_time             dt() const;
+    vector_momentum         dp() const;
+    vector_angular_momentum dL() const;
+    void dt(const scalar_time& dt);
+    void dp(const vector_momentum& dp);
+    void dL(const vector_angular_momentum& dL);
 
     virtual k_base* add     (const k_base& k) const;
     virtual k_base* subtract(const k_base& k) const;
     virtual k_base* multiply(const scalar& n) const;
     virtual k_base* divide  (const scalar& n) const;
 
-    scalar_time dt;
-    vector_momentum         dp;
-    vector_angular_momentum dL;
-  };
-
-  struct rigid_y_base : public y_base
-  {
-  public:
-    // rigid_y_base();
-    // rigid_y_base(const rigid_y_base& y);
-    virtual ~rigid_y_base();
-
-    // rigid_y_base& operator=(const rigid_y_base& y);
-
-    virtual y_base* add     (const k_base& k) const;
-    virtual scalar  subtract(const y_base& y) const;
-
-    scalar_time dt;
-    vector_momentum         dp;
-    vector_angular_momentum dL;
-    std::tr1::shared_ptr<rigid_body> backup;
+  private:
+    scalar_time             m_dt;
+    vector_momentum         m_dp;
+    vector_angular_momentum m_dL;
   };
 
   class rigid_body : public body
@@ -100,12 +97,13 @@ namespace carom
 
     vector_torque torque(const vector_displacement& o) const;
 
-    virtual scalar_mass mass(const particle& x) const;
     using body::mass;
+    virtual scalar_mass mass(const particle& x) const;
+    virtual void collision(particle& x, const vector_momentum& dp);
 
     virtual f_value f();
     virtual y_value y();
-    virtual body& operator=(const y_value& y);
+    virtual void step(const y_value& y0, const k_value& k);
   };
 
   template <>

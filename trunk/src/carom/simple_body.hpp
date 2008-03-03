@@ -25,53 +25,56 @@
 
 namespace carom
 {
-  struct simple_f_base : public f_base
+  // Forward declaration
+  class simple_body;
+
+  class simple_f_base : public f_base
   {
   public:
-    // simple_f_base();
+    simple_f_base(std::size_t n);
     // simple_f_base(const simple_f_base& k);
     virtual ~simple_f_base();
 
     // simple_f_base& operator=(const simple_f_base& k);
 
+    vector_force&       operator[](unsigned int i);
+    const vector_force& operator[](unsigned int i) const;
+
+    void resize(std::size_t n);
+    std::size_t size() const;
+
     virtual k_base* multiply(const scalar_time& t) const;
 
-    std::vector<vector_force> forces;
+  private:
+    std::vector<vector_force> m_forces;
   };
 
-  struct simple_k_base : public k_base
+  class simple_k_base : public k_base
   {
   public:
-    // simple_k_base();
+    simple_k_base(const scalar_time& dt, std::size_t n);
     // simple_k_base(const simple_k_base& k);
     virtual ~simple_k_base();
 
     // simple_k_base& operator=(const simple_k_base& k);
+
+    scalar_time dt() const;
+    void dt(const scalar_time& dt);
+
+    vector_momentum&       operator[](unsigned int i);
+    const vector_momentum& operator[](unsigned int i) const;
+
+    void resize(std::size_t n);
+    std::size_t size() const;
 
     virtual k_base* add     (const k_base& k) const;
     virtual k_base* subtract(const k_base& k) const;
     virtual k_base* multiply(const scalar& n) const;
     virtual k_base* divide  (const scalar& n) const;
 
-    scalar_time dt;
-    std::vector<vector_momentum> momenta;
-  };
-
-  struct simple_y_base : public y_base
-  {
-  public:
-    // simple_y_base();
-    // simple_y_base(const simple_y_base& y);
-    virtual ~simple_y_base();
-
-    // simple_y_base& operator=(const simple_y_base& y);
-
-    virtual y_base* add     (const k_base& k) const;
-    virtual scalar  subtract(const y_base& y) const;
-
-    scalar_time dt;
-    std::tr1::shared_ptr<body> backup;
-    std::vector<vector_momentum> momenta;
+  private:
+    scalar_time m_dt;
+    std::vector<vector_momentum> m_momenta;
   };
 
   class simple_body : public body
@@ -80,11 +83,13 @@ namespace carom
     // simple_body();
     // virtual ~simple_body();
 
+    using body::mass;
     virtual scalar_mass mass(const particle& x) const;
+    virtual void collision(particle& x, const vector_momentum& dp);
 
     virtual f_value f();
     virtual y_value y();
-    virtual body& operator=(const y_value& y);
+    virtual void step(const y_value& y0, const k_value& k);
   };
 }
 

@@ -69,19 +69,19 @@ namespace carom
 
     // Find k2..n
     for (unsigned int i = 1; i < n; ++i) {
-      system::iterator k = m_sys->begin();
-      for (unsigned int j = 0; j < m_sys->size(); ++j, ++k) {
-        y_value y = m_y[j];
-        for (unsigned int l = 0; l < i; ++l) {
-          y += a_vecs[i-1][l]*k_vecs[j][l];
+      system::iterator b = m_sys->begin();
+      for (unsigned int j = 0; j < m_sys->size(); ++j, ++b) {
+        k_value k = a_vecs[i-1][0]*k_vecs[j][0];
+        for (unsigned int l = 1; l < i; ++l) {
+          k += a_vecs[i-1][l]*k_vecs[j][l];
         }
-        *k = y;
+        b->step(m_y[j], k);
       }
       m_sys->collision();
 
-      k = m_sys->begin();
-      for (unsigned int j = 0; j < k_vecs.size(); ++j, ++k) {
-        k_vecs[j][i] = dt*k->f();
+      b = m_sys->begin();
+      for (unsigned int j = 0; j < k_vecs.size(); ++j, ++b) {
+        k_vecs[j][i] = dt*b->f();
       }
     }
 
@@ -92,11 +92,19 @@ namespace carom
                                      const integrator::k_vector& k_vecs) {
     y_vector y_vec(k_vecs.size());
 
-    for (unsigned int i = 0; i < y_vec.size(); ++i) {
-      y_vec[i] = m_y[i];
-      for (unsigned int j = 0; j < b_vec.size(); ++j) {
-        y_vec[i] += b_vec[j]*k_vecs[i][j];
+    system::iterator b = m_sys->begin();
+    for (unsigned int i = 0; i < m_sys->size(); ++i, ++b) {
+      k_value k = b_vec[0]*k_vecs[i][0];
+      for (unsigned int j = 1; j < b_vec.size(); ++j) {
+        k += b_vec[j]*k_vecs[i][j];
       }
+      b->step(m_y[i], k);
+    }
+    m_sys->collision();
+
+    b = m_sys->begin();
+    for (unsigned int i = 0; i < m_sys->size(); ++i, ++b) {
+      y_vec[i] = b->y();
     }
 
     return y_vec;
@@ -105,7 +113,7 @@ namespace carom
   void integrator::apply(const y_vector& y_vec) {
     system::iterator j = m_sys->begin();
     for (unsigned int i = 0; i < m_sys->size(); ++i, ++j) {
-      *j = y_vec[i];
+      j->apply(y_vec[i]);
     }
     m_sys->collision();
     j = m_sys->begin();

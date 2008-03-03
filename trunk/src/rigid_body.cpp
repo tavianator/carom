@@ -23,83 +23,50 @@
 
 namespace carom
 {
-  rigid_f_base::~rigid_f_base() {
-  }
+  rigid_f_base::rigid_f_base(const vector_force& F, const vector_torque& T)
+    : m_F(F), m_T(T) { }
+
+  rigid_f_base::~rigid_f_base() { }
+
+  vector_force  rigid_f_base::F() const { return m_F; }
+  vector_torque rigid_f_base::T() const { return m_T; }
+  void rigid_f_base::F(const vector_force& F)  { m_F = F; }
+  void rigid_f_base::T(const vector_torque& T) { m_T = T; }
 
   k_base* rigid_f_base::multiply(const scalar_time& dt) const {
-    rigid_k_base* r = new rigid_k_base;
-
-    r->dt = dt;
-    r->dp = dt*F;
-    r->dL = dt*T;
-
-    return r;
+    return new rigid_k_base(dt, dt*F(), dt*T());
   }
 
+  rigid_k_base::rigid_k_base(const scalar_time& dt,
+                             const vector_momentum& dp,
+                             const vector_angular_momentum& dL)
+    : m_dt(dt), m_dp(dp), m_dL(dL) { }
   rigid_k_base::~rigid_k_base() {
   }
 
+  scalar_time             rigid_k_base::dt() const { return m_dt; }
+  vector_momentum         rigid_k_base::dp() const { return m_dp; }
+  vector_angular_momentum rigid_k_base::dL() const { return m_dL; }
+  void rigid_k_base::dt(const scalar_time& dt)             { m_dt = dt; }
+  void rigid_k_base::dp(const vector_momentum& dp)         { m_dp = dp; }
+  void rigid_k_base::dL(const vector_angular_momentum& dL) { m_dL = dL; }
+
   k_base* rigid_k_base::add(const k_base& k) const {
-    rigid_k_base* r = new rigid_k_base;
     const rigid_k_base& rhs = dynamic_cast<const rigid_k_base&>(k);
-
-    r->dt = dt + rhs.dt;
-    r->dp = dp + rhs.dp;
-    r->dL = dL + rhs.dL;
-
-    return r;
+    return new rigid_k_base(dt() + rhs.dt(), dp() + rhs.dp(), dL() + rhs.dL());
   }
 
   k_base* rigid_k_base::subtract(const k_base& k) const {
-    rigid_k_base* r = new rigid_k_base;
     const rigid_k_base& rhs = dynamic_cast<const rigid_k_base&>(k);
-
-    r->dt = dt - rhs.dt;
-    r->dp = dp - rhs.dp;
-    r->dL = dL - rhs.dL;
-
-    return r;
+    return new rigid_k_base(dt() - rhs.dt(), dp() - rhs.dp(), dL() - rhs.dL());
   }
 
   k_base* rigid_k_base::multiply(const scalar& n) const {
-    rigid_k_base* r = new rigid_k_base;
-
-    r->dt = n*dt;
-    r->dp = n*dp;
-    r->dL = n*dL;
-
-    return r;
+    return new rigid_k_base(n*dt(), n*dp(), n*dL());
   }
 
   k_base* rigid_k_base::divide(const scalar& n) const {
-    rigid_k_base* r = new rigid_k_base;
-
-    r->dt = dt/n;
-    r->dp = dp/n;
-    r->dL = dL/n;
-
-    return r;
-  }
-
-  rigid_y_base::~rigid_y_base() {
-  }
-
-  y_base* rigid_y_base::add(const k_base& k) const {
-    rigid_y_base* r = new rigid_y_base;
-    const rigid_k_base& rhs = dynamic_cast<const rigid_k_base&>(k);
-
-    r->dt = dt + rhs.dt;
-    r->dp = dp + rhs.dp;
-    r->dL = dL + rhs.dL;
-    r->backup = backup;
-
-    return r;
-  }
-
-  scalar rigid_y_base::subtract(const y_base& y) const {
-    const rigid_y_base& rhs = dynamic_cast<const rigid_y_base&>(y);
-    return std::max(convert<scalar>(norm(dp - rhs.dp)),
-                    convert<scalar>(norm(dL - rhs.dL)));
+    return new rigid_k_base(dt()/n, dp()/n, dL()/n);
   }
 
   scalar_moment_of_inertia
@@ -146,28 +113,42 @@ namespace carom
     return mass();
   }
 
+  void rigid_body::collision(particle& x, const vector_momentum& dp) {
+    scalar_mass m = mass();
+    vector_displacement o = center_of_mass();
+    vector_momentum p = momentum();
+    vector_angular_momentum L = angular_momentum(o);
+    vector_angular_momentum dL = cross(x.s() - o, dp);
+
+    if (L + dL == 0) {
+      for (iterator i = begin(); i != end(); ++i) {
+        i->v((p + dp)/m);
+      }
+    } else {
+      scalar_moment_of_inertia I =
+        moment_of_inertia(o, normalized(L + dL));
+
+      for (iterator i = begin(); i != end(); ++i) {
+        i->v((p + dp)/m + cross((L + dL)/I, i->s() - o));
+      }
+    }
+  }
+
   f_value rigid_body::f() {
-    rigid_f_base* r = new rigid_f_base;
-
     apply_forces();
-    r->F = force();
-    r->T = torque(center_of_mass());
-
+    rigid_f_base* r = new rigid_f_base(force(), torque(center_of_mass()));
     return f_value(r);
   }
 
   y_value rigid_body::y() {
-    rigid_y_base* r = new rigid_y_base;
+    y_base* r = new y_base();
 
-    r->dt = 0;
-    r->dp = 0;
-    r->dL = 0;
-    r->backup.reset(new rigid_body());
+    r->backup(new rigid_body());
     for (iterator i = begin(); i != end(); ++i) {
-      iterator j = r->backup->insert(new particle());
+      iterator j = r->backup()->insert(new particle());
       j->m(i->m());
       j->s(i->s());
-      j->v(i->v());
+      j->p(i->p());
     }
 
     return y_value(r);
@@ -193,36 +174,36 @@ namespace carom
     }
   }
 
-  body& rigid_body::operator=(const y_value& y) {
-    const rigid_y_base& rhs = dynamic_cast<const rigid_y_base&>(*y.base());
+  void rigid_body::step(const y_value& y0, const k_value& kv) {
+    const rigid_k_base& kval = dynamic_cast<const rigid_k_base&>(*kv.base());
+    const rigid_body& backup =
+      dynamic_cast<const rigid_body&>(*y0.base()->backup());
 
-    scalar_mass m = rhs.backup->mass();
-    vector_displacement o = rhs.backup->center_of_mass();
-    vector_momentum p = rhs.backup->momentum();
-    vector_angular_momentum L = rhs.backup->angular_momentum(o);
-    vector_displacement ds = rhs.dt*(p + rhs.dp/2)/m;
+    scalar_mass m = backup.mass();
+    vector_displacement o = backup.center_of_mass();
+    vector_momentum p = backup.momentum();
+    vector_angular_momentum L = backup.angular_momentum(o);
+    vector_displacement ds = kval.dt()*(p + kval.dp()/2)/m;
 
-    if (rhs.dt*(L + rhs.dL/2) == 0) {
+    if (kval.dt()*(L + kval.dL()/2) == 0) {
       iterator i = begin();
-      const_iterator j = rhs.backup->begin();
+      const_iterator j = backup.begin();
       for (; i != end(); ++i, ++j) {
         i->s(j->s() + ds);
-        i->v((p + rhs.dp)/m);
+        i->v((p + kval.dp())/m);
       }
     } else {
       scalar_moment_of_inertia I =
-        rhs.backup->moment_of_inertia(o, normalized(rhs.dt*(L + rhs.dL/2)));
-      vector_angle theta = rhs.dt*(L + rhs.dL/2)/I;
+        backup.moment_of_inertia(o, normalized(kval.dt()*(L + kval.dL()/2)));
+      vector_angle theta = kval.dt()*(L + kval.dL()/2)/I;
 
       iterator i = begin();
-      const_iterator j = rhs.backup->begin();
+      const_iterator j = backup.begin();
       for (; i != end(); ++i, ++j) {
         i->s(rotate(j->s(), o, theta) + ds);
-        i->v((p + rhs.dp)/m + cross((L + rhs.dL)/I, i->s() - o - ds));
+        i->v((p + kval.dp())/m + cross((L + kval.dL())/I, i->s() - o - ds));
       }
     }
-
-    return *this;
   }
  
   template <>
