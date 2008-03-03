@@ -51,6 +51,7 @@ namespace carom
     // virtual ~impenetrable_body();
 
     using T::mass;
+    using T::collision;
     virtual scalar_mass mass(const triangle& t);
     virtual void collision(const triangle& t, const vector_momentum& dp);
   };

@@ -1,8 +1,8 @@
 #                                               -*- Autoconf -*-
 
 AC_PREREQ(2.61)
-AC_INIT(The Carom Library, 0.2, tavianator@gmail.com, libcarom)
-AM_INIT_AUTOMAKE(libcarom, 0.2)
+AC_INIT(The Carom Library, 0.2, tavianator@gmail.com, carom)
+AM_INIT_AUTOMAKE(carom, 0.2)
 
 # Programs
 AC_PROG_CXX

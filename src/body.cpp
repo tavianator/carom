@@ -18,22 +18,29 @@
  *************************************************************************/
 
 #include <carom.hpp>
+#include <algorithm> // For max()
 #include <tr1/memory> // For shared_ptr
 
 namespace carom
 {
   f_base::~f_base() { }
-  k_base* f_base::multiply(const scalar_time& t) const { return new k_base(); }
-
   k_base::~k_base() { }
-  k_base* k_base::add     (const k_base& k) const { return new k_base(); }
-  k_base* k_base::subtract(const k_base& k) const { return new k_base(); }
-  k_base* k_base::multiply(const scalar& n) const { return new k_base(); }
-  k_base* k_base::divide  (const scalar& n) const { return new k_base(); }
 
   y_base::~y_base() { }
-  y_base* y_base::add     (const k_base& k) const { return new y_base(); }
-  scalar  y_base::subtract(const y_base& y) const { return 0; }
+
+  body*       y_base::backup()       { return m_backup.get(); }
+  const body* y_base::backup() const { return m_backup.get(); }
+  void y_base::backup(body* backup) { m_backup.reset(backup); }
+
+  scalar y_base::subtract(const y_base& y) const {
+    scalar err = 0;
+    for (body::const_iterator i = backup()->begin(), j = y.backup()->begin();
+         i != backup()->end();
+         ++i, ++j) {
+      err = std::max(err, convert<scalar>(norm(i->p() - j->p())));
+    }
+    return err;
+  }
 
   f_value::f_value() { }
   f_value::f_value(f_base* f) : m_base(f) { }
@@ -69,11 +76,6 @@ namespace carom
   y_value::y_value(y_base* y) : m_base(y) { }
   y_base*       y_value::base()       { return m_base.get(); }
   const y_base* y_value::base() const { return m_base.get(); }
-
-  y_value& y_value::operator+=(const k_value& k) {
-    m_base.reset(m_base->add(*k.base()));
-    return *this;
-  }
 
   body::~body() { }
 
@@ -130,24 +132,19 @@ namespace carom
     return F;
   }
 
-  scalar_mass body::mass(const particle& x) const {
-    return 0;
-  }
-
-  void body::collision(const particle& x, const vector_momentum& dp) const {
-  }
-
   void body::apply_forces() {
     for (iterator i = begin(); i != end(); ++i) {
       i->apply_forces();
     }
   }
 
-  f_value body::f() { return f_value(); }
-  y_value body::y() { return y_value(); }
-
-  body& body::operator=(const y_value& y) {
-    return *this;
+  void body::apply(const y_value& y) {
+    iterator i = begin();
+    const_iterator j = y.base()->backup()->begin();
+    for (; i != end(); ++i, ++j) {
+      i->s(j->s());
+      i->p(j->p());
+    }
   }
 
   k_value operator*(const scalar_time& lhs, const f_value& rhs) {
@@ -176,10 +173,6 @@ namespace carom
 
   k_value operator/(const k_value& lhs, const scalar& rhs) {
     return k_value(lhs.base()->divide(rhs));
-  }
-
-  y_value operator+(const y_value& lhs, const k_value& rhs) {
-    return y_value(lhs.base()->add(*rhs.base()));
   }
 
   scalar operator-(const y_value& lhs, const y_value& rhs) {
