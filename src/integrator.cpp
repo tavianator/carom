@@ -77,7 +77,6 @@ namespace carom
         }
         b->step(m_y[j], k);
       }
-      m_sys->collision();
 
       b = m_sys->begin();
       for (unsigned int j = 0; j < k_vecs.size(); ++j, ++b) {
@@ -101,7 +100,6 @@ namespace carom
       b->step(m_y[i], k);
     }
     m_sys->collision();
-
     b = m_sys->begin();
     for (unsigned int i = 0; i < m_sys->size(); ++i, ++b) {
       y_vec[i] = b->y();
@@ -115,7 +113,6 @@ namespace carom
     for (unsigned int i = 0; i < m_sys->size(); ++i, ++j) {
       j->apply(y_vec[i]);
     }
-    m_sys->collision();
     j = m_sys->begin();
     for (unsigned int i = 0; i < m_sys->size(); ++i, ++j) {
       m_f1[i] = j->f();
