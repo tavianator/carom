@@ -19,7 +19,6 @@
 
 #include <carom.hpp>
 
-#include <iostream>
 namespace carom
 {
   // Elastic collision response
@@ -33,7 +32,7 @@ namespace carom
       for (body::iterator i = b2.begin(); i != b2.end(); ++i) {
         mesh::iterator j = ib1->surface().inside(o1, i->s());
 
-        if (j != ib1->surface().end() && dot(i->s() - j->s(), i->v()) > 0) {
+        if (j != ib1->surface().end()) {
           scalar_mass     m1 = ib1->mass(*j);
           scalar_mass     m2 = b2.mass(*i);
           vector_momentum p1 = m1*j->v();
@@ -42,15 +41,8 @@ namespace carom
           vector_momentum dp1 = 2*(m1*p2 - m2*p1)/(m1 + m2);
           vector_momentum dp2 = 2*(m2*p1 - m1*p2)/(m1 + m2);
 
-          std::cout << "dp1: " << dp1.y().to<double>() << std::endl;
-          std::cout << "dp2: " << dp2.y().to<double>() << std::endl;
-
-          std::cout << "y1: " << b1.momentum().y().to<double>() << std::endl;
-          std::cout << "y2: " << b2.momentum().y().to<double>() << std::endl;
           ib1->collision(*j, dp1);
           b2.collision(*i, dp2);
-          std::cout << "y1': " << b1.momentum().y().to<double>() << std::endl;
-          std::cout << "y2': " << b2.momentum().y().to<double>() << std::endl;
         }
       }
     }
@@ -61,7 +53,7 @@ namespace carom
       for (body::iterator i = b1.begin(); i != b1.end(); ++i) {
         mesh::iterator j = ib2->surface().inside(o2, i->s());
 
-        if (j != ib2->surface().end() && dot(i->s() - j->s(), i->v()) > 0) {
+        if (j != ib2->surface().end()) {
           scalar_mass     m1 = b1.mass(*i);
           scalar_mass     m2 = ib2->mass(*j);
           vector_momentum p1 = m1*i->v();
@@ -70,15 +62,8 @@ namespace carom
           vector_momentum dp1 = 2*(m1*p2 - m2*p1)/(m1 + m2);
           vector_momentum dp2 = 2*(m2*p1 - m1*p2)/(m1 + m2);
 
-          std::cout << "dp1: " << dp1.y().to<double>() << std::endl;
-          std::cout << "dp2: " << dp2.y().to<double>() << std::endl;
-
-          std::cout << "y1: " << b1.momentum().y().to<double>() << std::endl;
-          std::cout << "y2: " << b2.momentum().y().to<double>() << std::endl;
           b1.collision(*i, dp1);
           ib2->collision(*j, dp2);
-          std::cout << "y1': " << b1.momentum().y().to<double>() << std::endl;
-          std::cout << "y2': " << b2.momentum().y().to<double>() << std::endl;
         }
       }
     }
