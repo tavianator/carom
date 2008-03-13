@@ -166,7 +166,7 @@ namespace carom
       // Store the stepsize used for the integration
       delta = deltaprime;
 
-      if (m_steps >= 4) {
+      if (m_steps >= 4 && m_err > 0) {
         // Find t', the t value that we estimate would have given an error of
         // err/(1 + tol). If the step is rejected, this is our new stepsize;
         // otherwise, this is our recommended stepsize for the next iteration.
@@ -301,7 +301,7 @@ namespace carom
     scalar bstar[6] = { scalar(25)/216, 0, scalar(1408)/2565, scalar(2197)/4104,
                         -scalar(1)/5, 0 };
 
-    std::vector<scalar> a_vec_arr[6] = { std::vector<scalar>(a2, a2 + 1),
+    std::vector<scalar> a_vec_arr[5] = { std::vector<scalar>(a2, a2 + 1),
                                          std::vector<scalar>(a3, a3 + 2),
                                          std::vector<scalar>(a4, a4 + 3),
                                          std::vector<scalar>(a5, a5 + 4),
@@ -336,7 +336,7 @@ namespace carom
     scalar b[7] = { scalar(35)/384, 0, scalar(500)/1113, scalar(125)/192,
                     -scalar(2187)/6784, scalar(11)/84, 0 };
 
-    scalar bstar[7] = { scalar(5179)/576000, 0, scalar(7571)/16695,
+    scalar bstar[7] = { scalar(5179)/57600, 0, scalar(7571)/16695,
                         scalar(393)/640, -scalar(92097)/339200,
                         scalar(187)/2100, scalar(1)/40 };
 
